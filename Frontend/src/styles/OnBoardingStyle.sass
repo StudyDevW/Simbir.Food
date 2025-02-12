@@ -1,0 +1,511 @@
+
+@keyframes app_onboarding_title_anim
+  0% 
+    transform: translateX(-100%) // Начальное состояние
+  100% 
+    transform: translateX(0%) // Конечное состояние
+
+@keyframes app_onboarding_title_animrev
+  0% 
+    transform: translateX(100%) // Начальное состояние
+  100% 
+    transform: translateX(0%) // Конечное состояние
+
+@keyframes app_onboarding_restaurant_anim
+  0% 
+    opacity: 0
+    transform: translateY(-100%) // Начальное состояние
+  100% 
+    opacity: 1
+    transform: translateY(0%) // Конечное состояние
+
+.app_onboarding_title
+    position: relative
+    align-content: center
+    font-family: MUSEOSANS
+    font-size: 18px
+    margin-top: 60px
+    margin-left: 15px
+    width: calc(100% - 15px * 2)
+    height: 80px
+    color: white
+    animation: app_onboarding_title_anim 1s forwards
+
+.app_onboarding_title.reversed
+    margin-top: 30px
+    text-align: right
+    animation: app_onboarding_title_animrev 1s forwards 
+
+.app_onboarding_restaurant_prev_area
+    display: flex
+    flex-direction: row
+    margin-left: 15px
+    width: calc(100% - 15px * 2)
+    margin-top: 30px
+    height: 220px
+
+.app_onboarding_restaurant_prev_item_area
+    opacity: 0
+    display: flex
+    margin-top: 10px
+    margin-left: 20px
+    flex-direction: column
+    width: 50%
+    height: 80%
+    border-radius: 15px
+    background-color: #D9D9D9
+
+.app_onboarding_searchbar_area
+    
+    margin-top: -20px
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    position: relative
+    width: calc(100%)
+    height: 60px
+
+.app_onboarding_rest_area
+    margin-top: 0px
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    position: relative
+    width: calc(100%)
+    height: 75px
+
+.app_onboarding_rest
+    opacity: 0
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    padding: 10px 5px
+    align-items: center
+    position: relative
+    width: calc(275px - 5px * 2)
+    height: calc(60px - 7px * 2) 
+    background-color: white
+    border-radius: 10px
+
+.app_onboarding_restaurant_more_like
+    right: 0
+    margin-right: 5px
+    position: absolute
+    width: 55px
+    height: 55px
+    background-color: #D9D9D9
+    border-radius: 10px
+    background-image: url(./images/add-to-favoritesW.png)
+    background-size: 70%
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_searchbar_icon
+    width: 50px
+    height: 100%
+    background-image: url(./images/loupe.png)
+    background-size: 28px
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_searchbar_text
+    font-family: MUSEOSANS
+    white-space: pre
+    border-right: 2px solid black
+    margin-left: 5px
+    font-size: 18px
+    animation: blink 0.7s step-end infinite
+    @keyframes blink 
+      50% 
+        border-color: transparent
+
+.app_onboarding_searchbar
+    opacity: 0
+    display: flex
+    flex-direction: row
+    align-items: center
+    position: relative
+    width: 275px
+    height: 45px
+    background-color: #D9D9D9
+    border-radius: 10px
+
+
+
+
+
+.app_onboarding_restaurant_prev_item
+    display: flex
+    flex: none
+    flex-wrap: wrap
+    flex-direction: row
+    padding: 8px 5px
+    margin-left: 15px
+    border-radius: 10px
+    margin-top: -15px
+    margin-bottom: 25px
+    width: calc(100% - 5px * 2)
+    height: calc(65px - 8px * 2)
+    background-color: white
+
+@keyframes app_onboarding_arrow_new
+    0%
+        opacity: 0
+        transform: rotate(-90deg) scale(1, -1) 
+    100%
+        opacity: 1 
+        transform: rotate(-80deg) scale(1, -1) 
+
+.app_onboarding_arrow_rest
+    opacity: 0
+    position: absolute
+    margin-top: 375px
+    margin-left: 35px
+    width: 115px
+    height: 115px
+    // animation: app_onboarding_arrow_new 1s alternate infinite
+    background-image: url(./images/arrow_t.png)
+    background-size: contain
+    background-position: center
+    background-repeat: no-repeat
+    transform: rotate(-90deg) scale(1, -1) 
+
+.app_onboarding_arrow_text_area
+    animation: app_onboarding_title_animrev 1s forwards
+    align-items: center
+    display: flex
+    flex-direction: row
+    position: absolute
+    margin-top: 465px
+    margin-left: 155px
+    width: 205px
+    height: 50px
+
+.app_onboarding_arrow_text
+    font-family: MUSEOSANS
+    font-size: 15px
+    color: white
+
+.app_onboarding_arrow_image
+    margin-left: 5px
+    width: 45px
+    height: 100%
+    background-image: url(./images/star_4_white.png)
+    background-size: 26px
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_restaurant_area
+    opacity: 0
+    display: flex
+    flex-direction: row
+    position: relative
+    align-content: center
+    margin-top: 20px
+    margin-left: 15px
+    width: 290px
+    height: 110px
+    color: white
+    background-color: #D9D9D9
+    border-radius: 15px
+    // animation: app_onboarding_restaurant_anim 1s forwards
+
+.app_onboarding_restaurant_area.fullsize
+    opacity: 0
+    display: flex
+    flex-direction: row
+    position: relative
+    margin-top: 20px
+    margin-left: calc(50% - 290px / 2 - 10px)
+    width: 290px
+    height: 170px
+    color: white
+    background-color: #D9D9D9
+    border-radius: 15px
+
+.app_onboarding_restaurant
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    flex: none
+    margin-left: 10px
+    margin-top: 10px
+    width: 165px
+    height: 115px
+    background-color: white
+    border-radius: 10px
+
+.app_onboarding_restaurant.fullsize
+    width: 290px
+    height: 195px
+
+.app_onboarding_restaurant_image
+    position: relative
+    flex: none
+    margin-top: 5px
+    margin-left: 5px
+    width: calc(100% - 5px * 2)
+    height: 65%
+    border-radius: 5px
+    background-size: cover
+    background-position: center
+    
+.app_onboarding_restaurant_title
+    flex: none
+    position: relative
+    color: black
+    margin-left: 7px
+    width: calc(100% - 7px)
+    height: 15px
+    font-family: MUSEOSANS
+    font-size: 13px
+
+.app_onboarding_restaurant_featured_area
+    display: flex
+    flex-direction: row
+    position: absolute
+    backdrop-filter: blur(5px)
+    width: 110px
+    height: 30px
+    background-color: rgba(0, 0, 0, 0.1)
+    margin-left: calc(100% - 110px - 10px)
+    margin-top: calc(50% - 50px)
+    border-radius: 8px
+    // animation: app_onboarding_scaling 1s alternate infinite
+
+.app_onboarding_restaurant_featured_text
+    align-content: center
+    font-family: MUSEOSANS
+    font-size: 11px
+    margin-left: 10px
+
+.app_onboarding_restaurant_featured_image
+    margin-left: 2px
+    height: 100%
+    width: 30px
+    background-image: url(./images/add-to-favoritesW.png)
+    background-size: 22px
+    background-position: center
+    background-repeat: no-repeat
+
+@keyframes app_onboarding_arrow
+    0%
+        opacity: 0
+        transform: rotate(-110deg)
+    100%
+        opacity: 1
+        transform: rotate(-115deg)
+
+
+@keyframes app_onboarding_scaling
+    0%
+        scale: 1
+    100%
+        scale: 1.1
+
+.app_onboarding_featured_heart
+    opacity: 0
+    position: absolute
+    margin-top: calc(400px)
+    margin-left: calc(50% - 120px / 2)
+    width: 120px
+    height: 120px
+    background-image: url(./images/add-to-favoritesW.png)
+    background-size: 80%
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_featured_logo
+    width: 100%
+    height: 100%
+    background-image: url(./images/logo_simbirsoft.png)
+    background-size: 35%
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_arrow_fill
+    opacity: 0
+    position: absolute
+    margin-top: calc(320px)
+    margin-left: calc(50% + 35px)
+    width: 120px
+    height: 120px
+    // animation: app_onboarding_arrow 1s alternate infinite
+    background-image: url(./images/arrow_t.png)
+    background-size: contain
+    background-position: center
+    background-repeat: no-repeat
+    transform: rotate(-110deg)
+
+.app_onboarding_restaurant_title.fullsize
+    height: 25px
+    font-size: 17px
+
+.app_onboarding_restaurant_more_area
+    display: flex
+    flex-direction: row
+    position: relative
+    margin-left: 7px
+    width: calc(70% - 7px)
+    height: 15px
+
+.app_onboarding_restaurant_more_area.fullsize
+    margin-top: -10px
+    align-items: center
+    height: 20px
+
+.app_onboarding_restaurant_score
+    margin-top: 1px
+    flex: none
+    position: relative
+    color: #004681
+    font-family: MUSEOSANS
+    font-size: 10px
+
+.app_onboarding_restaurant_score.fullsize
+    font-size: 13px
+
+.app_onboarding_restaurant_scoreimage
+    flex: none
+    position: relative
+    width: 15px
+    height: 13px
+    font-family: MUSEOSANS
+    font-size: 10px
+    background-image: url(./images/star_4_simbir.png)
+    background-size: 10px
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_restaurant_scoreimage.fullsize
+    margin-left: 5px
+    height: 100%    
+    background-size: 12px
+
+.app_onboarding_restaurant_statusopened
+    margin-top: 2px
+    margin-left: 5px
+    flex: none 
+    position: relative
+    color: #028f1a
+    font-family: MUSEOSANS
+    font-size: 9px
+    
+.app_onboarding_delivery_area
+    position: relative
+    display: flex
+    flex-direction: row-reverse
+    margin-top: 10px
+    width: 100%
+    height: 100px
+
+.app_onboarding_delivery_back
+    opacity: 0
+    margin-right: 15px
+    position: relative
+    display: flex
+    flex-direction: row-reverse
+    width: 200px
+    height: 90px
+    background-color: #D9D9D9
+    border-radius: 15px
+    // animation: app_onboarding_restaurant_anim 1s forwards
+
+.app_onboarding_delivery_item
+    position: relative
+    flex: none
+    margin-top: 7px
+    margin-right: 7px
+    margin-left: 5px
+    width: 100px
+    height: 100px
+    background-color: white
+    border-radius: 15px
+    background-size: 70px
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_logo
+    position: absolute
+    left: 0
+    opacity: 0
+    margin-left: 15px
+    width: 100px
+    height: 100px
+    background-image: url(./images/logo_simbirsoft.png)
+    background-size: 70px
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_logo_r
+    position: absolute
+    right: 0
+    opacity: 0
+    margin-top: calc(220px / 2 - 50px)
+    margin-right: 35px
+    width: 100px
+    height: 100px
+    background-image: url(./images/logo_simbirsoft.png)
+    background-size: 80px
+    background-position: center
+    background-repeat: no-repeat
+
+.app_onboarding_carusel_area
+    display: flex
+    flex-direction: row
+    justify-content: center
+    position: absolute
+    bottom: 0px
+    color: rgb(177, 177, 177)
+    width: 100%
+    height: 45px
+
+.app_onboarding_carusel_left
+    font-family: MUSEOSANS
+    font-size: 13px
+    align-content: center
+    text-align: center
+    color: #DDDDDD
+    position: absolute
+    margin-left: 16px
+    top: 0px
+    left: 0px
+    width: 30%
+    height: 100%
+    user-select: none
+
+.app_onboarding_carusel_center
+    display: flex
+    flex-direction: row
+    justify-content: center
+    align-items: center
+    position: relative
+    top: 0px
+    width: 30%
+    height: 100%
+
+.app_onboarding_carusel_right
+    position: absolute
+    margin-right: 16px
+    top: 0px
+    right: 0px
+    width: 30%
+    height: 100%
+    background-image: url(./images/right-arrow.png)
+    background-size: 50px
+    background-position: center
+    background-repeat: no-repeat
+    user-select: none
+
+.app_onboarding_carusel_page
+    margin-left: 4px
+    margin-right: 4px
+    width: 13px
+    height: 13px
+    background-color: #B1B1B1
+    border-radius: 20px
+
+.app_onboarding_carusel_page.active
+    background-color: #ffffff

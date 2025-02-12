@@ -1,0 +1,157 @@
+@use "OnBoardingStyle.sass" as *
+    
+body 
+    display: flex
+    padding: 0
+    margin: 0
+    background-color: #EAEAEA
+    overflow: hidden
+
+@font-face 
+    font-family: "OCEANIC"
+    src: url(./fonts/TRIAL_Oceanic-Regular.woff) format("woff")
+
+@font-face 
+    font-family: "MUSEOSANS"
+    src: url(./fonts/MuseoSansCyrl-900.woff) format("woff")
+
+
+.app_layout_area
+    touch-action: none
+    position: relative
+    display: flex
+    flex-direction: column
+    width: 100%
+    max-width: 1000px
+    height: 100%
+
+.app_background_area
+    display: flex
+    justify-content: center
+    flex: none
+    position: absolute
+    width: 100%
+    height: 100%
+
+.app_delivery_header
+    display: flex
+    flex-direction: row
+    width: 100%
+    height: 50px
+
+.app_delivery_header_image
+    flex: none
+    margin-left: 15px
+    margin-right: 10px
+    height: 50px
+    width: 50px
+    background-image: url(./images/addresshome.png)
+    background-position: center
+    background-size: 36px
+    background-repeat: no-repeat
+
+.app_delivery_header_title_area
+    flex: none
+    width: 60%
+    height: 50px
+    user-select: none
+
+.app_delivery_header_title
+    font-family: MUSEOSANS
+    font-size: 13px
+    text-align: left
+    align-content: flex-end
+    flex: none
+    width: 100%
+    height: 50%
+    user-select: none
+
+.app_loading_area
+    display: flex
+    position: absolute
+    width: 100%
+    height: 100%
+    justify-content: center
+    align-items: center
+    user-select: none
+
+
+.app_loading_letter
+    position: relative
+    width: 100px
+    height: 100px
+    background-image: url(./images/logo_download_letter.png)
+    background-size: contain
+    user-select: none
+
+.app_loading_bar
+    width: 100%
+    height: 100%
+    position: absolute
+    background-image: url(./images/logo_download_bar.png)
+    background-size: contain
+    animation: app_logo_spin 1.5s backwards infinite
+    user-select: none
+
+    
+@keyframes app_logo_spin 
+  0% 
+    transform: rotate(0deg) // Начальное состояние
+  100% 
+    transform: rotate(360deg) // Конечное состояние
+  
+
+
+@keyframes app_content_open
+    0%
+        transform: translateY(150%)
+    100%
+        transform: translateY(0%)
+
+.app_maincontent
+    display: flex
+    flex-direction: column
+    animation: app_content_open 1.0s forwards
+    margin-top: 5px
+    width: 100%
+    height: 100%
+    background-color: white
+    border-radius: 30px 30px 0px 0px
+
+.app_maincontent_title
+    font-family: MUSEOSANS
+    padding-top: 5px
+    font-size: 25px
+    text-align: center
+    align-content: center
+    position: fixed
+    width: 100%
+    height: 50px
+
+.app_delivery_header_title.big
+    height: 40%
+    align-content: flex-start
+    font-size: 13px
+
+.app_delivery_header_profile
+    position: absolute
+    right: 0
+    margin-right: 15px
+    width: 50px
+    height: 50px
+    background-image: url(./images/avatar.png)
+    background-position: center
+    background-size: 36px
+    background-repeat: no-repeat
+
+.app_mobile_footer 
+    position: absolute
+    bottom: 0px
+    text-align: center
+    align-content: center
+    font-family: MUSEOSANS
+    font-size: 14px
+    color: rgb(177, 177, 177)
+    width: 100%
+    height: 45px
+    background-color: #004681

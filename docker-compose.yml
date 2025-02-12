@@ -1,0 +1,201 @@
+services:
+  simbir.food.backend.clientapi:
+    image: ${DOCKER_REGISTRY-}simbirfood_clientservice:1.0
+    container_name: Simbir.Food.Backend.ClientAPI
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    build:
+      context: ./Backend
+      dockerfile: ClientAPI/Dockerfile
+    logging:
+      driver: grafana/loki-docker-driver:latest
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "100"
+        loki-retries: 2
+        loki-max-backoff: 1000ms
+        loki-timeout: 1s
+    environment:
+      RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
+      RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
+      DATABASE_CONNECT: ${DATABASE_CONNECT}
+    ports:
+       - "8080:80"
+    restart: unless-stopped
+
+  simbir.food.backend.courierapi:
+    image: ${DOCKER_REGISTRY-}simbirfood_courierservice:1.0
+    container_name: Simbir.Food.Backend.CourierAPI
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    build:
+      context: ./Backend
+      dockerfile: CourierAPI/Dockerfile
+    logging:
+      driver: grafana/loki-docker-driver:latest
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "100"
+        loki-retries: 2
+        loki-max-backoff: 1000ms
+        loki-timeout: 1s
+    environment:
+      RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
+      RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
+      DATABASE_CONNECT: ${DATABASE_CONNECT}
+    ports:
+       - "8081:80"
+    restart: unless-stopped
+
+  simbir.food.backend.restaurantapi:
+    image: ${DOCKER_REGISTRY-}simbirfood_restaurantservice:1.0
+    container_name: Simbir.Food.Backend.RestaurantAPI
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    build:
+      context: ./Backend
+      dockerfile: RestaurantAPI/Dockerfile
+    logging:
+      driver: grafana/loki-docker-driver:latest
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "100"
+        loki-retries: 2
+        loki-max-backoff: 1000ms
+        loki-timeout: 1s
+    environment:
+      RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
+      RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
+      DATABASE_CONNECT: ${DATABASE_CONNECT}
+    ports:
+       - "8082:80"
+    restart: unless-stopped
+
+  simbir.food.backend.paymentapi:
+    image: ${DOCKER_REGISTRY-}simbirfood_paymentservice:1.0
+    container_name: Simbir.Food.Backend.PaymentAPI
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    build:
+      context: ./Backend
+      dockerfile: PaymentAPI/Dockerfile
+    logging:
+      driver: grafana/loki-docker-driver:latest
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "100"
+        loki-retries: 2
+        loki-max-backoff: 1000ms
+        loki-timeout: 1s
+    environment:
+      RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
+      RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
+      DATABASE_CONNECT: ${DATABASE_CONNECT}
+    ports:
+       - "8083:80"
+    restart: unless-stopped
+
+  postgres_db:
+    image: postgres:17.0-bookworm
+    container_name: Simbir.Food.PostgreSQL
+    environment:
+        POSTGRES_DB: "simbirfood"
+        POSTGRES_USER: "practice_user"
+        POSTGRES_PASSWORD: "root"
+    ports:
+      - "5432:80"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: Simbir.Food.PgAdmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: qwerty11ert@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    volumes:
+      - ./pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres_db
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
+      interval: 10s
+      timeout: 10s
+      start_period: 160s
+      retries: 3
+
+  redis_cache:
+    image: redis:7.4-bookworm
+    container_name: Simbir.Food.Redis
+    environment:
+      - REDIS_PASSWORD=root
+      - REDIS_USER=admin
+      - REDIS_USER_PASSWORD=admin
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redis_cache:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "root", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+  rabbitmq_broker:
+    image: rabbitmq:3-management
+    container_name: Simbir.Food.RabbitMQ
+    hostname: rabbitmq
+    restart: always
+    volumes:
+      - ./rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq_data:/var/log/rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+#Сбор и визуализация логов
+  grafana:
+    container_name: Simbir.Food.Metrics.Grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin 
+      - TZ=${SYSTEM_TIMEZONE:-Europe/Moscow}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+  loki:
+    container_name: Simbir.Food.Metrics.Loki
+    hostname: loki
+    image: grafana/loki:latest
+    environment:
+      TZ: ${SYSTEM_TIMEZONE:-Europe/Moscow}
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+volumes:
+  rabbitmq_broker: 
+  grafana_data:
