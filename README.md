@@ -1,5 +1,8 @@
 # Прод проекта
 - Миниприложение в разработке
+- Первой прописать команду "docker plugin install grafana/loki-docker-driver:latest"
+- Потом уже запускать через docker-compose up -d --build
+
 
 # Сервисы: 
 1. ClientAPI URL: http://localhost:8080/ui-swagger 
@@ -19,6 +22,12 @@
 
 - Данные от PgAdmin4<br>
  Логин: qwerty11ert@gmail.com<br>
+ Пароль: root<br>
+
+- PostgreSQL добавление сервера в PgAdmin4<br>
+ Имя сервера: postgres_db<br>
+ Служебная база данных: simbirfood<br>
+ Пользователь: practice_user<br>
  Пароль: root<br>
 
 - Данные от RabbitMQ<br>
