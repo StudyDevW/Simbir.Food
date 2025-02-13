@@ -99,6 +99,31 @@ services:
        - "8083:80"
     restart: unless-stopped
 
+  simbir.food.backend.migrations:
+    image: ${DOCKER_REGISTRY-}simbirfood_migrationservice:1.0
+    container_name: Simbir.Food.Backend.Migrations
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    build:
+      context: ./Backend
+      dockerfile: ORM_Components/Dockerfile
+    logging:
+      driver: grafana/loki-docker-driver:latest
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "100"
+        loki-retries: 2
+        loki-max-backoff: 1000ms
+        loki-timeout: 1s
+    environment:
+      RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
+      RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
+      DATABASE_CONNECT: ${DATABASE_CONNECT}
+    ports:
+       - "9000:80"
+    restart: unless-stopped
+
   postgres_db:
     image: postgres:17.0-bookworm
     container_name: Simbir.Food.PostgreSQL
