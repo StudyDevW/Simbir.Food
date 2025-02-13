@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Middleware", "Middleware", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microservices", "Microservices", "{08DE7E32-0DE5-4A61-8889-2DC207DDF603}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telegram_Components", "Telegram_Components\Telegram_Components.csproj", "{9C614F68-453F-439E-AA56-D0F85C5E4484}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Telegram_Components", "Telegram_Components\Telegram_Components.csproj", "{9C614F68-453F-439E-AA56-D0F85C5E4484}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
