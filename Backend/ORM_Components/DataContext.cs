@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using ORM_Components.Tables;
 using System;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace ORM_Components
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured && _connectionString != null)
+            if (!optionsBuilder.IsConfigured)
                 optionsBuilder.UseNpgsql(_connectionString);
         }
 

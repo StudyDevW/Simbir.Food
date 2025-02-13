@@ -130,10 +130,6 @@ namespace ClientAPI
 
             var app = builder.Build();
 
-            await AutoMigrations.EnsureDatabaseInitializedAsync(
-                new DataContext(builder.Configuration["DATABASE_CONNECT"])
-            );
-
             app.UseCors("AllowOrigin");
 
             app.UseRouting();
