@@ -1,4 +1,4 @@
-﻿using CourierAPI.Service;
+﻿using CourierAPI.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using ORM_Components.DTO.CourierAPI;
 
@@ -8,9 +8,9 @@ namespace CourierAPI.Controllers
     [Route("api/courier/")]
     public class CourierController : ControllerBase
     {
-        private readonly CourierService _courierService;
+        private readonly ICourierService _courierService;
 
-        public CourierController(CourierService courierService)
+        public CourierController(ICourierService courierService)
         {
             _courierService = courierService;
         }
