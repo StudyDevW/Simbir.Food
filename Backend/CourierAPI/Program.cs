@@ -7,6 +7,7 @@ using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
+using ORM_Components.MapsterConfigs;
 using System.Security.Cryptography;
 
 namespace CourierAPI
@@ -124,6 +125,8 @@ namespace CourierAPI
                                       .AllowAnyHeader());
             });
 
+            var mapsterConfig = new OrderConfig();
+            builder.Services.AddSingleton<OrderConfig>();
 
             var app = builder.Build();
 
