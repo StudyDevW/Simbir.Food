@@ -50,22 +50,22 @@ namespace ORM_Components
                     _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.userTable.AsNoTracking().ToList(), DateTime.UtcNow.AddDays(5));
                     break;
                 case "courierTable":
-                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.courierTable.ToList(), DateTime.UtcNow.AddDays(5));
+                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.courierTable.AsNoTracking().ToList(), DateTime.UtcNow.AddDays(5));
                     break;
                 case "orderItemsTable":
-                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.orderItemsTable.ToList(), DateTime.UtcNow.AddDays(5));
+                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.orderItemsTable.AsNoTracking().ToList(), DateTime.UtcNow.AddDays(5));
                     break;
                 case "orderTable":
-                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.orderTable.ToList(), DateTime.UtcNow.AddDays(5));
+                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.orderTable.AsNoTracking().ToList(), DateTime.UtcNow.AddDays(5));
                     break;
                 case "restaurantTable":
-                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.restaurantTable.ToList(), DateTime.UtcNow.AddDays(5));
+                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.restaurantTable.AsNoTracking().ToList(), DateTime.UtcNow.AddDays(5));
                     break;
                 case "restaurantFoodItemsTable":
-                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.restaurantFoodItemsTable.ToList(), DateTime.UtcNow.AddDays(5));
+                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.restaurantFoodItemsTable.AsNoTracking().ToList(), DateTime.UtcNow.AddDays(5));
                     break;
                 case "reviewTable":
-                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.reviewTable.ToList(), DateTime.UtcNow.AddDays(5));
+                    _cache.WriteKeyInStorageObject($"backup_{nameDatabase}", _dbcontext.reviewTable.AsNoTracking().ToList(), DateTime.UtcNow.AddDays(5));
                     break;
             }
         }
@@ -76,8 +76,6 @@ namespace ORM_Components
             {
                 foreach (var userTableBackup in _cache.GetKeyFromStorage<List<UserTable>>("backup_userTable"))
                 {
-                    userTableBackup.id = 0;
-
                     _dbcontext.userTable.Add(userTableBackup);
                     _dbcontext.SaveChanges();
                 }
@@ -89,8 +87,6 @@ namespace ORM_Components
             {
                 foreach (var courierTableBackup in _cache.GetKeyFromStorage<List<CourierTable>>("backup_courierTable"))
                 {
-                    courierTableBackup.id = 0;
-
                     _dbcontext.courierTable.Add(courierTableBackup);
                     _dbcontext.SaveChanges();
                 }
@@ -102,8 +98,6 @@ namespace ORM_Components
             {
                 foreach (var orderItemsTableBackup in _cache.GetKeyFromStorage<List<OrderItemsTable>>("backup_orderItemsTable"))
                 {
-                    orderItemsTableBackup.id = 0;
-
                     _dbcontext.orderItemsTable.Add(orderItemsTableBackup);
                     _dbcontext.SaveChanges();
                 }
@@ -115,8 +109,6 @@ namespace ORM_Components
             {
                 foreach (var orderTableBackup in _cache.GetKeyFromStorage<List<OrderTable>>("backup_orderTable"))
                 {
-                    orderTableBackup.id = 0;
-
                     _dbcontext.orderTable.Add(orderTableBackup);
                     _dbcontext.SaveChanges();
                 }
@@ -128,8 +120,6 @@ namespace ORM_Components
             {
                 foreach (var restaurantTableBackup in _cache.GetKeyFromStorage<List<RestaurantTable>>("backup_restaurantTable"))
                 {
-                    restaurantTableBackup.id = 0;
-
                     _dbcontext.restaurantTable.Add(restaurantTableBackup);
                     _dbcontext.SaveChanges();
                 }
@@ -141,8 +131,6 @@ namespace ORM_Components
             {
                 foreach (var restaurantFoodItemsTableBackup in _cache.GetKeyFromStorage<List<RestaurantFoodItemsTable>>("backup_restaurantFoodItemsTable"))
                 {
-                    restaurantFoodItemsTableBackup.id = 0;
-
                     _dbcontext.restaurantFoodItemsTable.Add(restaurantFoodItemsTableBackup);
                     _dbcontext.SaveChanges();
                 }
@@ -154,8 +142,6 @@ namespace ORM_Components
             {
                 foreach (var reviewTableBackup in _cache.GetKeyFromStorage<List<ReviewTable>>("backup_reviewTable"))
                 {
-                    reviewTableBackup.id = 0;
-
                     _dbcontext.reviewTable.Add(reviewTableBackup);
                     _dbcontext.SaveChanges();
                 }
