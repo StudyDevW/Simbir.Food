@@ -83,16 +83,14 @@ namespace ClientAPI.Database
                 if (passVerify)
                     return new Auth_CheckInfo()
                     {
+
                         check_success = new Auth_CheckSuccess
                         {
-                            check_success = new Auth_CheckSuccess
-                            {
-                                Id = userFound.Id,
-                                username = userFound.login,
-                                roles = userFound.roles.ToList()
-                            }
-                        };
-                }
+                            Id = userFound.Id,
+                            username = userFound.login,
+                            roles = userFound.roles.ToList()
+                        }
+                    };
             }
         
 

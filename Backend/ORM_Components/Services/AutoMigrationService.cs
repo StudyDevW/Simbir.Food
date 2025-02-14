@@ -1,27 +1,21 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
 using Middleware_Components.Services;
 using Npgsql;
+using ORM_Components.Interfaces;
 using ORM_Components.Tables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
-namespace ORM_Components
+namespace ORM_Components.Services
 {
-    public class AutoMigrations
+    public class AutoMigrationService : IAutoMigrationService
     {
         private readonly DataContext _dbcontext;
         private readonly ILogger _logger;
         private readonly ICacheService _cache;
-        public AutoMigrations(DataContext context, ICacheService cache)
+
+        public AutoMigrationService(IConfiguration conf, ICacheService cache)
         {
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("Migrations");
-            _dbcontext = context;
+            _dbcontext = new DataContext(conf["DATABASE_CONNECT"]);
             _cache = cache;
         }
 
@@ -101,7 +95,7 @@ namespace ORM_Components
                     _dbcontext.orderItemsTable.Add(orderItemsTableBackup);
                     _dbcontext.SaveChanges();
                 }
-         
+
                 _cache.DeleteKeyFromStorage("backup_orderItemsTable");
             }
 
@@ -112,7 +106,7 @@ namespace ORM_Components
                     _dbcontext.orderTable.Add(orderTableBackup);
                     _dbcontext.SaveChanges();
                 }
-           
+
                 _cache.DeleteKeyFromStorage("backup_orderTable");
             }
 
@@ -138,7 +132,7 @@ namespace ORM_Components
                 _cache.DeleteKeyFromStorage("backup_restaurantFoodItemsTable");
             }
 
-            if (_cache.CheckExistKeysStorage <List<ReviewTable>>("backup_reviewTable"))
+            if (_cache.CheckExistKeysStorage<List<ReviewTable>>("backup_reviewTable"))
             {
                 foreach (var reviewTableBackup in _cache.GetKeyFromStorage<List<ReviewTable>>("backup_reviewTable"))
                 {
@@ -164,7 +158,7 @@ namespace ORM_Components
                 "reviewTable",
             };
 
-            List<string> tablesToBackup = new List<string>()  
+            List<string> tablesToBackup = new List<string>()
             {
                 "userTable",
                 "courierTable",
@@ -216,9 +210,7 @@ namespace ORM_Components
 
                 tablesNotExist.Clear();
             }
-          
-        }
 
-   
+        }
     }
 }
