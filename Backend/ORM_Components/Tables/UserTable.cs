@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ORM_Components.Tables.Helpers;
 
 namespace ORM_Components.Tables
 {
-    public class UserTable
+    public class UserTable : IId
     {
-        [Key]
-        public int id { get; set; }
-
         public string name { get; set; }
 
         public string phone_number { get; set; }

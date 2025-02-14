@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ORM_Components.DTO.CheckUsers
+namespace ORM_Components.Tables.Helpers
 {
-    public class Auth_CheckSuccess
+    public abstract class IId
     {
+        [Key]
         public Guid Id { get; set; }
-
-        public string? username { get; set; }
-
-        public List<string>? roles { get; set; }
     }
 }
