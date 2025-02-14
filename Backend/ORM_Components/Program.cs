@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Middleware_Components.Cache;
 using Middleware_Components.Services;
+using ORM_Components.Interfaces;
+using ORM_Components.MapsterConfigs;
+using ORM_Components.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +36,7 @@ namespace ORM_Components
                     options.UseNpgsql(connectString);
             });
 
-            builder.Services.AddSingleton<AutoMigrations>();
+            builder.Services.AddSingleton<IAutoMigrationService, AutoMigrationService>();
 
             builder.Services.AddSingleton<ICacheService, CacheSDK>();
 
@@ -42,7 +45,7 @@ namespace ORM_Components
 
             using (var serviceScope = app.Services.CreateScope())
             {
-                var migrations = serviceScope.ServiceProvider.GetService<AutoMigrations>();
+                var migrations = serviceScope.ServiceProvider.GetService<IAutoMigrationService>();
 
                 if (migrations != null)
                     await migrations.EnsureDatabaseInitializedAsync();
