@@ -110,14 +110,14 @@ namespace ClientAPI
                 var connectString = builder.Configuration["DATABASE_CONNECT"];
 
                 if (connectString != null)
-                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ClientAPI"));
+                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ORM_Components"));
             });
 
-            builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
+            builder.Services.AddScoped<IDatabaseService, DatabaseSDK>();
 
-            builder.Services.AddSingleton<IJwtService, JwtSDK>();
+            builder.Services.AddScoped<IJwtService, JwtSDK>();
 
-            builder.Services.AddSingleton<ICacheService, CacheSDK>();
+            builder.Services.AddScoped<ICacheService, CacheSDK>();
 
             builder.Services.AddCors(options =>
             {

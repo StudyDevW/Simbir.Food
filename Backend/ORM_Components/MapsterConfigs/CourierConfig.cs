@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using ORM_Components.DTO.CourierAPI;
 using ORM_Components.Tables;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace ORM_Components.MapsterConfigs
     {
         public static void RegisterMappings()
         {
-            
+            TypeAdapterConfig<CourierDtoForCreate, CourierTable>.NewConfig();
         }
     }
 }

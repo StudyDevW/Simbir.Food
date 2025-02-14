@@ -12,6 +12,12 @@ namespace ORM_Components.Tables
     {
         public Guid user_id { get; set; }
 
+        public string restaurantName { get; set; }
+
+        public string address { get; set; }
+
+        public string phone_number { get; set; }
+
         public string status { get; set; }
 
         public string description { get; set; }

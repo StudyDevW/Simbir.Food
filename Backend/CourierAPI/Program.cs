@@ -110,14 +110,12 @@ namespace CourierAPI
                 var connectString = builder.Configuration["DATABASE_CONNECT"];
 
                 if (connectString != null)
-                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("CourierAPI"));
+                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ORM_Components"));
             });
 
-            //builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
+            builder.Services.AddScoped<IJwtService, JwtSDK>();
 
-            builder.Services.AddSingleton<IJwtService, JwtSDK>();
-
-            builder.Services.AddSingleton<ICacheService, CacheSDK>();
+            builder.Services.AddScoped<ICacheService, CacheSDK>();
 
             builder.Services.AddCors(options =>
             {
@@ -128,8 +126,8 @@ namespace CourierAPI
             });
 
             var mapsterConfig = new OrderConfig();
-            builder.Services.AddSingleton<OrderConfig>();
-            builder.Services.AddSingleton<ICourierService, CourierService>();
+            builder.Services.AddScoped<OrderConfig>();
+            builder.Services.AddScoped<ICourierService, CourierService>();
 
             var app = builder.Build();
 
