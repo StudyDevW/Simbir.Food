@@ -107,7 +107,44 @@ namespace ClientAPI.Services
             return null;
         }
 
+        public async Task<string?> ClientSignOut(string bearer_key)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
 
+            if (validation.TokenHasError())
+            {
+                return null;
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                if (_cache.CheckExistKeysStorage<List<Session_Init>>(validation.token_success.Id, "session_storage"))
+                {
+                    var sessionList = _cache.GetKeyFromStorage<List<Session_Init>>(validation.token_success.Id, "session_storage");
+
+                    foreach (var session in sessionList)
+                    {
+                        if (session.statusSession == "active")
+                        {
+                            session.timeDel = DateTime.UtcNow;
+                            session.statusSession = "expired";
+                        }
+                    }
+
+                    _cache.WriteKeyInStorage(validation.token_success.Id, "session_storage", sessionList, DateTime.UtcNow.AddDays(7));
+                }
+
+
+                _cache.DeleteKeyFromStorage(validation.token_success.Id, "accessTokens");
+
+                _cache.DeleteKeyFromStorage(validation.token_success.Id, "refreshTokens");
+
+                _logger.LogInformation($"Пользователь id: {validation.token_success.Id} вышел!");
+
+                return $"{validation.token_success.Id}_is_logout";
+            }
+
+            return null;
+        }
 
     }
 }

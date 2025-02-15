@@ -113,15 +113,15 @@ namespace ClientAPI
                     options.UseNpgsql(connectString, b => b.MigrationsAssembly("ClientAPI"));
             });
 
-            builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+            builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 
-            builder.Services.AddSingleton<IClientService, ClientService>();
+            builder.Services.AddScoped<IClientService, ClientService>();
 
-            builder.Services.AddSingleton<ISessionService, SessionService>();
+            builder.Services.AddScoped<ISessionService, SessionService>();
 
-            builder.Services.AddSingleton<IJwtService, JwtSDK>();
+            builder.Services.AddScoped<IJwtService, JwtSDK>();
 
-            builder.Services.AddSingleton<ICacheService, CacheSDK>();
+            builder.Services.AddScoped<ICacheService, CacheSDK>();
 
             builder.Services.AddCors(options =>
             {

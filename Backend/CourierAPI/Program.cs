@@ -1,3 +1,5 @@
+using CourierAPI.Contracts;
+using CourierAPI.Service;
 using DotNetEnv;
 using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,7 @@ using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
+using ORM_Components.MapsterConfigs;
 using System.Security.Cryptography;
 
 namespace CourierAPI
@@ -110,11 +113,9 @@ namespace CourierAPI
                     options.UseNpgsql(connectString, b => b.MigrationsAssembly("CourierAPI"));
             });
 
-            //builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
+            builder.Services.AddScoped<IJwtService, JwtSDK>();
 
-            builder.Services.AddSingleton<IJwtService, JwtSDK>();
-
-            builder.Services.AddSingleton<ICacheService, CacheSDK>();
+            builder.Services.AddScoped<ICacheService, CacheSDK>();
 
             builder.Services.AddCors(options =>
             {
@@ -124,6 +125,9 @@ namespace CourierAPI
                                       .AllowAnyHeader());
             });
 
+            var mapsterConfig = new OrderConfig();
+            builder.Services.AddScoped<OrderConfig>();
+            builder.Services.AddScoped<ICourierService, CourierService>();
 
             var app = builder.Build();
 
