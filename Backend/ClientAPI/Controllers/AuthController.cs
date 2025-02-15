@@ -19,7 +19,7 @@ namespace ClientAPI.Controllers
 
         public AuthController(IClientService clientService, IJwtService jwt, ICacheService cache, IConfiguration configuration)
         {
-            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | controller-logger");
+            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("auth-controller-logger");
             _clientService = clientService;
             _jwt = jwt;
         }
@@ -36,7 +36,7 @@ namespace ClientAPI.Controllers
                     return Ok(registerInfo);
                 }
 
-                return BadRequest("account_created_but_noauth");
+                return BadRequest("error_register");
             }
             catch (Exception e)
             {
