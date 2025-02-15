@@ -1,7 +1,9 @@
 ﻿using ClientAPI.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
 using ORM_Components.DTO.ClientAPI;
+using System.ComponentModel.DataAnnotations;
 
 namespace ClientAPI.Controllers
 {
@@ -21,18 +23,18 @@ namespace ClientAPI.Controllers
         }
 
         [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp([FromBody] AuthSignUp dtoObj)
+        public async Task<IActionResult> UserSignUp([FromBody] AuthSignUp dtoObj)
         {
             try
             {
                 var registerInfo = await _clientService.RegisterUser(dtoObj);
-              
+
                 if (registerInfo != null)
                 {
                     return Ok(registerInfo);
                 }
-                
-                return BadRequest("account_created_but_noauth");    
+
+                return BadRequest("account_created_but_noauth");
             }
             catch (Exception e)
             {
@@ -41,7 +43,7 @@ namespace ClientAPI.Controllers
         }
 
         [HttpPost("SignIn")]
-        public IActionResult SignIn([FromBody] AuthSignIn dtoObj)
+        public IActionResult UserSignIn([FromBody] AuthSignIn dtoObj)
         {
             try
             {
@@ -56,10 +58,48 @@ namespace ClientAPI.Controllers
                     return NotFound();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        [HttpGet("Validate")]
+        public async Task<IActionResult> ValidateToken([Required][FromHeader(Name = "accessToken")] string? token)
+        {
+            if (token != null)
+            {
+                if (token.Contains("Bearer"))
+                    return BadRequest("accessToken in this method must not contain word [Bearer]");
+            }
+
+            var validation = await _jwt.AccessTokenValidation("Bearer " + token);
+
+            if (validation.TokenHasError())
+            {
+                return Unauthorized();
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                _logger.LogInformation($"Токен для id: {validation.token_success.Id} валид!");
+                return Ok("valid");
+            }
+
+            return BadRequest();
+        }
+
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpPut("SignOut")]
+        public async Task<IActionResult> UserSignOut()
+        {
+            var signInfo = await _clientService.ClientSignOut(Request.Headers["Authorization"]);
+
+            if (signInfo != null)
+            {
+                return Ok(signInfo);
+            }
+
+            return Unauthorized();
         }
     }
 }
