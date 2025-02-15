@@ -10,5 +10,7 @@ namespace ClientAPI.Interfaces
         public Auth_PairTokens? LoginClient(AuthSignIn dtoObj);
 
         public Task<string?> ClientSignOut(string bearer_key);
+
+        public Task<Auth_PairTokens?> RefreshClientSession(Auth_RefreshTokens dtoObj);
     }
 }

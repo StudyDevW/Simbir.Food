@@ -17,7 +17,7 @@ namespace ClientAPI.Services
 
         public ClientService(ISessionService session, IDatabaseService database, IJwtService jwt, ICacheService cache) {
 
-            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | client-service");
+            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | client-service-logger");
             _database = database;
             _jwt = jwt;
             _cache = cache;
@@ -107,6 +107,8 @@ namespace ClientAPI.Services
             return null;
         }
 
+
+
         public async Task<string?> ClientSignOut(string bearer_key)
         {
             var validation = await _jwt.AccessTokenValidation(bearer_key);
@@ -117,23 +119,8 @@ namespace ClientAPI.Services
             }
             else if (validation.TokenHasSuccess())
             {
-                if (_cache.CheckExistKeysStorage<List<Session_Init>>(validation.token_success.Id, "session_storage"))
-                {
-                    var sessionList = _cache.GetKeyFromStorage<List<Session_Init>>(validation.token_success.Id, "session_storage");
-
-                    foreach (var session in sessionList)
-                    {
-                        if (session.statusSession == "active")
-                        {
-                            session.timeDel = DateTime.UtcNow;
-                            session.statusSession = "expired";
-                        }
-                    }
-
-                    _cache.WriteKeyInStorage(validation.token_success.Id, "session_storage", sessionList, DateTime.UtcNow.AddDays(7));
-                }
-
-
+                _session.ClientSignOutSession(validation.token_success.Id);
+      
                 _cache.DeleteKeyFromStorage(validation.token_success.Id, "accessTokens");
 
                 _cache.DeleteKeyFromStorage(validation.token_success.Id, "refreshTokens");
@@ -141,6 +128,55 @@ namespace ClientAPI.Services
                 _logger.LogInformation($"Пользователь id: {validation.token_success.Id} вышел!");
 
                 return $"{validation.token_success.Id}_is_logout";
+            }
+
+            return null;
+        }
+
+        public async Task<Auth_PairTokens?> RefreshClientSession(Auth_RefreshTokens dtoObj)
+        {
+            var validation = await _jwt.RefreshTokenValidation(dtoObj.refreshToken);
+
+            if (validation.TokenHasError())
+            {
+                return null;
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                Auth_CheckSuccess authsuccess = new Auth_CheckSuccess()
+                {
+                    Id = validation.token_success.Id,
+                    roles = validation.token_success.userRoles,
+                    username = validation.token_success.userName
+                };
+
+                var accessToken = _jwt.JwtTokenCreation(authsuccess);
+                var refreshToken = _jwt.RefreshTokenCreation(authsuccess);
+
+                _session.RefreshSession(authsuccess.Id, accessToken);
+
+                if (_cache.CheckExistKeysStorage(authsuccess.Id, "accessTokens"))
+                    _cache.DeleteKeyFromStorage(authsuccess.Id, "accessTokens");
+
+                if (_cache.CheckExistKeysStorage(authsuccess.Id, "refreshTokens"))
+                    _cache.DeleteKeyFromStorage(authsuccess.Id, "refreshTokens");
+
+
+                _cache.WriteKeyInStorage(authsuccess.Id, "accessTokens", accessToken, DateTime.UtcNow.AddMinutes(5));
+                _cache.WriteKeyInStorage(authsuccess.Id, "refreshTokens", refreshToken, DateTime.UtcNow.AddDays(7));
+
+
+
+                Auth_PairTokens pair_tokens = new Auth_PairTokens()
+                {
+                    accessToken = _cache.GetKeyFromStorage(authsuccess.Id, "accessTokens"),
+                    refreshToken = _cache.GetKeyFromStorage(authsuccess.Id, "refreshTokens")
+                };
+
+
+                _logger.LogInformation($"Токены для id: {validation.token_success.Id} обновлены!");
+
+                return pair_tokens;
             }
 
             return null;

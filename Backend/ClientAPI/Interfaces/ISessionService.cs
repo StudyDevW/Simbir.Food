@@ -8,6 +8,10 @@ namespace ClientAPI.Interfaces
 
         public List<Session_Init>? GetSessions(Guid userGUID);
 
+        public void ClientSignOutSession(Guid userGUID);
+
+        public void RefreshSession(Guid userGUID, string accessToken);
+
         public void DeleteSession(Guid userGUID);
     }
 }

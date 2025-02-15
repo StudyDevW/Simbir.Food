@@ -1,9 +1,11 @@
 ﻿using ClientAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.Services;
 using ORM_Components.DTO.ClientAPI;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.Xml;
 
 namespace ClientAPI.Controllers
 {
@@ -97,6 +99,19 @@ namespace ClientAPI.Controllers
             if (signInfo != null)
             {
                 return Ok(signInfo);
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpPost("Refresh")]
+        public async Task<IActionResult> UserRefreshTokens([FromBody] Auth_RefreshTokens dtoObj)
+        {
+            var refreshInfo = await _clientService.RefreshClientSession(dtoObj);
+
+            if (refreshInfo != null)
+            {
+                return Ok(refreshInfo);
             }
 
             return Unauthorized();

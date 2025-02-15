@@ -64,6 +64,46 @@ namespace ClientAPI.Services
             return null;
         }
 
+        public void ClientSignOutSession(Guid userGUID)
+        {
+            if (_cache.CheckExistKeysStorage<List<Session_Init>>(userGUID, "session_storage"))
+            {
+                var sessionList = _cache.GetKeyFromStorage<List<Session_Init>>(userGUID, "session_storage");
+
+                foreach (var session in sessionList)
+                {
+                    if (session.statusSession == "active")
+                    {
+                        session.timeDel = DateTime.UtcNow;
+                        session.statusSession = "expired";
+                    }
+                }
+
+                _cache.WriteKeyInStorage(userGUID, "session_storage", sessionList, DateTime.UtcNow.AddDays(7));
+            }
+
+
+        }
+
+        public void RefreshSession(Guid userGUID, string accessToken)
+        {
+            if (_cache.CheckExistKeysStorage<List<Session_Init>>(userGUID, "session_storage"))
+            {
+                var sessionList = _cache.GetKeyFromStorage<List<Session_Init>>(userGUID, "session_storage");
+
+                foreach (var session in sessionList)
+                {
+                    if (session.statusSession == "active")
+                    {
+                        session.timeUpd = DateTime.UtcNow;
+                        session.tokenSession = accessToken;
+                    }
+                }
+
+                _cache.WriteKeyInStorage(userGUID, "session_storage", sessionList, DateTime.UtcNow.AddDays(7));
+            }
+        }
+
         public void DeleteSession(Guid userGUID)
         {
             if (_cache.CheckExistKeysStorage<List<Session_Init>>(userGUID, "session_storage"))
