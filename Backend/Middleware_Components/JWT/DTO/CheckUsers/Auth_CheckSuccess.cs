@@ -8,7 +8,7 @@ namespace Middleware_Components.JWT.DTO.CheckUsers
 {
     public class Auth_CheckSuccess
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public string? username { get; set; }
 

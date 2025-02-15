@@ -1,23 +1,21 @@
-﻿using ClientAPI.Services;
-using ORM_Components.DTO.ClientAPI;
+﻿using ORM_Components.DTO.ClientAPI;
 using ORM_Components.Tables;
 using Microsoft.AspNetCore.Identity;
 using ORM_Components;
-using ORM_Components.DTO.CheckUsers;
+using ClientAPI.Interfaces;
+using Middleware_Components.JWT.DTO.CheckUsers;
 
-namespace ClientAPI.Database
+namespace ClientAPI.Services
 {
-    public class DatabaseSDK : IDatabaseService
+    public class DatabaseService : IDatabaseService
     {
         private readonly ILogger _logger;
-        private readonly IConfiguration _conf;
         private readonly DataContext _dbcontext;
         private readonly PasswordHasher<PasswordAppUser> _passwordHasher;
 
-        public DatabaseSDK(IConfiguration configuration, DataContext dbcontext)
+        public DatabaseService(DataContext dbcontext)
         {
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | database-sdk-logger");
-            _conf = configuration;
             _passwordHasher = new PasswordHasher<PasswordAppUser>();
             _dbcontext = dbcontext;
         }
@@ -34,7 +32,7 @@ namespace ClientAPI.Database
 
             passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dto.password);
 
-     
+
             UserTable usersTable = new UserTable()
             {
                 name = dto.name,
@@ -50,7 +48,7 @@ namespace ClientAPI.Database
             await _dbcontext.SaveChangesAsync();
 
             _logger.LogInformation($"RegisterUser: {dto.login}, создан");
-            
+
         }
 
         private bool VerifyUserPassword(PasswordAppUser user, string password)
@@ -68,7 +66,7 @@ namespace ClientAPI.Database
             }
 
             var userFound = _dbcontext.userTable.Where(
-                c => (c.login == dto.login)
+                c => c.login == dto.login
             ).FirstOrDefault();
 
             if (userFound != null)
@@ -92,7 +90,7 @@ namespace ClientAPI.Database
                         }
                     };
             }
-        
+
 
             _logger.LogError("CheckUser: Пользователь ввел неверно имя или пароль!");
             return new Auth_CheckInfo() { check_error = new Auth_CheckError { errorLog = "username/password_incorrect" } };
