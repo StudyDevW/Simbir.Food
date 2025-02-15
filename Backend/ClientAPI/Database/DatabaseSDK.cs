@@ -11,13 +11,15 @@ namespace ClientAPI.Database
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _conf;
+        private readonly DataContext _dbcontext;
         private readonly PasswordHasher<PasswordAppUser> _passwordHasher;
 
-        public DatabaseSDK(IConfiguration configuration)
+        public DatabaseSDK(IConfiguration configuration, DataContext dbcontext)
         {
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | database-sdk-logger");
             _conf = configuration;
             _passwordHasher = new PasswordHasher<PasswordAppUser>();
+            _dbcontext = dbcontext;
         }
 
         public async Task RegisterUser(AuthSignUp dto)
@@ -32,24 +34,23 @@ namespace ClientAPI.Database
 
             passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dto.password);
 
-            using (DataContext db = new DataContext(_conf["DATABASE_CONNECT"]))
+     
+            UserTable usersTable = new UserTable()
             {
-                UserTable usersTable = new UserTable()
-                {
-                    name = dto.name,
-                    email = dto.email,
-                    login = dto.login,
-                    address = dto.address,
-                    phone_number = dto.phone_number,
-                    password = passwordUser.passwordHashed,
-                    roles = new string[] { "Client" }
-                };
+                name = dto.name,
+                email = dto.email,
+                login = dto.login,
+                address = dto.address,
+                phone_number = dto.phone_number,
+                password = passwordUser.passwordHashed,
+                roles = new string[] { "Client" }
+            };
 
-                db.userTable.Add(usersTable);
-                await db.SaveChangesAsync();
+            _dbcontext.userTable.Add(usersTable);
+            await _dbcontext.SaveChangesAsync();
 
-                _logger.LogInformation($"RegisterUser: {dto.login}, создан");
-            }
+            _logger.LogInformation($"RegisterUser: {dto.login}, создан");
+            
         }
 
         private bool VerifyUserPassword(PasswordAppUser user, string password)
@@ -66,33 +67,32 @@ namespace ClientAPI.Database
                 return new Auth_CheckInfo() { check_error = new Auth_CheckError { errorLog = "input_incorrect" } };
             }
 
-            using (DataContext db = new DataContext(_conf["DATABASE_CONNECT"]))
+            var userFound = _dbcontext.userTable.Where(
+                c => (c.login == dto.login)
+            ).FirstOrDefault();
+
+            if (userFound != null)
             {
-                var userFound = db.userTable.Where(
-                    c => (c.login == dto.login)
-                ).FirstOrDefault();
 
-                if (userFound != null)
+                var passVerify = VerifyUserPassword(new PasswordAppUser()
                 {
+                    login = dto.login,
+                    passwordHashed = userFound.password
+                }, dto.password);
 
-                    var passVerify = VerifyUserPassword(new PasswordAppUser()
+                if (passVerify)
+                    return new Auth_CheckInfo()
                     {
-                        login = dto.login,
-                        passwordHashed = userFound.password
-                    }, dto.password);
 
-                    if (passVerify)
-                        return new Auth_CheckInfo()
+                        check_success = new Auth_CheckSuccess
                         {
-                            check_success = new Auth_CheckSuccess
-                            {
-                                Id = userFound.id,
-                                username = userFound.login,
-                                roles = userFound.roles.ToList()
-                            }
-                        };
-                }
+                            Id = userFound.Id,
+                            username = userFound.login,
+                            roles = userFound.roles.ToList()
+                        }
+                    };
             }
+        
 
             _logger.LogError("CheckUser: Пользователь ввел неверно имя или пароль!");
             return new Auth_CheckInfo() { check_error = new Auth_CheckError { errorLog = "username/password_incorrect" } };

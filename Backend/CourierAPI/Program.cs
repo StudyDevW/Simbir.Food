@@ -1,3 +1,5 @@
+using CourierAPI.Contracts;
+using CourierAPI.Service;
 using DotNetEnv;
 using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,7 @@ using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
+using ORM_Components.MapsterConfigs;
 using System.Security.Cryptography;
 
 namespace CourierAPI
@@ -124,12 +127,11 @@ namespace CourierAPI
                                       .AllowAnyHeader());
             });
 
+            var mapsterConfig = new OrderConfig();
+            builder.Services.AddSingleton<OrderConfig>();
+            builder.Services.AddSingleton<ICourierService, CourierService>();
 
             var app = builder.Build();
-
-            await AutoMigrations.EnsureDatabaseInitializedAsync(
-                new DataContext(builder.Configuration["DATABASE_CONNECT"])
-            );
 
             app.UseCors("AllowOrigin");
 

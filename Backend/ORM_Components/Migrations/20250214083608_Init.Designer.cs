@@ -2,18 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ORM_Components;
 
 #nullable disable
 
-namespace ClientAPI.Migrations
+namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250214083608_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,11 +26,9 @@ namespace ClientAPI.Migrations
 
             modelBuilder.Entity("ORM_Components.Tables.CourierTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("car_number")
                         .HasColumnType("text");
@@ -37,24 +37,22 @@ namespace ClientAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("userId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("userId")
+                        .HasColumnType("uuid");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("courierTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.OrderItemsTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<int>("order_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("order_id")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("price")
                         .HasColumnType("integer");
@@ -65,50 +63,45 @@ namespace ClientAPI.Migrations
                     b.Property<int>("restaraunt_food_item")
                         .HasColumnType("integer");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("orderItemsTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.OrderTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                    b.Property<Guid>("client_id")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("client_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("courier_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("courier_id")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("order_date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("restaurant_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("restaurant_id")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("status")
+                        .HasColumnType("integer");
 
                     b.Property<int>("total_price")
                         .HasColumnType("integer");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("orderTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.RestaurantFoodItemsTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                        .HasColumnType("uuid");
 
                     b.Property<int>("calories")
                         .HasColumnType("integer");
@@ -124,24 +117,22 @@ namespace ClientAPI.Migrations
                     b.Property<int>("price")
                         .HasColumnType("integer");
 
-                    b.Property<int>("restaurant_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("restaurant_id")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("weight")
                         .HasColumnType("integer");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("restaurantFoodItemsTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.RestaurantTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("description")
                         .IsRequired()
@@ -155,55 +146,51 @@ namespace ClientAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("user_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("user_id")
+                        .HasColumnType("uuid");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("restaurantTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.ReviewTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<int>("client_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("client_id")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("comment")
                         .HasColumnType("text");
 
-                    b.Property<int?>("courier_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("courier_id")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("order_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("order_id")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("rating")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("restaurant_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("restaurant_id")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("review_date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("reviewTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.UserTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("address")
                         .IsRequired()
@@ -236,7 +223,7 @@ namespace ClientAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("userTable");
                 });
