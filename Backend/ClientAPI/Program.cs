@@ -9,8 +9,8 @@ using Middleware_Components.JWT;
 using ORM_Components;
 using Middleware_Components.Services;
 using Middleware_Components.Cache;
+using ClientAPI.Interfaces;
 using ClientAPI.Services;
-using ClientAPI.Database;
 
 namespace ClientAPI
 {
@@ -113,7 +113,11 @@ namespace ClientAPI
                     options.UseNpgsql(connectString, b => b.MigrationsAssembly("ClientAPI"));
             });
 
-            builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
+            builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+
+            builder.Services.AddSingleton<IClientService, ClientService>();
+
+            builder.Services.AddSingleton<ISessionService, SessionService>();
 
             builder.Services.AddSingleton<IJwtService, JwtSDK>();
 

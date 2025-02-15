@@ -126,7 +126,7 @@ namespace Middleware_Components.JWT
                 }
 
                 string userName = "";
-                int userId = -1;
+                Guid userGUID = Guid.Empty;
                 List<string> userRoles = new List<string>();
 
                 foreach (var claim in validation.Claims)
@@ -135,22 +135,22 @@ namespace Middleware_Components.JWT
                         userName = claim.Value;
 
                     if (claim.Type == "Id")
-                        userId = int.Parse(claim.Value);
+                        userGUID = Guid.Parse(claim.Value);
 
                     if (claim.Type == "Roles")
                         userRoles = JsonSerializer.Deserialize<List<string>>(claim.Value);
                 }
 
-                if (userId == -1)
+                if (userGUID == Guid.Empty)
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
 
                 if (userRoles == null)
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
 
-                if (_cache.CheckExistKeysStorage(userId, "accessTokens"))
+                if (_cache.CheckExistKeysStorage(userGUID, "accessTokens"))
                 {
                     //Проверка на то, подменен ли ключ или нет!
-                    if (_cache.GetKeyFromStorage(userId, "accessTokens") != bearer_key_without_prefix)
+                    if (_cache.GetKeyFromStorage(userGUID, "accessTokens") != bearer_key_without_prefix)
                         return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
                 }
                 else
@@ -164,7 +164,7 @@ namespace Middleware_Components.JWT
 
                 Token_ValidSuccess valid_success = new Token_ValidSuccess
                 {
-                    Id = userId,
+                    Id = userGUID,
                     userName = userName,
                     userRoles = userRoles,
                     bearerWithoutPrefix = bearer_key_without_prefix
@@ -195,7 +195,7 @@ namespace Middleware_Components.JWT
                 }
 
                 string userName = "";
-                int userId = -1;
+                Guid userGUID = Guid.Empty;
                 List<string> userRoles = new List<string>();
 
                 foreach (var claim in validation.Claims)
@@ -204,23 +204,23 @@ namespace Middleware_Components.JWT
                         userName = claim.Value;
 
                     if (claim.Type == "Id")
-                        userId = int.Parse(claim.Value);
+                        userGUID = Guid.Parse(claim.Value);
 
                     if (claim.Type == "Roles")
                         userRoles = JsonSerializer.Deserialize<List<string>>(claim.Value);
                 }
 
-                if (userId == -1)
+                if (userGUID == Guid.Empty)
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
 
                 if (userRoles == null)
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
 
 
-                if (_cache.CheckExistKeysStorage(userId, "refreshTokens"))
+                if (_cache.CheckExistKeysStorage(userGUID, "refreshTokens"))
                 {
                     //Проверка на то, подменен ли ключ или нет!
-                    if (_cache.GetKeyFromStorage(userId, "refreshTokens") != bearerKey)
+                    if (_cache.GetKeyFromStorage(userGUID, "refreshTokens") != bearerKey)
                         return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
                 }
                 else
@@ -228,7 +228,7 @@ namespace Middleware_Components.JWT
 
                 Token_ValidSuccess valid_success = new Token_ValidSuccess
                 {
-                    Id = userId,
+                    Id = userGUID,
                     userName = userName,
                     userRoles = userRoles,
                     bearerWithoutPrefix = bearerKey

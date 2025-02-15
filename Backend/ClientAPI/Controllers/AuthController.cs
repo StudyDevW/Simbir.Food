@@ -1,4 +1,4 @@
-﻿using ClientAPI.Services;
+﻿using ClientAPI.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
 using ORM_Components.DTO.ClientAPI;
@@ -9,17 +9,15 @@ namespace ClientAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IDatabaseService _database;
+        private readonly IClientService _clientService;
         private readonly IJwtService _jwt;
-        private readonly ICacheService _cache;
         private readonly ILogger _logger;
 
-        public AuthController(IDatabaseService database, IJwtService jwt, ICacheService cache, IConfiguration configuration)
+        public AuthController(IClientService clientService, IJwtService jwt, ICacheService cache, IConfiguration configuration)
         {
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | controller-logger");
-            _database = database;
+            _clientService = clientService;
             _jwt = jwt;
-            _cache = cache;
         }
 
         [HttpPost("SignUp")]
@@ -27,9 +25,14 @@ namespace ClientAPI.Controllers
         {
             try
             {
-                await _database.RegisterUser(dtoObj);
-
-                return Ok("account_created");
+                var registerInfo = await _clientService.RegisterUser(dtoObj);
+              
+                if (registerInfo != null)
+                {
+                    return Ok(registerInfo);
+                }
+                
+                return BadRequest("account_created_but_noauth");    
             }
             catch (Exception e)
             {
@@ -42,21 +45,21 @@ namespace ClientAPI.Controllers
         {
             try
             {
-                var check = _database.CheckUser(dtoObj);
+                var loginInfo = _clientService.LoginClient(dtoObj);
 
-                if (check.CheckHasSuccess())
+                if (loginInfo != null)
                 {
-                    //Чисто для теста буду дописывать все
-                    return Ok("Успешный вход!");
+                    return Ok(loginInfo);
                 }
-
+                else
+                {
+                    return NotFound();
+                }
             }
-            catch (Exception e)
+            catch(Exception e)
             {
                 return BadRequest(e.Message);
             }
-
-            return BadRequest();
         }
     }
 }

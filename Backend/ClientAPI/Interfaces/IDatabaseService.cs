@@ -1,7 +1,7 @@
-﻿using ORM_Components.DTO.CheckUsers;
+﻿using Middleware_Components.JWT.DTO.CheckUsers;
 using ORM_Components.DTO.ClientAPI;
 
-namespace ClientAPI.Services
+namespace ClientAPI.Interfaces
 {
     public interface IDatabaseService
     {
