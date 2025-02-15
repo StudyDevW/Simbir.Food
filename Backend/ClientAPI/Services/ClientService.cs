@@ -17,7 +17,7 @@ namespace ClientAPI.Services
 
         public ClientService(ISessionService session, IDatabaseService database, IJwtService jwt, ICacheService cache) {
 
-            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | client-service-logger");
+            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("client-service-logger");
             _database = database;
             _jwt = jwt;
             _cache = cache;
@@ -177,6 +177,27 @@ namespace ClientAPI.Services
                 _logger.LogInformation($"Токены для id: {validation.token_success.Id} обновлены!");
 
                 return pair_tokens;
+            }
+
+            return null;
+        }
+
+        public async Task<ClientInfo?> ClientMeInfo(string bearer_key)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                return null;
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                var info_user = _database.InfoClientDatabase(validation.token_success.Id);
+
+                if (info_user != null)
+                    return info_user;
+                else
+                    return null;
             }
 
             return null;

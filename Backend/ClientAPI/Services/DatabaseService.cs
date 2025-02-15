@@ -15,17 +15,30 @@ namespace ClientAPI.Services
 
         public DatabaseService(DataContext dbcontext)
         {
-            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | database-sdk-logger");
+            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("database-service-logger");
             _passwordHasher = new PasswordHasher<PasswordAppUser>();
             _dbcontext = dbcontext;
+        }
+
+        private bool UserExist(string login)
+        {
+            var checkUser = _dbcontext.userTable.Where(c => c.login == login).FirstOrDefault();
+
+            if (checkUser != null) { return true; }
+
+            return false;
         }
 
         public async Task RegisterUser(AuthSignUp dto)
         {
             if (dto == null)
             {
-                _logger.LogError("RegisterUser: dto==null");
-                return;
+                throw new Exception("dto null");
+            }
+
+            if (UserExist(dto.login))
+            {
+                throw new Exception("login already exist");
             }
 
             PasswordAppUser passwordUser = new PasswordAppUser() { login = dto.login };
@@ -96,5 +109,28 @@ namespace ClientAPI.Services
             return new Auth_CheckInfo() { check_error = new Auth_CheckError { errorLog = "username/password_incorrect" } };
         }
 
+        public ClientInfo? InfoClientDatabase(Guid userGUID)
+        {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id  == userGUID).FirstOrDefault();
+
+            if (selectedUser != null)
+            {
+                _logger.LogInformation($"InfoClientDatabase: Запрошена информация о аккаунте (id: {userGUID})");
+
+                return new ClientInfo()
+                {
+                    Id = selectedUser.Id,
+                    address = selectedUser.address,
+                    name = selectedUser.name,
+                    phone_number = selectedUser.phone_number,
+                    email = selectedUser.email,
+                    avatarImage = selectedUser.avatarImage,
+                    login = selectedUser.login,
+                    roles = selectedUser.roles.ToList()
+                };
+            }
+
+            return null;
+        }
     }
 }

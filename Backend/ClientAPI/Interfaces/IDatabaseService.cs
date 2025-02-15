@@ -8,5 +8,7 @@ namespace ClientAPI.Interfaces
         public Task RegisterUser(AuthSignUp dto);
 
         public Auth_CheckInfo CheckUser(AuthSignIn dto);
+
+        public ClientInfo? InfoClientDatabase(Guid userGUID);
     }
 }

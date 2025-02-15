@@ -16,7 +16,7 @@ namespace ClientAPI.Controllers
 
         public SessionController(ISessionService session, IJwtService jwt, ICacheService cache, IConfiguration configuration)
         {
-            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | controller-logger");
+            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("session-controller-logger");
             _jwt = jwt;
             _session = session;
         }
