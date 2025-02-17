@@ -3,6 +3,7 @@ using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
 using ORM_Components.DTO.ClientAPI;
+using ORM_Components.DTO.ClientAPI.ClientsAll;
 
 namespace ClientAPI.Services
 {
@@ -203,5 +204,85 @@ namespace ClientAPI.Services
             return null;
         }
 
+        public async Task UpdateClientInfo(string bearer_key, ClientUpdate dtoObj)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                await _database.InfoClientUpdate(dtoObj, validation.token_success.Id);
+            }
+        }
+
+        public async Task UpdateClientInfoWithAdmin(string bearer_key, ClientUpdate_Admin dtoObj, Guid userGUID)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                if (validation.token_success.userRoles.Contains("Admin"))
+                {
+                    await _database.InfoClientUpdateWithAdmin(dtoObj, userGUID);
+                }
+                else
+                {
+                    throw new Exception("role_invalid");
+                }
+            }
+        }
+
+        public async Task<ClientGetAll?> AllProfilesGet(string bearer_key, int from, int count)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                if (validation.token_success.userRoles.Contains("Admin"))
+                {
+                    var clientsInfo = _database.GetAllClients(from, count);
+
+                    return clientsInfo;
+                }
+                else
+                {
+                    throw new Exception("role_invalid");
+                }
+            }
+
+            return null;
+        }
+
+        public async Task CreateClientWithAdmin(string bearer_key, ClientAdd_Admin dtoObj)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                if (validation.token_success.userRoles.Contains("Admin"))
+                {
+                    await _database.RegisterUserWithAdmin(dtoObj);
+                }
+                else
+                {
+                    throw new Exception("role_invalid");
+                }
+            }
+        }
     }
 }

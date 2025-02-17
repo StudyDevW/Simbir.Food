@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
+using ORM_Components.DTO.ClientAPI;
 
 namespace ClientAPI.Controllers
 {
@@ -35,5 +36,64 @@ namespace ClientAPI.Controllers
             return Unauthorized();
         }
 
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpPut("Update")]
+        public async Task<IActionResult> UpdateProfileOfUser([FromBody] ClientUpdate dtoObj)
+        {
+            try
+            {
+                await _clientService.UpdateClientInfo(Request.Headers["Authorization"], dtoObj);
+                return Ok("account_updated");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProfileOfUserWithAdmin([FromBody] ClientUpdate_Admin dtoObj, Guid id)
+        {
+            try
+            {
+                await _clientService.UpdateClientInfoWithAdmin(Request.Headers["Authorization"], dtoObj, id);
+                return Ok("account_updated");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllProfileUsers([FromQuery] int from, [FromQuery] int count)
+        {
+            try
+            {
+                var clientsInfo = await _clientService.AllProfilesGet(Request.Headers["Authorization"], from, count);
+                return Ok(clientsInfo);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpPost]
+        public async Task<IActionResult> CreateUserWithAdmin([FromBody] ClientAdd_Admin dtoObj)
+        {
+            try
+            {
+                await _clientService.CreateClientWithAdmin(Request.Headers["Authorization"], dtoObj);
+                return Ok("account_created");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using ORM_Components;
 using ClientAPI.Interfaces;
 using Middleware_Components.JWT.DTO.CheckUsers;
+using ORM_Components.DTO.ClientAPI.ClientsAll;
 
 namespace ClientAPI.Services
 {
@@ -62,6 +63,40 @@ namespace ClientAPI.Services
 
             _logger.LogInformation($"RegisterUser: {dto.login}, создан");
 
+        }
+
+        public async Task RegisterUserWithAdmin(ClientAdd_Admin dto)
+        {
+            if (dto == null)
+            {
+                throw new Exception("dto null");
+            }
+
+            if (UserExist(dto.login))
+            {
+                throw new Exception("login already exist");
+            }
+
+            PasswordAppUser passwordUser = new PasswordAppUser() { login = dto.login };
+
+            passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dto.password);
+
+
+            UserTable usersTable = new UserTable()
+            {
+                name = dto.name,
+                email = dto.email,
+                login = dto.login,
+                address = dto.address,
+                phone_number = dto.phone_number,
+                password = passwordUser.passwordHashed,
+                roles = dto.roles
+            };
+
+            _dbcontext.userTable.Add(usersTable);
+            await _dbcontext.SaveChangesAsync();
+
+            _logger.LogInformation($"RegisterUserWithAdmin: {dto.login}, создан");
         }
 
         private bool VerifyUserPassword(PasswordAppUser user, string password)
@@ -132,5 +167,208 @@ namespace ClientAPI.Services
 
             return null;
         }
+
+        public ClientGetAll GetAllClients(int _from, int _count)
+        {
+            ClientGetAll allClients = new ClientGetAll();
+
+            allClients.Settings = new ClientSelectionSettings { from = _from, count = _count };
+
+            List<ClientInfo> clients = new List<ClientInfo>();
+
+            if (_count != 0)
+            {
+                var filteredQuery = _dbcontext.userTable.Skip(_from).Take(_count);
+
+                foreach (var client in filteredQuery)
+                {
+                    ClientInfo clientInfo = new ClientInfo()
+                    {
+                        Id = client.Id,
+                        address = client.address,
+                        avatarImage = client.avatarImage,
+                        email = client.email,
+                        login = client.login,
+                        name = client.name,
+                        phone_number = client.phone_number, 
+                        roles = client.roles.ToList()
+                    };
+
+                    clients.Add(clientInfo);
+                }
+            }
+            else
+            {
+                var filteredQuery = _dbcontext.userTable.Skip(_from);
+
+                foreach (var client in filteredQuery)
+                {
+                    ClientInfo clientInfo = new ClientInfo()
+                    {
+                        Id = client.Id,
+                        address = client.address,
+                        avatarImage = client.avatarImage,
+                        email = client.email,
+                        login = client.login,
+                        name = client.name,
+                        phone_number = client.phone_number,
+                        roles = client.roles.ToList()
+                    };
+
+                    clients.Add(clientInfo);
+                }
+            }
+
+            allClients.ContentFill(clients);
+
+            return allClients;
+        }
+
+        public async Task InfoClientUpdate(ClientUpdate dtoObj, Guid userGUID)
+        {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
+
+            //Смена пароля
+            if (dtoObj.password != null)
+            {
+                var passVerify = VerifyUserPassword(new PasswordAppUser()
+                {
+                    login = selectedUser.login,
+                    passwordHashed = selectedUser.password
+                }, dtoObj.password);
+
+                if (passVerify) //Пароль один и тот же
+                    throw new Exception("password_1:1");
+                else
+                {
+                    PasswordAppUser passwordUser = new PasswordAppUser() { login = selectedUser.login };
+                    passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dtoObj.password);
+
+                    selectedUser.password = passwordUser.passwordHashed;
+                    await _dbcontext.SaveChangesAsync();
+                }
+            }
+
+            //Смена имени
+            if (selectedUser.name != dtoObj.name && dtoObj.name != null)
+            {
+                selectedUser.name = dtoObj.name;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена почты
+            if (selectedUser.email != dtoObj.email && dtoObj.email != null)
+            {
+                selectedUser.email = dtoObj.email;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена номера телефона
+            if (selectedUser.phone_number != dtoObj.phone_number && dtoObj.phone_number != null)
+            {
+                selectedUser.phone_number = dtoObj.phone_number;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена адреса
+            if (selectedUser.address != dtoObj.address && dtoObj.address != null)
+            {
+                selectedUser.address = dtoObj.address;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена аватара
+            if (selectedUser.avatarImage != dtoObj.avatarImage && dtoObj.avatarImage != null)
+            {
+                selectedUser.avatarImage = dtoObj.avatarImage;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+           
+        }
+
+        public async Task InfoClientUpdateWithAdmin(ClientUpdate_Admin dtoObj, Guid userGUID)
+        {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
+
+            //Смена имени
+            if (selectedUser.name != dtoObj.name && dtoObj.name != null)
+            {
+                selectedUser.name = dtoObj.name;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена логина или никнейма
+            if (selectedUser.login != dtoObj.login && dtoObj.login != null)
+            {
+                selectedUser.login = dtoObj.login;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена почты
+            if (selectedUser.email != dtoObj.email && dtoObj.email != null)
+            {
+                selectedUser.email = dtoObj.email;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена номера телефона
+            if (selectedUser.phone_number != dtoObj.phone_number && dtoObj.phone_number != null)
+            {
+                selectedUser.phone_number = dtoObj.phone_number;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена адреса
+            if (selectedUser.address != dtoObj.address && dtoObj.address != null)
+            {
+                selectedUser.address = dtoObj.address;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена аватара
+            if (selectedUser.avatarImage != dtoObj.avatarImage && dtoObj.avatarImage != null)
+            {
+                selectedUser.avatarImage = dtoObj.avatarImage;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена ролей
+            if (selectedUser.roles != dtoObj.roles && dtoObj.roles != null)
+            {
+                selectedUser.roles = dtoObj.roles;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            //Смена пароля
+            if (dtoObj.password != null)
+            {
+                var passVerify = VerifyUserPassword(new PasswordAppUser()
+                {
+                    login = selectedUser.login,
+                    passwordHashed = dtoObj.password
+                }, dtoObj.password);
+
+                if (passVerify) //Пароль один и тот же
+                    throw new Exception("password_1:1");
+                else
+                {
+                    PasswordAppUser passwordUser = new PasswordAppUser() { login = selectedUser.login };
+                    passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dtoObj.password);
+
+                    selectedUser.password = passwordUser.passwordHashed;
+                    await _dbcontext.SaveChangesAsync();
+                }
+            }
+        }
+
+     
+
     }
 }
