@@ -7,3 +7,5 @@
 /rabbitmq_data
 
 .env
+
+.vs/
