@@ -21,7 +21,7 @@ namespace RestaurantAPI.Model.Controllers
         }
 
         [HttpPost("AddPhoto")]
-        public async Task<IActionResult> AddPhoto([FromForm] Photos photo_DTO)
+        public async Task<IActionResult> AddPhoto([FromForm] Photos_DTO photo_DTO)
         {
             if (photo_DTO.File == null || photo_DTO.File.Length == 0)
             {

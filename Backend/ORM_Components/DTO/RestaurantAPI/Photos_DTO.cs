@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ORM_Components.DTO.RestaurantAPI
 {
-    public class Photos
+    public class Photos_DTO
     {
         public Guid id { get; set; }
         public string Title { get; set; }

@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
-using RestaurantAPI.Model.DBO;
+using System.Net;
 
 namespace RestaurantAPI.Model.Controllers
 {
@@ -13,53 +14,128 @@ namespace RestaurantAPI.Model.Controllers
     public class RestaurantController : ControllerBase
     {
         private readonly DataContext _dbcontext;
+
         public RestaurantController(DataContext dbcontext)
         {
-            
             _dbcontext = dbcontext;
         }
+
         [HttpPost]
         [Route("SentRestaurant")]
-        public async Task<IActionResult> AddRestaurant([FromBody] Restaurant restaurant_DTO)
-        {   
+        public async Task<IActionResult> AddRestaurant([FromBody] Restaurants_DTO restaurant_DTO)
+        {
+            
+            if (restaurant_DTO == null)
+            {
+                return BadRequest("Данные ресторана не могут быть пустыми.");
+            }
+
+            if (string.IsNullOrWhiteSpace(restaurant_DTO.restaurantName))
+            {
+                return BadRequest("Название ресторана не может быть пустым.");
+            }
+
+            if (string.IsNullOrWhiteSpace(restaurant_DTO.address))
+            {
+                return BadRequest("Адрес ресторана не может быть пустым.");
+            }
+
+            if (string.IsNullOrWhiteSpace(restaurant_DTO.phone_number))
+            {
+                return BadRequest("Номер телефона ресторана не может быть пустым.");
+            }
+
             RestaurantTable restaurantTable = new RestaurantTable()
             {
-                id = restaurant_DTO.id,
-                name = restaurant_DTO.name,
-                Img = restaurant_DTO.Img,
+                user_id = restaurant_DTO.user_id,
+                restaurantName = restaurant_DTO.restaurantName,
+                address = restaurant_DTO.address,
+                phone_number = restaurant_DTO.phone_number,
+                status = restaurant_DTO.status,
+                description = restaurant_DTO.description,
+                imagePath = restaurant_DTO.imagePath,
+                open_time = restaurant_DTO.open_time,
+                close_time = restaurant_DTO.close_time
             };
+
             _dbcontext.restaurantTable.Add(restaurantTable);
             await _dbcontext.SaveChangesAsync();
             return Ok("Успех");
-
-            
         }
-        
+
         [HttpDelete]
-        [Route("DeleteRestautant/{id}")]
-        public async Task<IActionResult> DeleteRestautant(int id)
+        [Route("DeleteRestaurant/{id}")]
+        public async Task<IActionResult> DeleteRestaurant(Guid id)
         {
-            using (DataContext DB = new DataContext())
+            var restaurant = await _dbcontext.restaurantTable.FindAsync(id);
+            if (restaurant == null)
             {
-                var Restautant = await DB.restaurantTable.FindAsync(id);
-                if (Restautant == null) {
-                    return NotFound("Ресторан не найден.");
-                }
-                DB.restaurantTable.Remove(Restautant);
-                await DB.SaveChangesAsync();
-                return Ok("Ресторан успешно удалён");
-
+                return NotFound("Ресторан не найден.");
             }
+
+            _dbcontext.restaurantTable.Remove(restaurant);
+            await _dbcontext.SaveChangesAsync();
+            return Ok("Ресторан успешно удалён");
         }
+
         [HttpGet]
         [Route("GetRestaurant")]
         public async Task<IActionResult> GetRestaurant()
         {
-            using (DataContext DB = new DataContext())
+            var restaurants = await _dbcontext.restaurantTable.ToListAsync();
+            return Ok(restaurants);
+        }
+
+        [HttpGet]
+        [Route("GetRestaurant/{id}")]
+        public async Task<IActionResult> GetRestaurantById(Guid id)
+        {
+            var restaurant = await _dbcontext.restaurantTable.FindAsync(id);
+            if (restaurant == null)
             {
-                var Restautant = await DB.restaurantTable.ToListAsync();
-                return Ok(Restautant);
+                return NotFound("Ресторан не найден.");
             }
+
+            return Ok(restaurant);
+        }
+
+        [HttpPut]
+        [Route("PutRestaurant/{id}")]
+        public async Task<IActionResult> PutRestaurant(Guid id, [FromBody] Restaurants_DTO restaurants_DTO)
+        {
+            if (restaurants_DTO == null)
+            {
+                return BadRequest("Данные ресторана не могут быть пустыми.");
+            }
+
+            if (string.IsNullOrWhiteSpace(restaurants_DTO.restaurantName))
+            {
+                return BadRequest("Название ресторана не может быть пустым.");
+            }
+
+            if (string.IsNullOrWhiteSpace(restaurants_DTO.address))
+            {
+                return BadRequest("Адрес ресторана не может быть пустым.");
+            }
+
+            var restaurant = await _dbcontext.restaurantTable.FindAsync(id);
+            if (restaurant == null)
+            {
+                return NotFound("Ресторан не найден.");
+            }
+
+            restaurant.restaurantName = restaurants_DTO.restaurantName;
+            restaurant.address = restaurants_DTO.address;
+            restaurant.phone_number = restaurants_DTO.phone_number;
+            restaurant.status = restaurants_DTO.status;
+            restaurant.description = restaurants_DTO.description;
+            restaurant.imagePath = restaurants_DTO.imagePath;
+            restaurant.open_time = restaurants_DTO.open_time;
+            restaurant.close_time = restaurants_DTO.close_time;
+
+            _dbcontext.restaurantTable.Update(restaurant);
+            await _dbcontext.SaveChangesAsync();
+            return Ok("Данные ресторана успешно обновлены.");
         }
     }
 }
