@@ -50,8 +50,11 @@ public class DatabaseSDKTests : BaseTest
         var dto = new AuthSignUp();
         var sut = new DatabaseSDK(configuration, context);
 
-        // act & assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.RegisterUser(dto));
+        // act
+        Func<Task> act = async () => await sut.RegisterUser(dto);
+
+        // assert
+        await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
