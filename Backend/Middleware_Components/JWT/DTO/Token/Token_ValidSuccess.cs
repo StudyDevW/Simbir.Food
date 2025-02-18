@@ -10,7 +10,9 @@ namespace Middleware_Components.JWT.DTO.Token
     {
         public Guid Id { get; set; }
 
-        public string? userName { get; set; }
+        public string? login { get; set; }
+
+        public string telegramChatId { get; set; }
 
         public List<string>? userRoles { get; set; }
 

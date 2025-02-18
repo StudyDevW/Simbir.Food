@@ -20,6 +20,6 @@ namespace ClientAPI.Interfaces
 
         public Task InfoClientUpdateWithAdmin(ClientUpdate_Admin dtoObj, Guid userGUID);
 
-
+        public Task DeleteClientWithAdmin(Guid id);
     }
 }
