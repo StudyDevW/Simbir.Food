@@ -13,6 +13,10 @@ namespace ORM_Components
     {
         private readonly string _connectionString;
 
+        public DataContext()
+        {
+
+        }
         public DataContext(string connectionString)
         {
             _connectionString = connectionString;
@@ -21,19 +25,19 @@ namespace ORM_Components
 
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-        public DbSet<UserTable> userTable { get; set; }
+        public virtual DbSet<UserTable> userTable { get; set; }
 
-        public DbSet<CourierTable> courierTable { get; set; }
+        public virtual DbSet<CourierTable> courierTable { get; set; }
 
-        public DbSet<OrderItemsTable> orderItemsTable { get; set; }
+        public virtual DbSet<OrderItemsTable> orderItemsTable { get; set; }
 
-        public DbSet<OrderTable> orderTable { get; set; }
+        public virtual DbSet<OrderTable> orderTable { get; set; }
 
-        public DbSet<RestaurantTable> restaurantTable { get; set; }
+        public virtual DbSet<RestaurantTable> restaurantTable { get; set; }
 
-        public DbSet<RestaurantFoodItemsTable> restaurantFoodItemsTable { get; set; }
+        public virtual DbSet<RestaurantFoodItemsTable> restaurantFoodItemsTable { get; set; }
 
-        public DbSet<ReviewTable> reviewTable { get; set; }
+        public virtual DbSet<ReviewTable> reviewTable { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
