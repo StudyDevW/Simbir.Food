@@ -125,17 +125,21 @@ namespace Middleware_Components.JWT
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unexpected_alg" } };
                 }
 
-                string userName = "";
+                string login = "";
+                string chatId = "";
                 Guid userGUID = Guid.Empty;
                 List<string> userRoles = new List<string>();
 
                 foreach (var claim in validation.Claims)
                 {
-                    if (claim.Type == "Username")
-                        userName = claim.Value;
+                    if (claim.Type == "Login")
+                        login = claim.Value;
 
                     if (claim.Type == "Id")
                         userGUID = Guid.Parse(claim.Value);
+
+                    if (claim.Type == "ChatId")
+                        chatId = claim.Value;
 
                     if (claim.Type == "Roles")
                         userRoles = JsonSerializer.Deserialize<List<string>>(claim.Value);
@@ -165,8 +169,9 @@ namespace Middleware_Components.JWT
                 Token_ValidSuccess valid_success = new Token_ValidSuccess
                 {
                     Id = userGUID,
-                    userName = userName,
+                    login = login,
                     userRoles = userRoles,
+                    telegramChatId = chatId,
                     bearerWithoutPrefix = bearer_key_without_prefix
                 };
 
@@ -194,14 +199,18 @@ namespace Middleware_Components.JWT
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unexpected_alg" } };
                 }
 
-                string userName = "";
+                string login = "";
+                string chatId = "";
                 Guid userGUID = Guid.Empty;
                 List<string> userRoles = new List<string>();
 
                 foreach (var claim in validation.Claims)
                 {
-                    if (claim.Type == "Username")
-                        userName = claim.Value;
+                    if (claim.Type == "Login")
+                        login = claim.Value;
+
+                    if (claim.Type == "ChatId")
+                        chatId = claim.Value;
 
                     if (claim.Type == "Id")
                         userGUID = Guid.Parse(claim.Value);
@@ -229,8 +238,9 @@ namespace Middleware_Components.JWT
                 Token_ValidSuccess valid_success = new Token_ValidSuccess
                 {
                     Id = userGUID,
-                    userName = userName,
+                    login = login,
                     userRoles = userRoles,
+                    telegramChatId = chatId,
                     bearerWithoutPrefix = bearerKey
                 };
 
@@ -246,7 +256,7 @@ namespace Middleware_Components.JWT
             if (dtoObj == null)
                 return string.Empty;
 
-            if (dtoObj.username == null)
+            if (dtoObj.login == null)
                 return string.Empty;
 
             var rsaprivateKey = _configuration["RSA_PRIVATE_KEY"];
@@ -270,7 +280,8 @@ namespace Middleware_Components.JWT
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", dtoObj.Id.ToString()),
-                    new Claim("Username", dtoObj.username),
+                    new Claim("Login", dtoObj.login),
+                    new Claim("ChatId", dtoObj.telegramChatId),
                     new Claim("Roles", serializer_roles),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
@@ -292,7 +303,7 @@ namespace Middleware_Components.JWT
             if (dtoObj == null)
                 return string.Empty;
 
-            if (dtoObj.username == null)
+            if (dtoObj.login == null)
                 return string.Empty;
 
             var rsaprivateKey = _configuration["RSA_PRIVATE_KEY"];
@@ -316,7 +327,8 @@ namespace Middleware_Components.JWT
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", dtoObj.Id.ToString()),
-                    new Claim("Username", dtoObj.username),
+                    new Claim("Login", dtoObj.login),
+                    new Claim("ChatId", dtoObj.telegramChatId),
                     new Claim("Roles", serializer_roles),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),

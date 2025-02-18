@@ -16,6 +16,8 @@
 
         public string password { get; set; }
 
+        public string telegram_chatid { get; set; }
+
         public string[] roles { get; set; }
     }
 }

@@ -55,7 +55,8 @@ namespace ClientAPI.Services
                 address = dto.address,
                 phone_number = dto.phone_number,
                 password = passwordUser.passwordHashed,
-                roles = new string[] { "Client" }
+                roles = new string[] { "Client" },
+            
             };
 
             _dbcontext.userTable.Add(usersTable);
@@ -133,7 +134,8 @@ namespace ClientAPI.Services
                         check_success = new Auth_CheckSuccess
                         {
                             Id = userFound.Id,
-                            username = userFound.login,
+                            login = userFound.login,
+                            telegramChatId = dto.telegram_chatid,
                             roles = userFound.roles.ToList()
                         }
                     };
@@ -368,7 +370,65 @@ namespace ClientAPI.Services
             }
         }
 
-     
+        private async Task DeleteAllFoodItems(Guid restaurantId)
+        {
+            var selectedItems = _dbcontext.restaurantFoodItemsTable.Where(c => c.restaurant_id == restaurantId).ToList();
+
+            if (selectedItems != null)
+            {
+                foreach (var item in selectedItems)
+                {
+                    _dbcontext.restaurantFoodItemsTable.Remove(item);
+                    await _dbcontext.SaveChangesAsync();
+                }
+            }
+        }
+
+        private async Task DeleteAllRestaurants(Guid id)
+        {
+            var selectedRestaurant = _dbcontext.restaurantTable.Where(c => c.user_id == id).ToList();
+
+            if (selectedRestaurant != null)
+            {
+                foreach (var restaurant in selectedRestaurant)
+                {
+                    _dbcontext.restaurantTable.Remove(restaurant);
+                    await _dbcontext.SaveChangesAsync();
+
+                    await DeleteAllFoodItems(restaurant.Id);
+                }
+            }
+        }
+
+        private async Task DeleteCourierStatus(Guid id)
+        {
+            var selectedCourier = _dbcontext.courierTable.Where(c => c.userId == id).FirstOrDefault();
+
+            if (selectedCourier != null)
+            {
+                _dbcontext.courierTable.Remove(selectedCourier);
+                await _dbcontext.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteClientWithAdmin(Guid id)
+        {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == id).FirstOrDefault();
+
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
+
+            _dbcontext.userTable.Remove(selectedUser);
+            await _dbcontext.SaveChangesAsync();
+
+            //Если привязаны рестораны, удаляем рестораны
+            await DeleteAllRestaurants(id);
+
+            //Если привязан курьер, удаляем курьера
+            await DeleteCourierStatus(id);
+
+            _logger.LogInformation($"DeleteClientWithAdmin: (id: {id} ) был удален");
+        }
 
     }
 }

@@ -4,6 +4,7 @@ using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
+using Telegram_Components.Interfaces;
 
 namespace ClientAPI.Services
 {
@@ -14,15 +15,16 @@ namespace ClientAPI.Services
         private readonly IJwtService _jwt;
         private readonly ICacheService _cache;
         private readonly ILogger _logger;
-        
+        private readonly IMessageSender _tgmessage;
 
-        public ClientService(ISessionService session, IDatabaseService database, IJwtService jwt, ICacheService cache) {
+        public ClientService(IMessageSender tgmessage, ISessionService session, IDatabaseService database, IJwtService jwt, ICacheService cache) {
 
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("client-service-logger");
             _database = database;
             _jwt = jwt;
             _cache = cache;
             _session = session;
+            _tgmessage = tgmessage;
         }
 
         private Auth_PairTokens? TokensReleased(Auth_CheckInfo check)
@@ -52,6 +54,9 @@ namespace ClientAPI.Services
                     refreshToken = _cache.GetKeyFromStorage(check.check_success.Id, "refreshTokens")
                 };
 
+                _tgmessage.Send(check.check_success.telegramChatId, 
+                    $"{check.check_success.login} | Вы вошли\nСессия успешно создана!");
+
                 _logger.LogInformation($"Пользователь {check.check_success.Id} успешно вошел!");
 
                 return pair_tokens;
@@ -71,7 +76,8 @@ namespace ClientAPI.Services
                 var check = _database.CheckUser(new AuthSignIn()
                 {
                     login = dtoObj.login, 
-                    password = dtoObj.password
+                    password = dtoObj.password,
+                    telegram_chatid = dtoObj.telegram_chatid
                 });
 
                 var tokens = TokensReleased(check);
@@ -128,6 +134,9 @@ namespace ClientAPI.Services
 
                 _logger.LogInformation($"Пользователь id: {validation.token_success.Id} вышел!");
 
+                await _tgmessage.Send(validation.token_success.telegramChatId,
+                    $"{validation.token_success.login} | Вы вышли\nСессия завершена!");
+
                 return $"{validation.token_success.Id}_is_logout";
             }
 
@@ -148,7 +157,8 @@ namespace ClientAPI.Services
                 {
                     Id = validation.token_success.Id,
                     roles = validation.token_success.userRoles,
-                    username = validation.token_success.userName
+                    login = validation.token_success.login,
+                    telegramChatId = validation.token_success.telegramChatId
                 };
 
                 var accessToken = _jwt.JwtTokenCreation(authsuccess);

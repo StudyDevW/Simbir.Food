@@ -11,6 +11,9 @@ using Middleware_Components.Services;
 using Middleware_Components.Cache;
 using ClientAPI.Interfaces;
 using ClientAPI.Services;
+using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ClientAPI
 {
@@ -116,6 +119,10 @@ namespace ClientAPI
             builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 
             builder.Services.AddScoped<IClientService, ClientService>();
+
+            builder.Services.AddSingleton<IMessageSender>(
+                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
+            );
 
             builder.Services.AddScoped<ISessionService, SessionService>();
 

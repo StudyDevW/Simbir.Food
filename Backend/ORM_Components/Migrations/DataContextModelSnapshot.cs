@@ -132,11 +132,29 @@ namespace ORM_Components.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("close_time")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("imagePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("open_time")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("phone_number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("restaurantName")
                         .IsRequired()
                         .HasColumnType("text");
 

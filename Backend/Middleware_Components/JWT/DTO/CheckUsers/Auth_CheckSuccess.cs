@@ -10,7 +10,9 @@ namespace Middleware_Components.JWT.DTO.CheckUsers
     {
         public Guid Id { get; set; }
 
-        public string? username { get; set; }
+        public string? login { get; set; }
+
+        public string telegramChatId { get; set; }
 
         public List<string>? roles { get; set; }
     }

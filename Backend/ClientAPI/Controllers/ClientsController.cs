@@ -95,5 +95,20 @@ namespace ClientAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserWithAdmin(Guid id)
+        {
+            try
+            {
+                
+                return Ok("account_created");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
