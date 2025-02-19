@@ -9,8 +9,11 @@ using Middleware_Components.JWT;
 using ORM_Components;
 using Middleware_Components.Services;
 using Middleware_Components.Cache;
+using ClientAPI.Interfaces;
 using ClientAPI.Services;
-using ClientAPI.Database;
+using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ClientAPI
 {
@@ -113,11 +116,19 @@ namespace ClientAPI
                     options.UseNpgsql(connectString, b => b.MigrationsAssembly("ClientAPI"));
             });
 
-            builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
+            builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 
-            builder.Services.AddSingleton<IJwtService, JwtSDK>();
+            builder.Services.AddScoped<IClientService, ClientService>();
 
-            builder.Services.AddSingleton<ICacheService, CacheSDK>();
+            builder.Services.AddSingleton<IMessageSender>(
+                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
+            );
+
+            builder.Services.AddScoped<ISessionService, SessionService>();
+
+            builder.Services.AddScoped<IJwtService, JwtSDK>();
+
+            builder.Services.AddScoped<ICacheService, CacheSDK>();
 
             builder.Services.AddCors(options =>
             {
