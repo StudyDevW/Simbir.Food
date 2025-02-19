@@ -7,6 +7,7 @@ using ORM_Components.Tables.Helpers;
 using StackExchange.Redis;
 using System.Diagnostics.Metrics;
 using ORM_Components.Tables;
+using Telegram_Components.Interfaces;
 
 namespace CourierAPI.Service
 {
@@ -14,10 +15,12 @@ namespace CourierAPI.Service
     {
         private readonly ILogger _logger;
         private readonly DataContext _dataContext;
+        private readonly IMessageSender _tgmessage;
 
-        public CourierService(DataContext dataContext) 
+        public CourierService(DataContext dataContext, IMessageSender tgmessage) 
         { 
             _dataContext = dataContext;
+            _tgmessage = tgmessage;
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("CourierAPI | database-sdk-logger");
         }
 
@@ -69,10 +72,16 @@ namespace CourierAPI.Service
                 ?? throw new Exception("Заказ не найден.");             
 
             if (order.status != expectedStatus)
-                throw new Exception("Статус не соответствует требуемому.");
+                throw new Exception("Статус не соответствует ожидаемому.");
 
             order.status = newStatus;
             await _dataContext.SaveChangesAsync();
+
+            var user = await _dataContext.userTable
+                .FirstOrDefaultAsync(x => x.Id == order.client_id);
+
+            await _tgmessage.Send(user!.chatId,
+                    $"Статус заказа был изменён с {expectedStatus} на {newStatus}");
 
             _logger.LogInformation($"Статус заказа с ID: {orderId} был изменён с {expectedStatus} на {newStatus}.");
         }

@@ -11,6 +11,8 @@ using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.MapsterConfigs;
 using System.Security.Cryptography;
+using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
 
 namespace CourierAPI
 {
@@ -126,9 +128,14 @@ namespace CourierAPI
                                       .AllowAnyHeader());
             });
 
+            builder.Services.AddSingleton<IMessageSender>(
+                 new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
+             );
+
             var mapsterConfig = new OrderConfig();
             builder.Services.AddScoped<OrderConfig>();
             builder.Services.AddScoped<ICourierService, CourierService>();
+
 
             var app = builder.Build();
 
