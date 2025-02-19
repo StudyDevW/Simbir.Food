@@ -135,6 +135,9 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("close_time")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -142,6 +145,9 @@ namespace ORM_Components.Migrations
                     b.Property<string>("imagePath")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("open_time")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("phone_number")
                         .IsRequired()

@@ -125,32 +125,36 @@ namespace Middleware_Components.JWT
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unexpected_alg" } };
                 }
 
-                string userName = "";
-                int userId = -1;
+                string login = "";
+                string chatId = "";
+                Guid userGUID = Guid.Empty;
                 List<string> userRoles = new List<string>();
 
                 foreach (var claim in validation.Claims)
                 {
-                    if (claim.Type == "Username")
-                        userName = claim.Value;
+                    if (claim.Type == "Login")
+                        login = claim.Value;
 
                     if (claim.Type == "Id")
-                        userId = int.Parse(claim.Value);
+                        userGUID = Guid.Parse(claim.Value);
+
+                    if (claim.Type == "ChatId")
+                        chatId = claim.Value;
 
                     if (claim.Type == "Roles")
                         userRoles = JsonSerializer.Deserialize<List<string>>(claim.Value);
                 }
 
-                if (userId == -1)
+                if (userGUID == Guid.Empty)
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
 
                 if (userRoles == null)
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
 
-                if (_cache.CheckExistKeysStorage(userId, "accessTokens"))
+                if (_cache.CheckExistKeysStorage(userGUID, "accessTokens"))
                 {
                     //Проверка на то, подменен ли ключ или нет!
-                    if (_cache.GetKeyFromStorage(userId, "accessTokens") != bearer_key_without_prefix)
+                    if (_cache.GetKeyFromStorage(userGUID, "accessTokens") != bearer_key_without_prefix)
                         return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
                 }
                 else
@@ -164,9 +168,10 @@ namespace Middleware_Components.JWT
 
                 Token_ValidSuccess valid_success = new Token_ValidSuccess
                 {
-                    Id = userId,
-                    userName = userName,
+                    Id = userGUID,
+                    login = login,
                     userRoles = userRoles,
+                    telegramChatId = chatId,
                     bearerWithoutPrefix = bearer_key_without_prefix
                 };
 
@@ -194,33 +199,37 @@ namespace Middleware_Components.JWT
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unexpected_alg" } };
                 }
 
-                string userName = "";
-                int userId = -1;
+                string login = "";
+                string chatId = "";
+                Guid userGUID = Guid.Empty;
                 List<string> userRoles = new List<string>();
 
                 foreach (var claim in validation.Claims)
                 {
-                    if (claim.Type == "Username")
-                        userName = claim.Value;
+                    if (claim.Type == "Login")
+                        login = claim.Value;
+
+                    if (claim.Type == "ChatId")
+                        chatId = claim.Value;
 
                     if (claim.Type == "Id")
-                        userId = int.Parse(claim.Value);
+                        userGUID = Guid.Parse(claim.Value);
 
                     if (claim.Type == "Roles")
                         userRoles = JsonSerializer.Deserialize<List<string>>(claim.Value);
                 }
 
-                if (userId == -1)
+                if (userGUID == Guid.Empty)
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
 
                 if (userRoles == null)
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
 
 
-                if (_cache.CheckExistKeysStorage(userId, "refreshTokens"))
+                if (_cache.CheckExistKeysStorage(userGUID, "refreshTokens"))
                 {
                     //Проверка на то, подменен ли ключ или нет!
-                    if (_cache.GetKeyFromStorage(userId, "refreshTokens") != bearerKey)
+                    if (_cache.GetKeyFromStorage(userGUID, "refreshTokens") != bearerKey)
                         return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unauthorized" } };
                 }
                 else
@@ -228,9 +237,10 @@ namespace Middleware_Components.JWT
 
                 Token_ValidSuccess valid_success = new Token_ValidSuccess
                 {
-                    Id = userId,
-                    userName = userName,
+                    Id = userGUID,
+                    login = login,
                     userRoles = userRoles,
+                    telegramChatId = chatId,
                     bearerWithoutPrefix = bearerKey
                 };
 
@@ -246,7 +256,7 @@ namespace Middleware_Components.JWT
             if (dtoObj == null)
                 return string.Empty;
 
-            if (dtoObj.username == null)
+            if (dtoObj.login == null)
                 return string.Empty;
 
             var rsaprivateKey = _configuration["RSA_PRIVATE_KEY"];
@@ -270,7 +280,8 @@ namespace Middleware_Components.JWT
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", dtoObj.Id.ToString()),
-                    new Claim("Username", dtoObj.username),
+                    new Claim("Login", dtoObj.login),
+                    new Claim("ChatId", dtoObj.telegramChatId),
                     new Claim("Roles", serializer_roles),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
@@ -292,7 +303,7 @@ namespace Middleware_Components.JWT
             if (dtoObj == null)
                 return string.Empty;
 
-            if (dtoObj.username == null)
+            if (dtoObj.login == null)
                 return string.Empty;
 
             var rsaprivateKey = _configuration["RSA_PRIVATE_KEY"];
@@ -316,7 +327,8 @@ namespace Middleware_Components.JWT
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", dtoObj.Id.ToString()),
-                    new Claim("Username", dtoObj.username),
+                    new Claim("Login", dtoObj.login),
+                    new Claim("ChatId", dtoObj.telegramChatId),
                     new Claim("Roles", serializer_roles),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),

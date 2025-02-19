@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ORM_Components.DTO.CheckUsers
+namespace Middleware_Components.DTO.ClientAPI
 {
-    public class Auth_CheckError
+    public class Auth_RefreshTokens
     {
-        public string? errorLog { get; set; }
+        public string refreshToken { get; set; }
     }
 }

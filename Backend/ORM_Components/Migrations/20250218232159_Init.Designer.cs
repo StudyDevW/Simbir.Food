@@ -12,7 +12,7 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250214083608_Init")]
+    [Migration("20250218232159_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -134,11 +134,29 @@ namespace ORM_Components.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("close_time")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("imagePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("open_time")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("phone_number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("restaurantName")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -78,9 +78,14 @@ namespace ORM_Components.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    restaurantName = table.Column<string>(type: "text", nullable: false),
+                    address = table.Column<string>(type: "text", nullable: false),
+                    phone_number = table.Column<string>(type: "text", nullable: false),
                     status = table.Column<string>(type: "text", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
-                    imagePath = table.Column<string>(type: "text", nullable: false)
+                    imagePath = table.Column<string>(type: "text", nullable: false),
+                    open_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    close_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
