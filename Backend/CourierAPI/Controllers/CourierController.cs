@@ -1,9 +1,11 @@
 ﻿using CourierAPI.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ORM_Components.DTO.CourierAPI;
 
 namespace CourierAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/courier/")]
     public class CourierController : ControllerBase

@@ -104,6 +104,7 @@ namespace CourierAPI
                 o.TokenValidationParameters = tk_valid;
             });
 
+            builder.Services.AddAuthorization();
 
             builder.Services.AddDbContext<DataContext>(options =>
             {
@@ -137,9 +138,9 @@ namespace CourierAPI
 
             app.UseForwardedHeaders();
 
-            app.UseAuthorization();
-
             app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.MapControllers();
 

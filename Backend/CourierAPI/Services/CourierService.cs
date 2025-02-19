@@ -23,26 +23,28 @@ namespace CourierAPI.Service
 
         public async Task<List<OrderForCourierDto>> GetOrders()
         {
-            var orders = await _dataContext.orderTable
+            return await _dataContext.orderTable
                 .Where(x => x.status == OrderStatus.Ready)
                 .ProjectToType<OrderForCourierDto>()
                 .ToListAsync();
-            return orders;
         }
 
         public async Task AcceptOrder(OrderLinkCourierDto orderLinkCourierDto)
         {
             var order = await _dataContext.orderTable.
                 FirstOrDefaultAsync(x => x.Id == orderLinkCourierDto.orderId)
-                ?? throw new Exception("Заказ не найден."); ;
+                ?? throw new Exception("Заказ не найден.");
 
-            var courier = await _dataContext.courierTable
-                .FirstOrDefaultAsync(x => x.Id == orderLinkCourierDto.courierId)
-                ?? throw new Exception("Курьер не найден."); ;
+            bool isCourierExist = await _dataContext.courierTable
+                .AnyAsync(x => x.Id == orderLinkCourierDto.courierId);
+
+            if (!isCourierExist) 
+                throw new Exception("Курьер не найден.");
 
             order.courier_id = orderLinkCourierDto.courierId;
             await _dataContext.SaveChangesAsync();
-            return;
+
+            _logger.LogInformation($"Курьер с ID: {order.courier_id} был назначен на заказ: {order.Id}.");
         }
 
         public async Task TakeOrder(Guid orderId)
@@ -71,19 +73,23 @@ namespace CourierAPI.Service
 
             order.status = newStatus;
             await _dataContext.SaveChangesAsync();
+
+            _logger.LogInformation($"Статус заказа с ID: {orderId} был изменён с {expectedStatus} на {newStatus}.");
         }
 
         public async Task CreateAsync(CourierDtoForCreate courierDtoForCreate)
         {
-            var user = await _dataContext.userTable
-                .FirstOrDefaultAsync(x => x.Id == courierDtoForCreate.userId);
+            var isUserExist = await _dataContext.userTable
+                .AnyAsync(x => x.Id == courierDtoForCreate.userId);
 
-            if (user == null)
+            if (!isUserExist)
                 throw new Exception("Пользователь не найден.");
 
             var courier = courierDtoForCreate.Adapt<CourierTable>();
             _dataContext.Add(courier);
             await _dataContext.SaveChangesAsync();
+
+            _logger.LogInformation($"Новый курьер был создан. ID: {courier.Id}.");
         }
 
         public async Task<CourierDto> GetAsync(Guid courierId)
@@ -108,8 +114,9 @@ namespace CourierAPI.Service
                 ?? throw new Exception("Курьер не найден.");
 
             courierDtoForUpdate.Adapt(courier);
-
             await _dataContext.SaveChangesAsync();
+
+            _logger.LogInformation($"В курьера с ID: {courier.Id} были внесены изменения.");
         }
 
         public async Task DeleteAsync(Guid courierId)
@@ -120,6 +127,8 @@ namespace CourierAPI.Service
 
             _dataContext.Remove(courier);
             await _dataContext.SaveChangesAsync();
+
+            _logger.LogInformation($"Курьера с ID: {courier.Id} был удалён.");
         }
     }
 }
