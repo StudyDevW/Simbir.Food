@@ -278,4 +278,264 @@ public class DatabaseServiceTests : BaseTest
         result.Content.Count.Should().Be(users.Count - from);
         result.Content.Last().login.Should().Be(lastName);
     }
+
+    [Fact]
+    public async Task InfoClientUpdate_WithNewPassword_UpdatesClientPassword()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var password = "pass123";
+        var newPassword = "asd123";
+
+        var user = new UserTable()
+        {
+            Id = Guid.NewGuid(),
+            login = "tested"
+        };
+
+        var hasher = new PasswordHasher<PasswordAppUser>();
+        var app = new PasswordAppUser { login = user.login };
+        user.password = hasher.HashPassword(app, password);
+        var users = new List<UserTable> { user };
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        var dto = new ClientUpdate { password = newPassword };
+
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        await sut.InfoClientUpdate(dto, user.Id);
+
+        // assert
+        hasher.VerifyHashedPassword(app, user.password, newPassword)
+            .Should().Be(PasswordVerificationResult.Success);
+    }
+
+    [Fact]
+    public async Task InfoClientUpdate_WithTheSamePassword_ThrowsException()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var password = "pass123";
+        var newPassword = "pass123";
+
+        var user = new UserTable()
+        {
+            Id = Guid.NewGuid(),
+            login = "tested"
+        };
+
+        var hasher = new PasswordHasher<PasswordAppUser>();
+        var app = new PasswordAppUser { login = user.login };
+        user.password = hasher.HashPassword(app, password);
+        var users = new List<UserTable> { user };
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        var dto = new ClientUpdate { password = newPassword };
+
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        Func<Task> act = async() => await sut.InfoClientUpdate(dto, user.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("password_1:1");
+    }
+
+    [Fact]
+    public async Task InfoClientUpdate_WithAllDataButPassword_UpdatesClientData()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+
+        var newName = "logan";
+        var newAddress = "London";
+        var newAvatarImage = "kinda_url";
+        var newEmail = "logan@gmail.com";
+        var newPhone = "892018626";
+
+        var user = new UserTable()
+        {
+            Id = Guid.NewGuid(),
+            address = "Moscow",
+            avatarImage = "some_url",
+            email = "moscow@gmail.com",
+            name = "potap",
+            phone_number = "790258912"
+        };
+
+        var users = new List<UserTable> { user };
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        var dto = new ClientUpdate
+        {
+            name = newName,
+            address = newAddress,
+            avatarImage = newAvatarImage,
+            email = newEmail,
+            phone_number = newPhone,
+        };
+
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        await sut.InfoClientUpdate(dto, user.Id);
+
+        // assert
+        user.name.Should().Be(newName);
+        user.address.Should().Be(newAddress);
+        user.avatarImage.Should().Be(newAvatarImage);
+        user.email.Should().Be(newEmail);
+        user.phone_number.Should().Be(newPhone);
+    }
+
+    [Fact]
+    public async Task InfoClientUpdate_WithNullData_DoesNothing()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+
+        var address = "Moscow";
+        var avatarImage = "some_url";
+        var email = "moscow@gmail.com";
+        var name = "potap";
+        var phone_number = "790258912";
+
+        var user = new UserTable()
+        {
+            Id = Guid.NewGuid(),
+            address = address,
+            avatarImage = avatarImage,
+            email = email,
+            name = name,
+            phone_number = phone_number
+        };
+
+        var users = new List<UserTable> { user };
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        var dto = new ClientUpdate();
+
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        await sut.InfoClientUpdate(dto, user.Id);
+
+        // assert
+        user.name.Should().Be(name);
+        user.address.Should().Be(address);
+        user.avatarImage.Should().Be(avatarImage);
+        user.email.Should().Be(email);
+        user.phone_number.Should().Be(phone_number);
+    }
+
+    [Fact]
+    public async Task InfoClientUpdate_WithNullUser_ThrowsException()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var users = new List<UserTable>();
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        
+        var dto = new ClientUpdate();
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        Func<Task> act = async () => await sut.InfoClientUpdate(dto, Guid.NewGuid());
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("user_not_found");
+    }
+
+    [Fact]
+    public async Task DeleteClientWithAdmin_WithUserId_DeletesUser()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+
+        var user = new UserTable
+        {
+            Id = Guid.NewGuid(),
+        };
+
+        var users = new List<UserTable> { user };
+
+        var restaurant = new RestaurantTable
+        {
+            Id = Guid.NewGuid(),
+            user_id = user.Id,
+        };
+
+        var restaurants = new List<RestaurantTable> { restaurant };
+
+        var items = new List<RestaurantFoodItemsTable> 
+        {
+            new RestaurantFoodItemsTable
+            {
+                Id = Guid.NewGuid(),
+                restaurant_id = restaurant.Id,
+            },
+            new RestaurantFoodItemsTable
+            {
+                Id = Guid.NewGuid(),
+                restaurant_id = restaurant.Id,
+            },
+            new RestaurantFoodItemsTable
+            {
+                Id = Guid.NewGuid(),
+                restaurant_id = restaurant.Id,
+            }
+        };
+
+        var couriers = new List<CourierTable> 
+        {
+            new CourierTable
+            {
+                Id = Guid.NewGuid(),
+                userId = user.Id
+            }
+        };
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        context.Setup(x => x.restaurantTable).ReturnsDbSet(restaurants);
+        context.Setup(x => x.restaurantFoodItemsTable).ReturnsDbSet(items);
+        context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
+
+        context.Setup(x => x.userTable.Remove(It.IsAny<UserTable>()))
+            .Callback<UserTable>(x => users.Remove(x));
+        context.Setup(x => x.restaurantTable.Remove(It.IsAny<RestaurantTable>()))
+            .Callback<RestaurantTable>(x => restaurants.Remove(x));
+        context.Setup(x => x.restaurantFoodItemsTable.Remove(It.IsAny<RestaurantFoodItemsTable>()))
+            .Callback<RestaurantFoodItemsTable>(x => items.Remove(x));
+        context.Setup(x => x.courierTable.Remove(It.IsAny<CourierTable>()))
+            .Callback<CourierTable>(x => couriers.Remove(x));
+
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        await sut.DeleteClientWithAdmin(user.Id);
+
+        // assert
+        users.Count.Should().Be(0);
+        restaurants.Count.Should().Be(0);
+        items.Count.Should().Be(0);
+        couriers.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task DeleteClientWithAdmin_WithNotExistingUser_ThrowsException()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+
+        var users = new List<UserTable>();
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        Func<Task> act = async() => await sut.DeleteClientWithAdmin(Guid.NewGuid());
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("user_not_found");
+    }
 }
