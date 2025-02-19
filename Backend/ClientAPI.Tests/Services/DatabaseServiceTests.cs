@@ -54,7 +54,7 @@ public class DatabaseServiceTests : BaseTest
         var context = new Mock<DataContext>();
 
         var login = "tested";
-        var users = new List<UserTable> 
+        var users = new List<UserTable>
         {
             new UserTable { login = login }
         };
@@ -76,7 +76,7 @@ public class DatabaseServiceTests : BaseTest
         var sut = new DatabaseService(context.Object);
 
         // act
-        Func<Task> act = async() => await sut.RegisterUser(dto);
+        Func<Task> act = async () => await sut.RegisterUser(dto);
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("login already exist");
@@ -120,11 +120,11 @@ public class DatabaseServiceTests : BaseTest
 
         contextStub.Setup(x => x.userTable).ReturnsDbSet(list);
 
-        var sut = new DatabaseService( contextStub.Object);
+        var sut = new DatabaseService(contextStub.Object);
 
         var dto = new AuthSignIn
         {
-            login = login, 
+            login = login,
             password = password
         };
 
@@ -211,5 +211,71 @@ public class DatabaseServiceTests : BaseTest
         // assert
         result.check_success.Should().BeNull();
         result.check_error.Should().NotBeNull();
+    }
+
+    private List<UserTable> GetTestUsers() => new List<UserTable>
+    {
+        new UserTable { login = "user_1", roles = new string[] { "Client" } },
+        new UserTable { login = "user_2", roles = new string[] { "Client" } },
+        new UserTable { login = "user_3", roles = new string[] { "Client" } },
+        new UserTable { login = "user_4", roles = new string[] { "Client" } },
+        new UserTable { login = "user_5", roles = new string[] { "Client" } },
+        new UserTable { login = "user_6", roles = new string[] { "Client" } },
+        new UserTable { login = "user_7", roles = new string[] { "Client" } },
+        new UserTable { login = "user_8", roles = new string[] { "Client" } },
+        new UserTable { login = "user_9", roles = new string[] { "Client" } },
+        new UserTable { login = "user_10", roles = new string[] { "Client" } },
+        new UserTable { login = "user_11", roles = new string[] { "Client" } },
+        new UserTable { login = "user_12", roles = new string[] { "Client" } },
+        new UserTable { login = "user_13", roles = new string[] { "Client" } },
+        new UserTable { login = "user_14", roles = new string[] { "Client" } },
+        new UserTable { login = "user_15", roles = new string[] { "Client" } },
+    };
+
+    [Theory]
+    [InlineData(2, 6, "user_3", "user_8")]
+    [InlineData(0, 4, "user_1", "user_4")]
+    [InlineData(5, 1, "user_6", "user_6")]
+    [InlineData(13, 2, "user_14", "user_15")]
+    public void GetAllClients_WithCountBiggerThanZero_ReturnsClientGetAll(int from, int count, string firstName, string lastName)
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var users = GetTestUsers();
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        var result = sut.GetAllClients(from, count);
+
+        // assert
+        result.Content.First().login.Should().Be(firstName);
+        result.Content.Count.Should().Be(count);
+        result.Content.Last().login.Should().Be(lastName);
+    }
+
+    [Theory]
+    [InlineData(2, "user_3", "user_15")]
+    [InlineData(0, "user_1", "user_15")]
+    [InlineData(14, "user_15", "user_15")]
+    public void GetAllClients_WithCountEqualsZero_ReturnsClientGetAll(int from, string firstName, string lastName)
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var users = GetTestUsers();
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+
+        var sut = new DatabaseService(context.Object);
+
+        // act
+        var result = sut.GetAllClients(from, 0);
+
+        // assert
+        result.Content.First().login.Should().Be(firstName);
+        result.Content.Count.Should().Be(users.Count - from);
+        result.Content.Last().login.Should().Be(lastName);
     }
 }
