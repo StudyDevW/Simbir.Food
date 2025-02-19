@@ -102,8 +102,8 @@ namespace ClientAPI.Controllers
         {
             try
             {
-                
-                return Ok("account_created");
+                await _clientService.DeleteClientWithAdmin(Request.Headers["Authorization"], id);
+                return Ok("account_deleted");
             }
             catch (Exception ex)
             {
