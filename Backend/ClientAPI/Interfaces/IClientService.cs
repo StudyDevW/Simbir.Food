@@ -23,5 +23,7 @@ namespace ClientAPI.Interfaces
         public Task UpdateClientInfoWithAdmin(string bearer_key, ClientUpdate_Admin dtoObj, Guid userGUID);
 
         public Task CreateClientWithAdmin(string bearer_key, ClientAdd_Admin dtoObj);
+
+        public Task DeleteClientWithAdmin(string bearer_key, Guid userGUID);
     }
 }

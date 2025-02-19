@@ -294,5 +294,26 @@ namespace ClientAPI.Services
                 }
             }
         }
+
+        public async Task DeleteClientWithAdmin(string bearer_key, Guid userGUID)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                if (validation.token_success.userRoles.Contains("Admin"))
+                {
+                    await _database.DeleteClientWithAdmin(userGUID);
+                }
+                else
+                {
+                    throw new Exception("role_invalid");
+                }
+            }
+        }
     }
 }
