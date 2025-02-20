@@ -13,6 +13,10 @@ namespace Middleware_Components.Cache
     {
         private IDatabase _cacheDb;
 
+        public CacheSDK(IDatabase cacheDb)
+        {
+            _cacheDb = cacheDb;
+        }
         public CacheSDK()
         {
             var redis = ConnectionMultiplexer.Connect(
@@ -50,7 +54,7 @@ namespace Middleware_Components.Cache
 
         public bool SetData<T>(string key, T value, DateTimeOffset expirationTime)
         {
-            var expiryTime = expirationTime.DateTime.Subtract(DateTime.Now);
+            var expiryTime = expirationTime.DateTime.Subtract(DateTime.UtcNow);
 
             return _cacheDb.StringSet(key, JsonSerializer.Serialize(value), expiryTime);
         }

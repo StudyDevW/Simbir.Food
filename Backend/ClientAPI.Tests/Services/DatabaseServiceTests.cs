@@ -1,8 +1,6 @@
 ﻿using ClientAPI.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.EntityFrameworkCore;
 using ORM_Components;
@@ -12,6 +10,9 @@ using TestsBaseLib.Base;
 
 namespace ClientAPI.Tests.Services;
 
+/// <summary>
+/// Unit tests of DatabaseService
+/// </summary>
 public class DatabaseServiceTests : BaseTest
 {
     [Fact]

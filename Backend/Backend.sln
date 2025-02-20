@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentAPI.Tests", "Payment
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantAPI.Tests", "RestaurantAPI.Tests\RestaurantAPI.Tests.csproj", "{B6D6A2DC-F797-4135-88E3-73F5B89E5944}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsBaseLib", "TestsBaseLib\TestsBaseLib.csproj", "{67DF53A1-A4CF-405F-A1D4-290148ADB3B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestsBaseLib", "TestsBaseLib\TestsBaseLib.csproj", "{67DF53A1-A4CF-405F-A1D4-290148ADB3B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
