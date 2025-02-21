@@ -8,6 +8,7 @@ using StackExchange.Redis;
 using System.Diagnostics.Metrics;
 using ORM_Components.Tables;
 using Telegram_Components.Interfaces;
+using System.Linq;
 
 namespace CourierAPI.Service
 {
@@ -28,7 +29,7 @@ namespace CourierAPI.Service
         {
             return await _dataContext.orderTable
                 .Where(x => x.status == OrderStatus.Ready)
-                .ProjectToType<OrderForCourierDto>()
+                .Select(x => new OrderForCourierDto(x.Id, x.client_id, x.status, x.order_date))
                 .ToListAsync();
         }
 
@@ -75,6 +76,16 @@ namespace CourierAPI.Service
                 throw new Exception("Статус не соответствует ожидаемому.");
 
             order.status = newStatus;
+
+            _dataContext.orderStatusHistoryTables.Add(
+                new OrderStatusHistoryTable
+                {
+                    Id = Guid.NewGuid(),
+                    order_id = orderId,
+                    status = newStatus,
+                    status_datetime = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Local)
+                });
+
             await _dataContext.SaveChangesAsync();
 
             var user = await _dataContext.userTable
@@ -84,6 +95,7 @@ namespace CourierAPI.Service
                     $"Статус заказа был изменён с {expectedStatus} на {newStatus}");
 
             _logger.LogInformation($"Статус заказа с ID: {orderId} был изменён с {expectedStatus} на {newStatus}.");
+
         }
 
         public async Task CreateAsync(CourierDtoForCreate courierDtoForCreate)
@@ -105,15 +117,17 @@ namespace CourierAPI.Service
         {
             return await _dataContext.courierTable
                 .Where(x => x.Id == courierId)
-                .ProjectToType<CourierDto>()
+                .Select(x => new CourierDto(x.Id, x.userId, x.car_number, x.status))
                 .FirstOrDefaultAsync() ?? throw new Exception("Курьер не найден.");
         }
 
         public async Task<List<CourierDto>> GetAllAsync()
         {
-            return await _dataContext.courierTable
-                .ProjectToType<CourierDto>()
+            var couriers = await _dataContext.courierTable
+                .Select(x => new CourierDto(x.Id, x.userId, x.car_number, x.status))
                 .ToListAsync();
+            Console.WriteLine("REWORKED FOR 'ADAPT' VERSION 4");
+            return couriers;
         }
 
         public async Task UpdateAsync(CourierDtoForUpdate courierDtoForUpdate)
