@@ -5,6 +5,7 @@ using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Middleware_Components.Broker;
 using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
@@ -132,8 +133,10 @@ namespace CourierAPI
                  new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
              );
 
-            var mapsterConfig = new OrderConfig();
+            builder.Services.AddSingleton<RabbitMQService>();
+
             builder.Services.AddScoped<OrderConfig>();
+
             builder.Services.AddScoped<ICourierService, CourierService>();
 
 

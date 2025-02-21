@@ -9,6 +9,7 @@ using System.Diagnostics.Metrics;
 using ORM_Components.Tables;
 using Telegram_Components.Interfaces;
 using System.Linq;
+using Middleware_Components.Broker;
 
 namespace CourierAPI.Service
 {
@@ -17,11 +18,13 @@ namespace CourierAPI.Service
         private readonly ILogger _logger;
         private readonly DataContext _dataContext;
         private readonly IMessageSender _tgmessage;
+        private readonly RabbitMQService _rabbitMQService;
 
-        public CourierService(DataContext dataContext, IMessageSender tgmessage) 
+        public CourierService(DataContext dataContext, IMessageSender tgmessage, RabbitMQService rabbitMQService) 
         { 
             _dataContext = dataContext;
             _tgmessage = tgmessage;
+            _rabbitMQService = rabbitMQService;
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("CourierAPI | database-sdk-logger");
         }
 
@@ -64,6 +67,7 @@ namespace CourierAPI.Service
         public async Task OrderDelivered(Guid orderId)
         {
             await UpdateOrderStatus(orderId, OrderStatus.CourierOnPlace, OrderStatus.Delivered);
+            _rabbitMQService.SendMessage("order_review_queue", new { OrderId = orderId });
         }
 
         private async Task UpdateOrderStatus(Guid orderId, OrderStatus expectedStatus, OrderStatus newStatus)
@@ -126,7 +130,6 @@ namespace CourierAPI.Service
             var couriers = await _dataContext.courierTable
                 .Select(x => new CourierDto(x.Id, x.userId, x.car_number, x.status))
                 .ToListAsync();
-            Console.WriteLine("REWORKED FOR 'ADAPT' VERSION 4");
             return couriers;
         }
 

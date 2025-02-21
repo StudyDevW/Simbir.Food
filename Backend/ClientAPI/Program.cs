@@ -14,6 +14,8 @@ using ClientAPI.Services;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Middleware_Components.Broker;
+using System.Text.Json;
 
 namespace ClientAPI
 {
@@ -130,6 +132,10 @@ namespace ClientAPI
 
             builder.Services.AddScoped<ICacheService, CacheSDK>();
 
+            builder.Services.AddSingleton<RabbitMQService>();
+
+            builder.Services.AddHostedService<RabbitMQListenerService>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
@@ -170,6 +176,22 @@ namespace ClientAPI
                 else
                 {
                     await next();
+                }
+            });
+
+            var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>();
+            var dataService = app.Services.GetRequiredService<IDatabaseService>();
+
+            rabbitMQService.StartListening<JsonElement>("order_review_queue", message =>
+            {
+                if (message.TryGetProperty("OrderId", out JsonElement orderIdElement) &&
+                    Guid.TryParse(orderIdElement.GetString(), out Guid orderId))
+                {
+                    dataService.ReviewForOrder(orderId);
+                }
+                else
+                {
+                    Console.WriteLine("Ошибка: Не удалось распарсить OrderId из сообщения RabbitMQ.");
                 }
             });
 
