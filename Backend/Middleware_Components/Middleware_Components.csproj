@@ -14,9 +14,5 @@
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
 	  <PackageReference Include="StackExchange.Redis" Version="2.8.0" />
   </ItemGroup>
-	
-  <ItemGroup>
-    <Folder Include="Broker\" />
-  </ItemGroup>
 
 </Project>
