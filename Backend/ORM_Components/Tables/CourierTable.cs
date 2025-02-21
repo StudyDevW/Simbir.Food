@@ -13,7 +13,7 @@ namespace ORM_Components.Tables
 
         public string? car_number { get; set; }
 
-        public string status { get; set; }
+        public CourierStatus status { get; set; } = CourierStatus.IsInactive;
     }
 
 }

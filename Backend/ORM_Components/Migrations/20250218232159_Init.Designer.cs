@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ORM_Components;
@@ -11,9 +12,14 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+<<<<<<<< HEAD:Backend/ORM_Components/Migrations/20250214083608_Init.Designer.cs
+    [Migration("20250214083608_Init")]
+========
+    [Migration("20250218232159_Init")]
+>>>>>>>> main_develop:Backend/ORM_Components/Migrations/20250218232159_Init.Designer.cs
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,8 +37,9 @@ namespace ORM_Components.Migrations
                     b.Property<string>("car_number")
                         .HasColumnType("text");
 
-                    b.Property<int>("status")
-                        .HasColumnType("integer");
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("userId")
                         .HasColumnType("uuid");
@@ -130,6 +137,8 @@ namespace ORM_Components.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+<<<<<<<< HEAD:Backend/ORM_Components/Migrations/20250214083608_Init.Designer.cs
+========
 
                     b.Property<string>("address")
                         .IsRequired()
@@ -137,6 +146,7 @@ namespace ORM_Components.Migrations
 
                     b.Property<DateTime>("close_time")
                         .HasColumnType("timestamp with time zone");
+>>>>>>>> main_develop:Backend/ORM_Components/Migrations/20250218232159_Init.Designer.cs
 
                     b.Property<string>("description")
                         .IsRequired()
@@ -212,10 +222,6 @@ namespace ORM_Components.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("avatarImage")
-                        .HasColumnType("text");
-
-                    b.Property<string>("chatId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("email")

@@ -33,6 +33,8 @@ namespace ORM_Components
 
         public DbSet<RestaurantFoodItemsTable> restaurantFoodItemsTable { get; set; }
 
+        public DbSet<OrderStatusHistoryTable> orderStatusHistoryTables { get; set; }
+
         public DbSet<ReviewTable> reviewTable { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

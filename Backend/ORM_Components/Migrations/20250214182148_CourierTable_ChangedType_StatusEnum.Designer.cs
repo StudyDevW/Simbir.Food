@@ -12,8 +12,8 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250214083608_Init")]
-    partial class Init
+    [Migration("20250214182148_CourierTable_ChangedType_StatusEnum")]
+    partial class CourierTable_ChangedType_StatusEnum
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,9 +33,8 @@ namespace ORM_Components.Migrations
                     b.Property<string>("car_number")
                         .HasColumnType("text");
 
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("status")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("userId")
                         .HasColumnType("uuid");
@@ -134,11 +133,23 @@ namespace ORM_Components.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("imagePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("phone_number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("restaurantName")
                         .IsRequired()
                         .HasColumnType("text");
 

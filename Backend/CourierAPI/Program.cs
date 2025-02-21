@@ -11,6 +11,8 @@ using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.MapsterConfigs;
 using System.Security.Cryptography;
+using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
 
 namespace CourierAPI
 {
@@ -104,20 +106,19 @@ namespace CourierAPI
                 o.TokenValidationParameters = tk_valid;
             });
 
+            builder.Services.AddAuthorization();
 
             builder.Services.AddDbContext<DataContext>(options =>
             {
                 var connectString = builder.Configuration["DATABASE_CONNECT"];
 
                 if (connectString != null)
-                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("CourierAPI"));
+                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ORM_Components"));
             });
 
-            //builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
+            builder.Services.AddScoped<IJwtService, JwtSDK>();
 
-            builder.Services.AddSingleton<IJwtService, JwtSDK>();
-
-            builder.Services.AddSingleton<ICacheService, CacheSDK>();
+            builder.Services.AddScoped<ICacheService, CacheSDK>();
 
             builder.Services.AddCors(options =>
             {
@@ -127,9 +128,14 @@ namespace CourierAPI
                                       .AllowAnyHeader());
             });
 
+            builder.Services.AddSingleton<IMessageSender>(
+                 new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
+             );
+
             var mapsterConfig = new OrderConfig();
-            builder.Services.AddSingleton<OrderConfig>();
-            builder.Services.AddSingleton<ICourierService, CourierService>();
+            builder.Services.AddScoped<OrderConfig>();
+            builder.Services.AddScoped<ICourierService, CourierService>();
+
 
             var app = builder.Build();
 
@@ -139,9 +145,9 @@ namespace CourierAPI
 
             app.UseForwardedHeaders();
 
-            app.UseAuthorization();
-
             app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.MapControllers();
 

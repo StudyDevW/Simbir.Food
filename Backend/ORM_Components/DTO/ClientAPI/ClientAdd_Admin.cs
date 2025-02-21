@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ORM_Components.Tables.Helpers;
-
-namespace ORM_Components.Tables
+﻿namespace ORM_Components.DTO.ClientAPI
 {
-    public class UserTable : IId
+    public class ClientAdd_Admin
     {
         public string name { get; set; }
 
@@ -24,7 +16,7 @@ namespace ORM_Components.Tables
 
         public string password { get; set; }
 
-        public string chatId { get; set; }
+        public string telegram_chatid { get; set; }
 
         public string[] roles { get; set; }
     }
