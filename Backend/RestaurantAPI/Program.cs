@@ -8,6 +8,8 @@ using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
 using System.Security.Cryptography;
+using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
 
 namespace RestaurantAPI
 {
@@ -111,7 +113,9 @@ namespace RestaurantAPI
             });
 
             //builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
-
+            builder.Services.AddSingleton<IMessageSender>(
+               new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
+           );
             builder.Services.AddSingleton<IJwtService, JwtSDK>();
 
             builder.Services.AddSingleton<ICacheService, CacheSDK>();

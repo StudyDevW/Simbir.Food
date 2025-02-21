@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
 using ORM_Components.DTO.RestaurantAPI;
+using Telegram_Components.Interfaces;
 
 namespace RestaurantAPI.Model.Controllers
 {
@@ -8,11 +9,14 @@ namespace RestaurantAPI.Model.Controllers
     [ApiController]
     public class OrdersDeviationController : ControllerBase
     {
+        private readonly IMessageSender _messageSender;
         private readonly IJwtService _jwtServices;
 
-        public OrdersDeviationController (IJwtService jwtServices)
+        public OrdersDeviationController (IJwtService jwtServices, IMessageSender messageSender)
         {
             _jwtServices = jwtServices;
+            _messageSender = messageSender;
+
         }
 
         [HttpPost("SentOrder")]
@@ -23,13 +27,26 @@ namespace RestaurantAPI.Model.Controllers
                 return BadRequest("Неверные данные заказа.");
             }
 
-            string message = $"Ваш заказ в ресторане {order_DTO.restaurant_id} был отклонен.\n" +
-                             $"Сумма заказа: {order_DTO.total_price}.\n" +
-                             $"Дата заказа: {order_DTO.order_date}.";
+            var validation = await _jwtServices.AccessTokenValidation(Request.Headers["Authorization"]);
 
-            await _telegramChatId.Send(order_DTO.client_id, message);
+            if (validation.TokenHasError())
+            {
+                return Unauthorized();
+            }
+            else if (validation.TokenHasSuccess())
+            {
+               
 
-            return Ok("Заказ отклонен и отправлено уведомление.");
+                string message = $"Ваш заказ в ресторане {order_DTO.restaurant_id} был отклонен.\n" +
+                                 $"Сумма заказа: {order_DTO.total_price}.\n" +
+                                 $"Дата заказа: {order_DTO.order_date}.";
+
+                await _messageSender.Send(validation.token_success.telegramChatId, message);
+
+                return Ok("Заказ отклонен и отправлено уведомление.");
+            }
+            return BadRequest();
+            
         }
     }
 }
