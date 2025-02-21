@@ -17,4 +17,10 @@
     <ProjectReference Include="..\ORM_Components\ORM_Components.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

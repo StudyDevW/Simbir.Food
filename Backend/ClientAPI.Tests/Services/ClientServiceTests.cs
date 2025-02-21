@@ -19,7 +19,7 @@ namespace ClientAPI.Tests.Services;
 /// Integration tests of ClientService.
 /// For running this tests you need to run redis and postgresql in docker
 /// </summary>
-public class ClientServiceTests : BaseTest
+public class ClientServiceTests : IntegrationTest
 {
     private readonly IMessageSender _sender;
     private readonly ICacheService _cache;

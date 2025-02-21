@@ -13,7 +13,7 @@ namespace ClientAPI.Tests.Services;
 /// <summary>
 /// Unit tests of DatabaseService
 /// </summary>
-public class DatabaseServiceTests : BaseTest
+public class DatabaseServiceTests
 {
     [Fact]
     public async Task RegisterUser_WithCorrentData_AddedUserInDb()
