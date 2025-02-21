@@ -11,7 +11,7 @@ using TestsBaseLib.Base;
 
 namespace CourierAPI.Tests.Services;
 
-public class CourierServiceTests : BaseTest
+public class CourierServiceTests
 {
     [Fact]
     public async Task AcceptOrder_WithCorrectData_SetCourierOfAnOrder()

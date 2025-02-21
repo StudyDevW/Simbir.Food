@@ -1,0 +1,17 @@
+services:
+  test_redis:
+    image: redis:latest
+    ports:
+    - "6344:6379"
+  test_postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: postgres_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5444:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data/pgdata
