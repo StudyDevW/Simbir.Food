@@ -9,9 +9,6 @@ using System.Diagnostics.Metrics;
 using ORM_Components.Tables;
 using Telegram_Components.Interfaces;
 using System.Linq;
-using Middleware_Components.Broker;
-using ORM_Components.DTO.RestaurantAPI;
-using FluentValidation;
 
 namespace CourierAPI.Service
 {
@@ -20,13 +17,9 @@ namespace CourierAPI.Service
         private readonly ILogger _logger;
         private readonly DataContext _dataContext;
         private readonly IMessageSender _tgmessage;
-        private readonly IRabbitMQService _rabbitMQService;
-        private readonly IValidator<CourierDtoForCreate> _courierCreateValidator;
-        private readonly IValidator<CourierDtoForUpdate> _courierUpdateValidator;
+        private readonly RabbitMQService _rabbitMQService;
 
-        public CourierService(DataContext dataContext, IMessageSender tgmessage, 
-            IRabbitMQService rabbitMQService,
-            IValidator<CourierDtoForCreate> _courierCreateValidator, IValidator<CourierDtoForUpdate> _courierUpdateValidator) 
+        public CourierService(DataContext dataContext, IMessageSender tgmessage, RabbitMQService rabbitMQService) 
         { 
             _dataContext = dataContext;
             _tgmessage = tgmessage;
@@ -73,15 +66,7 @@ namespace CourierAPI.Service
         public async Task OrderDelivered(Guid orderId)
         {
             await UpdateOrderStatus(orderId, OrderStatus.CourierOnPlace, OrderStatus.Delivered);
-
-            var order = await _dataContext.orderTable
-                .FirstOrDefaultAsync(x => x.Id == orderId)
-                ?? throw new Exception("Заказ не найден.");
-
-            if (order.courier_id == Guid.Empty)
-            {
-                throw new Exception("Курьер не назначен на заказ.");
-            }
+        }
 
             OrderIdsDto orderDto = new OrderIdsDto
             (
@@ -118,7 +103,7 @@ namespace CourierAPI.Service
             var user = await _dataContext.userTable
                 .FirstOrDefaultAsync(x => x.Id == order.client_id);
 
-            await _tgmessage.Send(user!.chatId,
+            await _tgmessage.Send(user!.telegram_chat_id.ToString(),
                     $"Статус заказа был изменён с {expectedStatus} на {newStatus}");
 
             _logger.LogInformation($"Статус заказа с ID: {orderId} был изменён с {expectedStatus} на {newStatus}.");
@@ -127,8 +112,6 @@ namespace CourierAPI.Service
 
         public async Task CreateAsync(CourierDtoForCreate courierDtoForCreate)
         {
-            await _courierCreateValidator.ValidateAsync(courierDtoForCreate);
-
             var isUserExist = await _dataContext.userTable
                 .AnyAsync(x => x.Id == courierDtoForCreate.userId);
 
@@ -160,8 +143,6 @@ namespace CourierAPI.Service
 
         public async Task UpdateAsync(CourierDtoForUpdate courierDtoForUpdate)
         {
-            await _courierUpdateValidator.ValidateAsync(courierDtoForUpdate);
-
             var courier = await _dataContext.courierTable
                 .FirstOrDefaultAsync(x => x.Id == courierDtoForUpdate.Id)
                 ?? throw new Exception("Курьер не найден.");
@@ -184,5 +165,14 @@ namespace CourierAPI.Service
             _logger.LogInformation($"Курьера с ID: {courier.Id} был удалён.");
         }
 
+        //Пример
+        public Task TestMethod()
+        {
+            Guid firstId = Guid.NewGuid();
+            Guid secondId = Guid.NewGuid();
+            CourierDto courierDto = new CourierDto(firstId, secondId, "car_number1", CourierStatus.IsActive);
+            _rabbitMQService.SendMessage("test_courier_client", courierDto);
+            return Task.CompletedTask;
+        }
     }
 }

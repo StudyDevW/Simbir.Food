@@ -5,10 +5,7 @@ using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
-using RestaurantAPI.Model.Interface;
-=======
-
->>>>>>> Пробный коммит
+using RestaurantAPI.Model.DBO;
 
 namespace RestaurantAPI.Model.Controllers
 {
