@@ -35,7 +35,7 @@ public class IntegrationTest
             .UseNpgsql(_config.DatabaseConnectionString);
 
         var context = new DataContext(builder.Options);
-        context.Database.Migrate();
+        context.Database.EnsureCreated();
 
         return context;
     }
@@ -81,52 +81,6 @@ public class IntegrationTest
         return new JwtSDK(conf.Object, cache);
     }
 
-    protected UserTable GenerateUser(string login, string passwordHash, string[] roles)
-    {
-        var faker = new Faker<UserTable>();
-        faker.RuleFor(x => x.Id, f => Guid.NewGuid())
-            .RuleFor(x => x.login, f => login)
-            .RuleFor(x => x.password, _ => passwordHash)
-            .RuleFor(x => x.name, f => f.Name.FirstName())
-            .RuleFor(x => x.email, (f, x) => f.Internet.Email(x.name))
-            .RuleFor(x => x.phone_number, f => f.Phone.PhoneNumber())
-            .RuleFor(x => x.address, f => f.Address.City())
-            .RuleFor(x => x.roles, _ => roles);
-
-        return faker.Generate();
-    }
-
-    protected RestaurantTable GenerateRestaurant(Guid user_id)
-    {
-        var faker = new Faker<RestaurantTable>();
-        faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
-            .RuleFor(x => x.user_id, _ => user_id)
-            .RuleFor(x => x.phone_number, f => f.Phone.PhoneNumber())
-            .RuleFor(x => x.imagePath, f => f.Random.Word())
-            .RuleFor(x => x.restaurantName, f => f.Random.Word())
-            .RuleFor(x => x.description, f => f.Random.Words(10))
-            .RuleFor(x => x.address, f => f.Address.City())
-            .RuleFor(x => x.close_time, f => f.Date.Between(new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc), DateTime.UtcNow))
-            .RuleFor(x => x.open_time, (f, x) => f.Date.Between(DateTime.UtcNow, x.close_time))
-            .RuleFor(x => x.status, f => f.Random.Word());
-
-        return faker.Generate();
-    }
-
-    protected List<RestaurantFoodItemsTable> GenerateFoodItems(Guid restaurant_id, int count)
-    {
-        var faker = new Faker<RestaurantFoodItemsTable>();
-        faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
-            .RuleFor(x => x.restaurant_id, _ => restaurant_id)
-            .RuleFor(x => x.price, f => f.Random.Number(200))
-            .RuleFor(x => x.weight, f => f.Random.Number(1, 100))
-            .RuleFor(x => x.calories, f => f.Random.Number(50, 3000))
-            .RuleFor(x => x.image, f => f.Random.Word())
-            .RuleFor(x => x.name, f => f.Random.Word());
-
-        return faker.Generate(count);
-    }
-
     /// <summary>
     /// !!! Только для интеграционных тестов !!!
     /// Добавляет нового пользователя в БД
@@ -136,7 +90,7 @@ public class IntegrationTest
         var hasher = new PasswordHasher<PasswordAppUser>();
 
         var hash = hasher.HashPassword(new PasswordAppUser { login = login }, password);
-        var user = GenerateUser(login, hash, new string[] { role });
+        var user = Generator.GenerateUser(login, hash, new string[] { role });
 
         using (var _context = GetDbContext())
         {

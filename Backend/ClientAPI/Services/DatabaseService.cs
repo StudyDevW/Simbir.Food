@@ -55,8 +55,8 @@ namespace ClientAPI.Services
                 address = dto.address,
                 phone_number = dto.phone_number,
                 password = passwordUser.passwordHashed,
+                chatId = dto.telegram_chatid,
                 roles = new string[] { "Client" },
-            
             };
 
             _dbcontext.userTable.Add(usersTable);
@@ -90,6 +90,7 @@ namespace ClientAPI.Services
                 login = dto.login,
                 address = dto.address,
                 phone_number = dto.phone_number,
+                chatId = dto.telegram_chatid,
                 password = passwordUser.passwordHashed,
                 roles = dto.roles
             };

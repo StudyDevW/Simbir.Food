@@ -6,7 +6,10 @@ using ORM_Components;
 using ORM_Components.DTO.CourierAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
+using Pipelines.Sockets.Unofficial.Buffers;
 using StackExchange.Redis;
+using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
 using TestsBaseLib.Base;
 
 namespace CourierAPI.Tests.Services;
@@ -18,12 +21,9 @@ public class CourierServiceTests
     {
         // arrange
         var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
 
-        var order = new OrderTable
-        {
-            Id = Guid.NewGuid(),
-            courier_id = null,
-        };
+        var order = Generator.GenerateOrder(OrderStatus.Ready);
 
         var courier = new CourierTable
         {
@@ -34,7 +34,7 @@ public class CourierServiceTests
 
         context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
 
-        var sut = new CourierService(context.Object);
+        var sut = new CourierService(context.Object, sender.Object);
         var dto = new OrderLinkCourierDto(order.Id, courier.Id);
 
         // act
@@ -49,12 +49,9 @@ public class CourierServiceTests
     {
         // arrange
         var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
 
-        var order = new OrderTable
-        {
-            Id = Guid.NewGuid(),
-            courier_id = null,
-        };
+        var order = Generator.GenerateOrder(OrderStatus.Ready);
 
         var courier = new CourierTable
         {
@@ -65,7 +62,7 @@ public class CourierServiceTests
 
         context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
 
-        var sut = new CourierService(context.Object);
+        var sut = new CourierService(context.Object, sender.Object);
         var dto = new OrderLinkCourierDto(Guid.NewGuid(), courier.Id);
 
         // act
@@ -80,12 +77,9 @@ public class CourierServiceTests
     {
         // arrange
         var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
 
-        var order = new OrderTable
-        {
-            Id = Guid.NewGuid(),
-            courier_id = null,
-        };
+        var order = Generator.GenerateOrder(OrderStatus.Ready);
 
         var courier = new CourierTable
         {
@@ -96,7 +90,7 @@ public class CourierServiceTests
 
         context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
 
-        var sut = new CourierService(context.Object);
+        var sut = new CourierService(context.Object, sender.Object);
         var dto = new OrderLinkCourierDto(order.Id, Guid.NewGuid());
 
         // act
@@ -111,22 +105,28 @@ public class CourierServiceTests
     {
         // arrange
         var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
 
-        var order = new OrderTable
-        {
-            Id = Guid.NewGuid(),
-            status = OrderStatus.Ready
-        };
+        var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
+        var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.Ready);
+
+        var history = new List<OrderStatusHistoryTable>();
 
         context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
+        context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+            .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
-        var sut = new CourierService(context.Object);
+        var sut = new CourierService(context.Object, sender.Object);
 
         // act
         await sut.TakeOrder(order.Id);
 
         // assert
         order.status.Should().Be(OrderStatus.WaitingForDelivery);
+        history.First().status.Should().Be(OrderStatus.WaitingForDelivery);
+        history.First().order_id.Should().Be(order.Id);
     }
 
     [Fact]
@@ -134,22 +134,19 @@ public class CourierServiceTests
     {
         // arrange
         var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
 
-        var order = new OrderTable
-        {
-            Id = Guid.NewGuid(),
-            status = OrderStatus.WaitingForDelivery
-        };
+        var order = Generator.GenerateOrder(OrderStatus.WaitingForDelivery);
 
         context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
 
-        var sut = new CourierService(context.Object);
+        var sut = new CourierService(context.Object, sender.Object);
 
         // act
         Func<Task> act = async() => await sut.TakeOrder(order.Id);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Статус не соответствует требуемому.");
+        await act.Should().ThrowAsync<Exception>().WithMessage("Статус не соответствует ожидаемому.");
     }
 
     [Fact]
@@ -157,16 +154,13 @@ public class CourierServiceTests
     {
         // arrange
         var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
 
-        var order = new OrderTable
-        {
-            Id = Guid.NewGuid(),
-            status = OrderStatus.Ready
-        };
+        var order = Generator.GenerateOrder(OrderStatus.Ready);
 
         context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
 
-        var sut = new CourierService(context.Object);
+        var sut = new CourierService(context.Object, sender.Object);
 
         // act
         Func<Task> act = async () => await sut.TakeOrder(Guid.NewGuid());
@@ -180,22 +174,28 @@ public class CourierServiceTests
     {
         // arrange
         var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
 
-        var order = new OrderTable
-        {
-            Id = Guid.NewGuid(),
-            status = OrderStatus.WaitingForDelivery
-        };
+        var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
+        var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.WaitingForDelivery);
+
+        var history = new List<OrderStatusHistoryTable>();
 
         context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
+        context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+            .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
-        var sut = new CourierService(context.Object);
+        var sut = new CourierService(context.Object, sender.Object);
 
         // act
         await sut.CourierOnPlace(order.Id);
 
         // assert
         order.status.Should().Be(OrderStatus.CourierOnPlace);
+        history.First().status.Should().Be(OrderStatus.CourierOnPlace);
+        history.First().order_id.Should().Be(order.Id);
     }
 
     [Fact]
@@ -203,21 +203,27 @@ public class CourierServiceTests
     {
         // arrange
         var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
 
-        var order = new OrderTable
-        {
-            Id = Guid.NewGuid(),
-            status = OrderStatus.CourierOnPlace
-        };
+        var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
+        var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace);
+
+        var history = new List<OrderStatusHistoryTable>();
 
         context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
+        context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+            .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
-        var sut = new CourierService(context.Object);
+        var sut = new CourierService(context.Object, sender.Object);
 
         // act
         await sut.OrderDelivered(order.Id);
 
         // assert
         order.status.Should().Be(OrderStatus.Delivered);
+        history.First().status.Should().Be(OrderStatus.Delivered);
+        history.First().order_id.Should().Be(order.Id);
     }
 }

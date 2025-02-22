@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ORM_Components;
@@ -11,9 +12,10 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250214182148_CourierTable_ChangedType_StatusEnum")]
+    partial class CourierTable_ChangedType_StatusEnum
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,9 +137,6 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("close_time")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -145,9 +144,6 @@ namespace ORM_Components.Migrations
                     b.Property<string>("imagePath")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("open_time")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("phone_number")
                         .IsRequired()
@@ -212,10 +208,6 @@ namespace ORM_Components.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("avatarImage")
-                        .HasColumnType("text");
-
-                    b.Property<string>("chatId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("email")

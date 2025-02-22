@@ -290,17 +290,7 @@ public class ClientServiceTests : IntegrationTest
         var bearerKey = "Bearer " + tokens.accessToken;
 
         for (int i = 1; i < 9; i++)
-            _context.userTable.Add(new UserTable
-            {
-                Id = Guid.NewGuid(),
-                login = $"user_{i}",
-                address = "testadd",
-                email = "test@gmail.com",
-                name = "test",
-                phone_number = "7590235",
-                roles = new string[] { "Client" },
-                password = "hash"
-            });
+            _context.userTable.Add(Generator.GenerateUser($"login_{i}", "hash", new string[] { "Client" }));
 
         await _context.SaveChangesAsync();
 
@@ -357,8 +347,8 @@ public class ClientServiceTests : IntegrationTest
 
         var deleteableUser = await AddUserToDb("deluser1", "delpass1");
 
-        var restaurant = GenerateRestaurant(deleteableUser.Id);
-        var foods = GenerateFoodItems(restaurant.Id, 3);
+        var restaurant = Generator.GenerateRestaurant(deleteableUser.Id);
+        var foods = Generator.GenerateFoodItems(restaurant.Id, 3);
 
         _context.restaurantTable.Add(restaurant);
         _context.restaurantFoodItemsTable.AddRange(foods);

@@ -24,6 +24,8 @@ namespace ORM_Components.Tables
 
         public string password { get; set; }
 
+        public string chatId { get; set; }
+
         public string[] roles { get; set; }
     }
 }

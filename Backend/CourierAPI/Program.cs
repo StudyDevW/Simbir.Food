@@ -11,6 +11,8 @@ using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.MapsterConfigs;
 using System.Security.Cryptography;
+using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
 
 namespace CourierAPI
 {
@@ -104,13 +106,14 @@ namespace CourierAPI
                 o.TokenValidationParameters = tk_valid;
             });
 
+            builder.Services.AddAuthorization();
 
             builder.Services.AddDbContext<DataContext>(options =>
             {
                 var connectString = builder.Configuration["DATABASE_CONNECT"];
 
                 if (connectString != null)
-                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("CourierAPI"));
+                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ORM_Components"));
             });
 
             builder.Services.AddScoped<IJwtService, JwtSDK>();
@@ -125,9 +128,14 @@ namespace CourierAPI
                                       .AllowAnyHeader());
             });
 
+            builder.Services.AddSingleton<IMessageSender>(
+                 new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
+             );
+
             var mapsterConfig = new OrderConfig();
             builder.Services.AddScoped<OrderConfig>();
             builder.Services.AddScoped<ICourierService, CourierService>();
+
 
             var app = builder.Build();
 
@@ -137,9 +145,9 @@ namespace CourierAPI
 
             app.UseForwardedHeaders();
 
-            app.UseAuthorization();
-
             app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.MapControllers();
 

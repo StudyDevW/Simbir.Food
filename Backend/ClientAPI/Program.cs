@@ -113,7 +113,7 @@ namespace ClientAPI
                 var connectString = builder.Configuration["DATABASE_CONNECT"];
 
                 if (connectString != null)
-                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ClientAPI"));
+                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ORM_Components"));
             });
 
             builder.Services.AddScoped<IDatabaseService, DatabaseService>();
