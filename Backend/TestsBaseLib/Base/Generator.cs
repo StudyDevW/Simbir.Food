@@ -22,6 +22,11 @@ public static class Generator
         return faker.Generate();
     }
 
+    public static UserTable GenerateUser(string role = "Client")
+    {
+        return GenerateUser(Guid.NewGuid().ToString(), "pass1", new string[] { role });
+    }
+
     public static RestaurantTable GenerateRestaurant(Guid user_id)
     {
         var faker = new Faker<RestaurantTable>();

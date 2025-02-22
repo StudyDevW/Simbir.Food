@@ -6,10 +6,7 @@ using ORM_Components;
 using ORM_Components.DTO.CourierAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
-using Pipelines.Sockets.Unofficial.Buffers;
-using StackExchange.Redis;
 using Telegram_Components.Interfaces;
-using Telegram_Components.Services;
 using TestsBaseLib.Base;
 
 namespace CourierAPI.Tests.Services;
@@ -225,5 +222,89 @@ public class CourierServiceTests
         order.status.Should().Be(OrderStatus.Delivered);
         history.First().status.Should().Be(OrderStatus.Delivered);
         history.First().order_id.Should().Be(order.Id);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithCorrectData_CreatesCourier()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
+
+        var user = Generator.GenerateUser();
+
+        var users = new List<UserTable> { user };
+
+        var couriers = new List<CourierTable>();
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
+        context.Setup(x => x.Add(It.IsAny<CourierTable>()))
+            .Callback<CourierTable>(x => couriers.Add(x));
+
+        var dto = new CourierDtoForCreate(user.Id, "B625CE73");
+
+        var sut = new CourierService(context.Object, sender.Object);
+
+        // act
+        await sut.CreateAsync(dto);
+
+        // assert
+        couriers.First().car_number.Should().Be(dto.car_number);
+        couriers.First().userId.Should().Be(dto.userId);
+        couriers.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithCorrectDataWithoutCarNumber_CreatesCourier()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
+
+        var user = Generator.GenerateUser();
+
+        var users = new List<UserTable> { user };
+
+        var couriers = new List<CourierTable>();
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
+        context.Setup(x => x.Add(It.IsAny<CourierTable>()))
+            .Callback<CourierTable>(x => couriers.Add(x));
+
+        var dto = new CourierDtoForCreate(user.Id, null);
+
+        var sut = new CourierService(context.Object, sender.Object);
+
+        // act
+        await sut.CreateAsync(dto);
+
+        // assert
+        couriers.First().car_number.Should().Be(null);
+        couriers.First().userId.Should().Be(dto.userId);
+        couriers.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithWrongUserId_ThrowsException()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
+
+        var users = new List<UserTable>();
+
+        context.Setup(x => x.userTable).ReturnsDbSet(users);
+
+        var dto = new CourierDtoForCreate(Guid.NewGuid(), null);
+
+        var sut = new CourierService(context.Object, sender.Object);
+
+        // act
+        Func<Task> act = async() => await sut.CreateAsync(dto);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>("Пользователь не найден.");
     }
 }
