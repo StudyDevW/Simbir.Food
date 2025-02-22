@@ -144,7 +144,7 @@ namespace CourierAPI.Service
 
         public async Task DeleteAsync(Guid courierId)
         {
-            var courier = _dataContext.courierTable
+            var courier = await _dataContext.courierTable
                 .FirstOrDefaultAsync(x => x.Id == courierId)
                 ?? throw new Exception("Курьер не найден.");
 

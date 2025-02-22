@@ -76,4 +76,20 @@ public static class Generator
     {
         return GenerateOrder(Guid.NewGuid(), Guid.NewGuid(), status);
     }
+
+    public static CourierTable GenerateCourier(Guid user_id, CourierStatus status)
+    {
+        var faker = new Faker<CourierTable>();
+        faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
+            .RuleFor(x => x.status, _ => status)
+            .RuleFor(x => x.car_number, f => f.Random.String2(8, "1234567890ABCEHOP"))
+            .RuleFor(x => x.userId, _ => user_id);
+
+        return faker.Generate();
+    }
+
+    public static CourierTable GenerateCourier(Guid user_id)
+    {
+        return GenerateCourier(user_id, CourierStatus.IsInactive);
+    }
 }

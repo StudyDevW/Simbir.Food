@@ -307,4 +307,115 @@ public class CourierServiceTests
         // assert
         await act.Should().ThrowAsync<Exception>("Пользователь не найден.");
     }
+
+    [Fact]
+    public async Task UpdateAsync_WithCorrectData_UpdatesCourier()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
+
+        var user = Generator.GenerateUser();
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsInactive);
+
+        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { user });
+        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+
+        var dto = new CourierDtoForUpdate(courier.Id, "B358AF73", CourierStatus.IsActive);
+
+        var sut = new CourierService(context.Object, sender.Object);
+
+        // act
+        await sut.UpdateAsync(dto);
+
+        // assert
+        courier.car_number.Should().Be(dto.car_number);
+        courier.status.Should().Be(CourierStatus.IsActive);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WithCarnumberIsNullAndTheSameStatus_UpdatesOnlyCarnumber()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
+
+        var user = Generator.GenerateUser();
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsActive);
+
+        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { user });
+        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+
+        var dto = new CourierDtoForUpdate(courier.Id, null, CourierStatus.IsActive);
+
+        var sut = new CourierService(context.Object, sender.Object);
+
+        // act
+        await sut.UpdateAsync(dto);
+
+        // assert
+        courier.car_number.Should().BeNull();
+        courier.status.Should().Be(CourierStatus.IsActive);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WithWrongCourierId_ThrowsException()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
+
+        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable>());
+
+        var dto = new CourierDtoForUpdate(Guid.NewGuid(), null, CourierStatus.IsActive);
+
+        var sut = new CourierService(context.Object, sender.Object);
+
+        // act
+        Func<Task> act = async() => await sut.UpdateAsync(dto);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WithCorrectCourierId_DeletesCourier()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
+
+        var courier = Generator.GenerateCourier(Guid.NewGuid());
+        var couriers = new List<CourierTable> { courier };
+
+        context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
+        context.Setup(x => x.Remove(It.IsAny<CourierTable>()))
+            .Callback<CourierTable>(x => couriers.Remove(x));
+
+        var sut = new CourierService(context.Object, sender.Object);
+
+        // act
+        await sut.DeleteAsync(courier.Id);
+
+        // assert
+        couriers.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WithWrongCourierId_ThrowsException()
+    {
+        // arrange
+        var context = new Mock<DataContext>();
+        var sender = new Mock<IMessageSender>();
+
+        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable>());
+
+        var sut = new CourierService(context.Object, sender.Object);
+
+        // act
+        Func<Task> act = async () => await sut.DeleteAsync(Guid.NewGuid());
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
+    }
 }
