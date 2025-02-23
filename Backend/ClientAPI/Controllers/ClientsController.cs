@@ -36,35 +36,35 @@ namespace ClientAPI.Controllers
             return Unauthorized();
         }
 
-        [Authorize(AuthenticationSchemes = "Asymmetric")]
-        [HttpPut("Update")]
-        public async Task<IActionResult> UpdateProfileOfUser([FromBody] ClientUpdate dtoObj)
-        {
-            try
-            {
-                await _clientService.UpdateClientInfo(Request.Headers["Authorization"], dtoObj);
-                return Ok("account_updated");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[Authorize(AuthenticationSchemes = "Asymmetric")]
+        //[HttpPut("Update")]
+        //public async Task<IActionResult> UpdateProfileOfUser([FromBody] ClientUpdate dtoObj)
+        //{
+        //    try
+        //    {
+        //        await _clientService.UpdateClientInfo(Request.Headers["Authorization"], dtoObj);
+        //        return Ok("account_updated");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
-        [Authorize(AuthenticationSchemes = "Asymmetric")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProfileOfUserWithAdmin([FromBody] ClientUpdate_Admin dtoObj, Guid id)
-        {
-            try
-            {
-                await _clientService.UpdateClientInfoWithAdmin(Request.Headers["Authorization"], dtoObj, id);
-                return Ok("account_updated");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[Authorize(AuthenticationSchemes = "Asymmetric")]
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> UpdateProfileOfUserWithAdmin([FromBody] ClientUpdate_Admin dtoObj, Guid id)
+        //{
+        //    try
+        //    {
+        //        await _clientService.UpdateClientInfoWithAdmin(Request.Headers["Authorization"], dtoObj, id);
+        //        return Ok("account_updated");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpGet]
@@ -81,20 +81,20 @@ namespace ClientAPI.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = "Asymmetric")]
-        [HttpPost]
-        public async Task<IActionResult> CreateUserWithAdmin([FromBody] ClientAdd_Admin dtoObj)
-        {
-            try
-            {
-                await _clientService.CreateClientWithAdmin(Request.Headers["Authorization"], dtoObj);
-                return Ok("account_created");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[Authorize(AuthenticationSchemes = "Asymmetric")]
+        //[HttpPost]
+        //public async Task<IActionResult> CreateUserWithAdmin([FromBody] ClientAdd_Admin dtoObj)
+        //{
+        //    try
+        //    {
+        //        await _clientService.CreateClientWithAdmin(Request.Headers["Authorization"], dtoObj);
+        //        return Ok("account_created");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpDelete("{id}")]

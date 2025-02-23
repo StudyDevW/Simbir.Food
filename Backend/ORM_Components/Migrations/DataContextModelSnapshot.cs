@@ -24,11 +24,9 @@ namespace ORM_Components.Migrations
 
             modelBuilder.Entity("ORM_Components.Tables.CourierTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("car_number")
                         .HasColumnType("text");
@@ -37,24 +35,22 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("userId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("userId")
+                        .HasColumnType("uuid");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("courierTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.OrderItemsTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<int>("order_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("order_id")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("price")
                         .HasColumnType("integer");
@@ -65,50 +61,45 @@ namespace ORM_Components.Migrations
                     b.Property<int>("restaraunt_food_item")
                         .HasColumnType("integer");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("orderItemsTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.OrderTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                    b.Property<Guid>("client_id")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("client_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("courier_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("courier_id")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("order_date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("restaurant_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("restaurant_id")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("status")
+                        .HasColumnType("integer");
 
                     b.Property<int>("total_price")
                         .HasColumnType("integer");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("orderTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.RestaurantFoodItemsTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                        .HasColumnType("uuid");
 
                     b.Property<int>("calories")
                         .HasColumnType("integer");
@@ -124,24 +115,22 @@ namespace ORM_Components.Migrations
                     b.Property<int>("price")
                         .HasColumnType("integer");
 
-                    b.Property<int>("restaurant_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("restaurant_id")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("weight")
                         .HasColumnType("integer");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("restaurantFoodItemsTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.RestaurantTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("address")
                         .IsRequired()
@@ -173,88 +162,79 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("user_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("user_id")
+                        .HasColumnType("uuid");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("restaurantTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.ReviewTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<int>("client_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("client_id")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("comment")
                         .HasColumnType("text");
 
-                    b.Property<int?>("courier_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("courier_id")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("order_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("order_id")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("rating")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("restaurant_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("restaurant_id")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("review_date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("reviewTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.UserTable", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("address")
+                        .HasColumnType("text");
+
+                    b.Property<string>("first_name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("avatarImage")
+                    b.Property<string>("last_name")
                         .HasColumnType("text");
 
-                    b.Property<string>("email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("login")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("password")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("phone_number")
-                        .IsRequired()
+                    b.Property<string>("photo_url")
                         .HasColumnType("text");
 
                     b.Property<string[]>("roles")
                         .IsRequired()
                         .HasColumnType("text[]");
 
-                    b.HasKey("id");
+                    b.Property<int>("telegram_chat_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("telegram_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("username")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
 
                     b.ToTable("userTable");
                 });

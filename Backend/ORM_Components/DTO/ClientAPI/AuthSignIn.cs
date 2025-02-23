@@ -8,10 +8,8 @@ namespace ORM_Components.DTO.ClientAPI
 {
     public class AuthSignIn
     {
-        public string login {  get; set; }
+        public int telegram_chat_id { get; set; }
 
-        public string password { get; set; }
-
-        public string telegram_chatid { get; set; }
+        public string device { get; set; }
     }
 }

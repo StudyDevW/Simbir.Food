@@ -24,16 +24,16 @@ namespace ClientAPI.Controllers
             _jwt = jwt;
         }
 
-        [HttpPost("SignUp")]
-        public async Task<IActionResult> UserSignUp([FromBody] AuthSignUp dtoObj)
+        [HttpPost("UserAuth")]
+        public async Task<IActionResult> UserAddFromTelegram([FromBody] AuthAddUser dtoObj)
         {
             try
             {
-                var registerInfo = await _clientService.RegisterUser(dtoObj);
+                var authInfo = await _clientService.UserAuth(dtoObj);
 
-                if (registerInfo != null)
+                if (authInfo != null)
                 {
-                    return Ok(registerInfo);
+                    return Ok(authInfo);
                 }
 
                 return BadRequest("error_register");
@@ -44,27 +44,27 @@ namespace ClientAPI.Controllers
             }
         }
 
-        [HttpPost("SignIn")]
-        public IActionResult UserSignIn([FromBody] AuthSignIn dtoObj)
-        {
-            try
-            {
-                var loginInfo = _clientService.LoginClient(dtoObj);
+        //[HttpPost("SignIn")]
+        //public IActionResult UserSignIn([FromBody] AuthSignIn dtoObj)
+        //{
+        //    try
+        //    {
+        //        var loginInfo = _clientService.LoginClient(dtoObj);
 
-                if (loginInfo != null)
-                {
-                    return Ok(loginInfo);
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        //        if (loginInfo != null)
+        //        {
+        //            return Ok(loginInfo);
+        //        }
+        //        else
+        //        {
+        //            return NotFound();
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpGet("Validate")]
         public async Task<IActionResult> ValidateToken([Required][FromHeader(Name = "accessToken")] string? token)

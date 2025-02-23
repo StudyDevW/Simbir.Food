@@ -21,90 +21,45 @@ namespace ClientAPI.Services
             _dbcontext = dbcontext;
         }
 
-        private bool UserExist(string login)
+        public async Task UserUpdateFromTelegram(ClientUpdate dtoObj)
         {
-            var checkUser = _dbcontext.userTable.Where(c => c.login == login).FirstOrDefault();
+            var selectedUser = _dbcontext.userTable.Where(c => c.telegram_id == dtoObj.id).FirstOrDefault();
 
-            if (checkUser != null) { return true; }
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
 
-            return false;
-        }
-
-        public async Task RegisterUser(AuthSignUp dto)
-        {
-            if (dto == null)
+            if (selectedUser.first_name != dtoObj.first_name)
             {
-                throw new Exception("dto null");
+                selectedUser.first_name = dtoObj.first_name;
+                await _dbcontext.SaveChangesAsync();
             }
 
-            if (UserExist(dto.login))
+            if (selectedUser.last_name != dtoObj.last_name && dtoObj.last_name != null)
             {
-                throw new Exception("login already exist");
+                selectedUser.address = dtoObj.address;
+                await _dbcontext.SaveChangesAsync();
             }
 
-            PasswordAppUser passwordUser = new PasswordAppUser() { login = dto.login };
-
-            passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dto.password);
-
-
-            UserTable usersTable = new UserTable()
+            if (selectedUser.username != dtoObj.username && dtoObj.username != null)
             {
-                name = dto.name,
-                email = dto.email,
-                login = dto.login,
-                address = dto.address,
-                phone_number = dto.phone_number,
-                password = passwordUser.passwordHashed,
-                roles = new string[] { "Client" },
-            
-            };
+                selectedUser.username = dtoObj.username;
+                await _dbcontext.SaveChangesAsync();
+            }
 
-            _dbcontext.userTable.Add(usersTable);
-            await _dbcontext.SaveChangesAsync();
+            if (selectedUser.address != dtoObj.address && dtoObj.address != null)
+            {
+                selectedUser.address = dtoObj.address;
+                await _dbcontext.SaveChangesAsync();
+            }
 
-            _logger.LogInformation($"RegisterUser: {dto.login}, создан");
+            if (selectedUser.photo_url != dtoObj.photo_url && dtoObj.photo_url != null)
+            {
+                selectedUser.photo_url = dtoObj.photo_url;
+                await _dbcontext.SaveChangesAsync();
+            }
 
         }
 
-        public async Task RegisterUserWithAdmin(ClientAdd_Admin dto)
-        {
-            if (dto == null)
-            {
-                throw new Exception("dto null");
-            }
-
-            if (UserExist(dto.login))
-            {
-                throw new Exception("login already exist");
-            }
-
-            PasswordAppUser passwordUser = new PasswordAppUser() { login = dto.login };
-
-            passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dto.password);
-
-
-            UserTable usersTable = new UserTable()
-            {
-                name = dto.name,
-                email = dto.email,
-                login = dto.login,
-                address = dto.address,
-                phone_number = dto.phone_number,
-                password = passwordUser.passwordHashed,
-                roles = dto.roles
-            };
-
-            _dbcontext.userTable.Add(usersTable);
-            await _dbcontext.SaveChangesAsync();
-
-            _logger.LogInformation($"RegisterUserWithAdmin: {dto.login}, создан");
-        }
-
-        private bool VerifyUserPassword(PasswordAppUser user, string password)
-        {
-            var result = _passwordHasher.VerifyHashedPassword(user, user.passwordHashed, password);
-            return result == PasswordVerificationResult.Success;
-        }
 
         public Auth_CheckInfo CheckUser(AuthSignIn dto)
         {
@@ -115,35 +70,24 @@ namespace ClientAPI.Services
             }
 
             var userFound = _dbcontext.userTable.Where(
-                c => c.login == dto.login
+                c => c.telegram_chat_id == dto.telegram_chat_id
             ).FirstOrDefault();
 
             if (userFound != null)
             {
-
-                var passVerify = VerifyUserPassword(new PasswordAppUser()
+                return new Auth_CheckInfo()
                 {
-                    login = dto.login,
-                    passwordHashed = userFound.password
-                }, dto.password);
-
-                if (passVerify)
-                    return new Auth_CheckInfo()
+                    check_success = new Auth_CheckSuccess
                     {
-
-                        check_success = new Auth_CheckSuccess
-                        {
-                            Id = userFound.Id,
-                            login = userFound.login,
-                            telegramChatId = dto.telegram_chatid,
-                            roles = userFound.roles.ToList()
-                        }
-                    };
+                        Id = userFound.Id,
+                        device = dto.device,
+                        telegram_chat_id = dto.telegram_chat_id,
+                        roles = userFound.roles.ToList()
+                    }
+                };
             }
 
-
-            _logger.LogError("CheckUser: Пользователь ввел неверно имя или пароль!");
-            return new Auth_CheckInfo() { check_error = new Auth_CheckError { errorLog = "username/password_incorrect" } };
+            return new Auth_CheckInfo() { check_error = new Auth_CheckError { errorLog = "error_found" } };
         }
 
         public ClientInfo? InfoClientDatabase(Guid userGUID)
@@ -157,12 +101,13 @@ namespace ClientAPI.Services
                 return new ClientInfo()
                 {
                     Id = selectedUser.Id,
+                    telegram_id = selectedUser.telegram_id,
+                    chat_id = selectedUser.telegram_chat_id,
+                    first_name = selectedUser.first_name,
+                    last_name = selectedUser.last_name,
+                    username = selectedUser.username,
                     address = selectedUser.address,
-                    name = selectedUser.name,
-                    phone_number = selectedUser.phone_number,
-                    email = selectedUser.email,
-                    avatarImage = selectedUser.avatarImage,
-                    login = selectedUser.login,
+                    photo_url = selectedUser.photo_url,
                     roles = selectedUser.roles.ToList()
                 };
             }
@@ -187,12 +132,13 @@ namespace ClientAPI.Services
                     ClientInfo clientInfo = new ClientInfo()
                     {
                         Id = client.Id,
+                        telegram_id = client.telegram_id,
+                        chat_id = client.telegram_chat_id,
+                        first_name = client.first_name,
+                        last_name = client.last_name,
+                        username = client.username,
                         address = client.address,
-                        avatarImage = client.avatarImage,
-                        email = client.email,
-                        login = client.login,
-                        name = client.name,
-                        phone_number = client.phone_number, 
+                        photo_url = client.photo_url,
                         roles = client.roles.ToList()
                     };
 
@@ -208,12 +154,13 @@ namespace ClientAPI.Services
                     ClientInfo clientInfo = new ClientInfo()
                     {
                         Id = client.Id,
+                        telegram_id = client.telegram_id,
+                        chat_id = client.telegram_chat_id,
+                        first_name = client.first_name,
+                        last_name = client.last_name,
+                        username = client.username,
                         address = client.address,
-                        avatarImage = client.avatarImage,
-                        email = client.email,
-                        login = client.login,
-                        name = client.name,
-                        phone_number = client.phone_number,
+                        photo_url = client.photo_url,
                         roles = client.roles.ToList()
                     };
 
@@ -224,150 +171,6 @@ namespace ClientAPI.Services
             allClients.ContentFill(clients);
 
             return allClients;
-        }
-
-        public async Task InfoClientUpdate(ClientUpdate dtoObj, Guid userGUID)
-        {
-            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
-
-            if (selectedUser == null)
-                throw new Exception("user_not_found");
-
-            //Смена пароля
-            if (dtoObj.password != null)
-            {
-                var passVerify = VerifyUserPassword(new PasswordAppUser()
-                {
-                    login = selectedUser.login,
-                    passwordHashed = selectedUser.password
-                }, dtoObj.password);
-
-                if (passVerify) //Пароль один и тот же
-                    throw new Exception("password_1:1");
-                else
-                {
-                    PasswordAppUser passwordUser = new PasswordAppUser() { login = selectedUser.login };
-                    passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dtoObj.password);
-
-                    selectedUser.password = passwordUser.passwordHashed;
-                    await _dbcontext.SaveChangesAsync();
-                }
-            }
-
-            //Смена имени
-            if (selectedUser.name != dtoObj.name && dtoObj.name != null)
-            {
-                selectedUser.name = dtoObj.name;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена почты
-            if (selectedUser.email != dtoObj.email && dtoObj.email != null)
-            {
-                selectedUser.email = dtoObj.email;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена номера телефона
-            if (selectedUser.phone_number != dtoObj.phone_number && dtoObj.phone_number != null)
-            {
-                selectedUser.phone_number = dtoObj.phone_number;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена адреса
-            if (selectedUser.address != dtoObj.address && dtoObj.address != null)
-            {
-                selectedUser.address = dtoObj.address;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена аватара
-            if (selectedUser.avatarImage != dtoObj.avatarImage && dtoObj.avatarImage != null)
-            {
-                selectedUser.avatarImage = dtoObj.avatarImage;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-           
-        }
-
-        public async Task InfoClientUpdateWithAdmin(ClientUpdate_Admin dtoObj, Guid userGUID)
-        {
-            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
-
-            if (selectedUser == null)
-                throw new Exception("user_not_found");
-
-            //Смена имени
-            if (selectedUser.name != dtoObj.name && dtoObj.name != null)
-            {
-                selectedUser.name = dtoObj.name;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена логина или никнейма
-            if (selectedUser.login != dtoObj.login && dtoObj.login != null)
-            {
-                selectedUser.login = dtoObj.login;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена почты
-            if (selectedUser.email != dtoObj.email && dtoObj.email != null)
-            {
-                selectedUser.email = dtoObj.email;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена номера телефона
-            if (selectedUser.phone_number != dtoObj.phone_number && dtoObj.phone_number != null)
-            {
-                selectedUser.phone_number = dtoObj.phone_number;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена адреса
-            if (selectedUser.address != dtoObj.address && dtoObj.address != null)
-            {
-                selectedUser.address = dtoObj.address;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена аватара
-            if (selectedUser.avatarImage != dtoObj.avatarImage && dtoObj.avatarImage != null)
-            {
-                selectedUser.avatarImage = dtoObj.avatarImage;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена ролей
-            if (selectedUser.roles != dtoObj.roles && dtoObj.roles != null)
-            {
-                selectedUser.roles = dtoObj.roles;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            //Смена пароля
-            if (dtoObj.password != null)
-            {
-                var passVerify = VerifyUserPassword(new PasswordAppUser()
-                {
-                    login = selectedUser.login,
-                    passwordHashed = dtoObj.password
-                }, dtoObj.password);
-
-                if (passVerify) //Пароль один и тот же
-                    throw new Exception("password_1:1");
-                else
-                {
-                    PasswordAppUser passwordUser = new PasswordAppUser() { login = selectedUser.login };
-                    passwordUser.passwordHashed = _passwordHasher.HashPassword(passwordUser, dtoObj.password);
-
-                    selectedUser.password = passwordUser.passwordHashed;
-                    await _dbcontext.SaveChangesAsync();
-                }
-            }
         }
 
         private async Task DeleteAllFoodItems(Guid restaurantId)
