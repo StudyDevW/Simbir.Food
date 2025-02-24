@@ -91,5 +91,12 @@ namespace CourierAPI.Controllers
             await _courierService.DeleteAsync(courierId);
             return NoContent();
         }
+
+        [HttpPost("TestMethod")]
+        public async Task<IActionResult> TestMethod()
+        {
+            await _courierService.TestMethod();
+            return NoContent();
+        }
     }
 }
