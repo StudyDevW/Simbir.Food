@@ -14,9 +14,8 @@ namespace Middleware_Components.Broker
         private readonly ConnectionFactory _factory;
         private readonly IConnection _connection;
         private readonly IModel _channel;
-        private readonly string _queueName;
 
-        public RabbitMQService(string queueName)
+        public RabbitMQService()
         {
             _factory = new ConnectionFactory
             {
@@ -27,14 +26,12 @@ namespace Middleware_Components.Broker
 
             _connection = _factory.CreateConnection();
             _channel = _connection.CreateModel();
-
-            _queueName = queueName;
-
-            _channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
         }
 
         public void SendMessage<T>(string queueName, T message)
         {
+            _channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+
             var jsonMessage = JsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(jsonMessage);
 

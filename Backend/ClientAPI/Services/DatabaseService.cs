@@ -430,26 +430,5 @@ namespace ClientAPI.Services
 
             _logger.LogInformation($"DeleteClientWithAdmin: (id: {id} ) был удален");
         }
-
-        public async Task ReviewForOrder(Guid orderId)
-        {
-            var order = await _dbcontext.orderTable
-                .FirstOrDefaultAsync(x => x.Id == orderId)
-                ?? throw new Exception("Заказ не найден.");
-
-            var review = new ReviewTable
-            {
-                Id = Guid.NewGuid(),
-                client_id = order.client_id,
-                order_id = orderId,
-                courier_id = order.courier_id,
-                rating = 5,
-                comment = "",
-                review_date = DateTime.UtcNow,
-            };
-
-            //TODO Нужно показать пользователю при следующем перезаходе в интерфейс приложения
-        }
-
     }
 }
