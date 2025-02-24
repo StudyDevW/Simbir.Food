@@ -31,7 +31,6 @@ namespace Telegram_Components.Services
             if (query.Data.Equals("itsnotmeQuery"))
             {
                 await _botClient.EditMessageText(query.From.Id, query.Message.Id, "Меры приняты, завершение сессии");
-                return;
             }
 
             if (query.Data.Equals("registerQuery"))
@@ -42,22 +41,27 @@ namespace Telegram_Components.Services
 
                     await _databaseOperations.AddUserFromTelegram(dtoCached);
 
-                    await _botClient.EditMessageText(query.From.Id, query.Message.Id, "Регистрация успешна");
+                    var replyMarkup = new InlineKeyboardMarkup(new[]
+                    {
+                        new[] { InlineKeyboardButton.WithUrl("Открыть приложение", "https://t.me/SimbirFoodbot/MiniApp") }
+                    });
+
+                    await _botClient.EditMessageText(query.From.Id, query.Message.Id, "Регистрация успешна", 
+                        replyMarkup: replyMarkup);
 
                     _cache.DeleteKeyFromStorage($"register_request_{query.From.Id}");
+
+       
                 }
                 else
                 {
                     await _botClient.EditMessageText(query.From.Id, query.Message.Id, "Ошибка регистрации, возможно истекло время заявки регистрации");
                 }
-              
-                return;
             }
 
             if (query.Data.Equals("testQuery"))
             {
                 await _botClient.DeleteMessage(query.From.Id, query.Message.Id);
-                return;
             }
         }
 

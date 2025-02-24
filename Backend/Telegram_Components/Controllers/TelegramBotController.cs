@@ -7,6 +7,7 @@ namespace Telegram_Components.Controllers
 {
     [Route("/")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class TelegramBotController : ControllerBase
     {
         private readonly IMessageReceiver _messageReceiver;

@@ -79,68 +79,63 @@ namespace ClientAPI.Services
 
         public async Task<Auth_PairTokens?> UserAuth(AuthAddUser dtoObj)
         {
-            try
-            {
-                var check = new Dictionary<StepsAuth, Auth_CheckInfo>();
+         
+            var check = new Dictionary<StepsAuth, Auth_CheckInfo>();
 
-                check[StepsAuth.StepCheck] = _database.CheckUser(new AuthSignIn()
+            check[StepsAuth.StepCheck] = _database.CheckUser(new AuthSignIn()
+            {
+                device = dtoObj.device, 
+                telegram_chat_id = dtoObj.chat_id
+            });
+
+
+            if (check[StepsAuth.StepCheck].CheckHasSuccess())
+            {
+                await _database.UserUpdateFromTelegram(
+                    new ClientUpdate()
+                    {
+                        address = dtoObj.address,
+                        first_name = dtoObj.first_name,
+                        id = dtoObj.id,
+                        last_name = dtoObj.last_name,
+                        photo_url = dtoObj.photo_url,
+                        username = dtoObj.username
+                    }
+                );
+
+                check[StepsAuth.StepUpdated] = _database.CheckUser(new AuthSignIn()
                 {
-                    device = dtoObj.device, 
+                    device = dtoObj.device,
                     telegram_chat_id = dtoObj.chat_id
                 });
 
+                var tokens = TokensReleased(check[StepsAuth.StepUpdated]);
 
-                if (check[StepsAuth.StepCheck].CheckHasSuccess())
+                if (tokens != null)
+                    return tokens;
+            }
+            else
+            {
+                //1. Создаем заявку в кэш и ждем подтверждения
+                //2. После подтверждения добавляем в бд, удаляем из кэша заявку
+                   
+                //Если нет заявки, то создаем ее
+                if (!_cache.CheckExistKeysStorage<AuthAddUser>($"register_request_{dtoObj.id}"))
                 {
-                    await _database.UserUpdateFromTelegram(
-                        new ClientUpdate()
-                        {
-                            address = dtoObj.address,
-                            first_name = dtoObj.first_name,
-                            id = dtoObj.id,
-                            last_name = dtoObj.last_name,
-                            photo_url = dtoObj.photo_url,
-                            username = dtoObj.username
-                        }
-                    );
+                    _cache.WriteKeyInStorageObject($"register_request_{dtoObj.id}", dtoObj, DateTime.UtcNow.AddMinutes(5));
 
-                    check[StepsAuth.StepUpdated] = _database.CheckUser(new AuthSignIn()
-                    {
-                        device = dtoObj.device,
-                        telegram_chat_id = dtoObj.chat_id
-                    });
+                    await _tgmessage.SendWithMarkup(dtoObj.chat_id.ToString(), "Регистрация в сервисе \"Симбир Еда\"",
+                        "Подтвердить", "registerQuery");
 
-                    var tokens = TokensReleased(check[StepsAuth.StepUpdated]);
-
-                    if (tokens != null)
-                        return tokens;
+                    throw new InvalidOperationException("register_request_created");
                 }
                 else
                 {
-                    //1. Создаем заявку в кэш и ждем подтверждения
-                    //2. После подтверждения добавляем в бд, удаляем из кэша заявку
-                   
-                    //Если нет заявки, то создаем ее
-                    if (!_cache.CheckExistKeysStorage<AuthAddUser>($"register_request_{dtoObj.id}"))
-                    {
-                        _cache.WriteKeyInStorageObject($"register_request_{dtoObj.id}", dtoObj, DateTime.UtcNow.AddMinutes(5));
-
-                        await _tgmessage.SendWithMarkup(dtoObj.chat_id.ToString(), "Регистрация в сервисе \"Симбир Еда\"",
-                            "Подтвердить", "registerQuery");
-                    }
-                    else
-                    {
-                        throw new Exception("register_request_already_exist");
-                    }
+                    throw new InvalidOperationException("register_request_already_exist");
                 }
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
             }
 
+ 
             return null;
         }
 

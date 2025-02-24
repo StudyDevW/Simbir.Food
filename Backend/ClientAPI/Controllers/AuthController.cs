@@ -25,7 +25,7 @@ namespace ClientAPI.Controllers
         }
 
         [HttpPost("UserAuth")]
-        public async Task<IActionResult> UserAddFromTelegram([FromBody] AuthAddUser dtoObj)
+        public async Task<IActionResult> UserTelegramAuth([FromBody] AuthAddUser dtoObj)
         {
             try
             {
@@ -36,10 +36,16 @@ namespace ClientAPI.Controllers
                     return Ok(authInfo);
                 }
 
-                return BadRequest("error_register");
+                return BadRequest();
             }
             catch (Exception e)
             {
+
+                if (e.Message == "register_request_created" || e.Message == "register_request_already_exist")
+                {
+                    return Ok(e.Message);
+                }
+
                 return BadRequest(e.Message);
             }
         }

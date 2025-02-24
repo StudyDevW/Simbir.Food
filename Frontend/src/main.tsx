@@ -9,6 +9,7 @@ import {
 
 import MainPage from './pages/MainPage.tsx'
 import OnBoardingMain from './pages/OnBoarding/OnBoardingMain.tsx';
+import LoginPage from './pages/LoginPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,12 @@ const router = createBrowserRouter([
       path: '/onboarding',
       element: (
           <OnBoardingMain/>
+      ),
+  },
+  {
+      path: '/login',
+      element: (
+          <LoginPage/>
       ),
   }
 ]);
