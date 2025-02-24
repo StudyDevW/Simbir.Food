@@ -12,7 +12,11 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
+<<<<<<<< HEAD:Backend/ORM_Components/Migrations/20250214083608_Init.Designer.cs
+    [Migration("20250214083608_Init")]
+========
     [Migration("20250218232159_Init")]
+>>>>>>>> main_develop:Backend/ORM_Components/Migrations/20250218232159_Init.Designer.cs
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -133,6 +137,8 @@ namespace ORM_Components.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+<<<<<<<< HEAD:Backend/ORM_Components/Migrations/20250214083608_Init.Designer.cs
+========
 
                     b.Property<string>("address")
                         .IsRequired()
@@ -140,6 +146,7 @@ namespace ORM_Components.Migrations
 
                     b.Property<DateTime>("close_time")
                         .HasColumnType("timestamp with time zone");
+>>>>>>>> main_develop:Backend/ORM_Components/Migrations/20250218232159_Init.Designer.cs
 
                     b.Property<string>("description")
                         .IsRequired()
