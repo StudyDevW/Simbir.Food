@@ -11,5 +11,7 @@ namespace ORM_Components.DTO.ClientAPI
         public string login {  get; set; }
 
         public string password { get; set; }
+
+        public string telegram_chatid { get; set; }
     }
 }

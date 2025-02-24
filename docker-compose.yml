@@ -20,6 +20,8 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
     ports:
        - "8080:80"
     restart: unless-stopped
@@ -45,6 +47,8 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
     ports:
        - "8081:80"
     restart: unless-stopped
@@ -70,6 +74,8 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
     ports:
        - "8082:80"
     restart: unless-stopped
@@ -95,6 +101,8 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
     ports:
        - "8083:80"
     restart: unless-stopped
@@ -122,6 +130,30 @@ services:
       DATABASE_CONNECT: ${DATABASE_CONNECT}
     ports:
        - "9000:80"
+    restart: unless-stopped
+
+  simbir.food.backend.telegramwebhook:
+    image: ${DOCKER_REGISTRY-}simbirfood_telegramwebhook:1.0
+    container_name: Simbir.Food.Backend.Telegram
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    build:
+      context: ./Backend
+      dockerfile: Telegram_Components/Dockerfile
+    logging:
+      driver: grafana/loki-docker-driver:latest
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "100"
+        loki-retries: 2
+        loki-max-backoff: 1000ms
+        loki-timeout: 1s
+    environment:
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
+    ports:
+       - "9001:80"
     restart: unless-stopped
 
   postgres_db:

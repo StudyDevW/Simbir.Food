@@ -1,7 +1,11 @@
-﻿using ClientAPI.Services;
+﻿using ClientAPI.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.Services;
 using ORM_Components.DTO.ClientAPI;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.Xml;
 
 namespace ClientAPI.Controllers
 {
@@ -9,27 +13,30 @@ namespace ClientAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IDatabaseService _database;
+        private readonly IClientService _clientService;
         private readonly IJwtService _jwt;
-        private readonly ICacheService _cache;
         private readonly ILogger _logger;
 
-        public AuthController(IDatabaseService database, IJwtService jwt, ICacheService cache, IConfiguration configuration)
+        public AuthController(IClientService clientService, IJwtService jwt, ICacheService cache, IConfiguration configuration)
         {
-            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("ClientAPI | controller-logger");
-            _database = database;
+            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("auth-controller-logger");
+            _clientService = clientService;
             _jwt = jwt;
-            _cache = cache;
         }
 
         [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp([FromBody] AuthSignUp dtoObj)
+        public async Task<IActionResult> UserSignUp([FromBody] AuthSignUp dtoObj)
         {
             try
             {
-                await _database.RegisterUser(dtoObj);
+                var registerInfo = await _clientService.RegisterUser(dtoObj);
 
-                return Ok("account_created");
+                if (registerInfo != null)
+                {
+                    return Ok(registerInfo);
+                }
+
+                return BadRequest("error_register");
             }
             catch (Exception e)
             {
@@ -38,25 +45,76 @@ namespace ClientAPI.Controllers
         }
 
         [HttpPost("SignIn")]
-        public IActionResult SignIn([FromBody] AuthSignIn dtoObj)
+        public IActionResult UserSignIn([FromBody] AuthSignIn dtoObj)
         {
             try
             {
-                var check = _database.CheckUser(dtoObj);
+                var loginInfo = _clientService.LoginClient(dtoObj);
 
-                if (check.CheckHasSuccess())
+                if (loginInfo != null)
                 {
-                    //Чисто для теста буду дописывать все
-                    return Ok("Успешный вход!");
+                    return Ok(loginInfo);
                 }
-
+                else
+                {
+                    return NotFound();
+                }
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        [HttpGet("Validate")]
+        public async Task<IActionResult> ValidateToken([Required][FromHeader(Name = "accessToken")] string? token)
+        {
+            if (token != null)
+            {
+                if (token.Contains("Bearer"))
+                    return BadRequest("accessToken in this method must not contain word [Bearer]");
+            }
+
+            var validation = await _jwt.AccessTokenValidation("Bearer " + token);
+
+            if (validation.TokenHasError())
+            {
+                return Unauthorized();
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                _logger.LogInformation($"Токен для id: {validation.token_success.Id} валид!");
+                return Ok("valid");
+            }
 
             return BadRequest();
+        }
+
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpPut("SignOut")]
+        public async Task<IActionResult> UserSignOut()
+        {
+            var signInfo = await _clientService.ClientSignOut(Request.Headers["Authorization"]);
+
+            if (signInfo != null)
+            {
+                return Ok(signInfo);
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpPost("Refresh")]
+        public async Task<IActionResult> UserRefreshTokens([FromBody] Auth_RefreshTokens dtoObj)
+        {
+            var refreshInfo = await _clientService.RefreshClientSession(dtoObj);
+
+            if (refreshInfo != null)
+            {
+                return Ok(refreshInfo);
+            }
+
+            return Unauthorized();
         }
     }
 }

@@ -9,5 +9,11 @@ namespace CourierAPI.Contracts
         Task TakeOrder(Guid orderId);
         Task CourierOnPlace(Guid orderId);
         Task OrderDelivered(Guid orderId);
+
+        Task<CourierDto> GetAsync(Guid courierId);
+        Task<List<CourierDto>> GetAllAsync();
+        Task CreateAsync(CourierDtoForCreate courierDtoForCreate);
+        Task UpdateAsync(CourierDtoForUpdate courierDtoForUpdate);
+        Task DeleteAsync(Guid courierId);
     }
 }

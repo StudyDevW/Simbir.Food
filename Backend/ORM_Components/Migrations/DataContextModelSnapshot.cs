@@ -31,9 +31,8 @@ namespace ORM_Components.Migrations
                     b.Property<string>("car_number")
                         .HasColumnType("text");
 
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("status")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("userId")
                         .HasColumnType("uuid");
@@ -132,11 +131,29 @@ namespace ORM_Components.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("close_time")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("imagePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("open_time")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("phone_number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("restaurantName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -195,6 +212,10 @@ namespace ORM_Components.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("avatarImage")
+                        .HasColumnType("text");
+
+                    b.Property<string>("chatId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("email")
