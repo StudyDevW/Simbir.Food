@@ -20,19 +20,16 @@ namespace TestsBaseLib.Base;
 
 public class IntegrationTest
 {
-    private readonly TestConfig _config;
+    protected IConfiguration Configuration { get; set; }
     public IntegrationTest()
     {
-        var text = File.ReadAllText("settings.json");
-        var config = JsonSerializer.Deserialize<TestConfig>(text);
-
-        _config = config;
+        Configuration = TestConfiguration.GetConfiguration();
     }
 
     protected DataContext GetDbContext()
     {
         var builder = new DbContextOptionsBuilder<DataContext>()
-            .UseNpgsql(_config.DatabaseConnectionString);
+            .UseNpgsql(Configuration["DatabaseConnectionString"]!);
 
         var context = new DataContext(builder.Options);
         context.Database.EnsureCreated();
@@ -45,8 +42,8 @@ public class IntegrationTest
         var redis = ConnectionMultiplexer.Connect(
                 new ConfigurationOptions
                 {
-                    EndPoints = { _config.RedisEndPoint },
-                    Password = _config.RedisPassword,
+                    EndPoints = { Configuration["RedisEndPoint"]! },
+                    Password = Configuration["RedisPassword"]!,
                     AbortOnConnectFail = false,
                     AllowAdmin = true
                 });
@@ -72,13 +69,7 @@ public class IntegrationTest
 
     protected IJwtService GetJwtService(ICacheService cache)
     {
-        var conf = new Mock<IConfiguration>();
-        conf.Setup(x => x["RSA_PUBLIC_KEY"]).Returns(_config.RSA_PUBLIC_KEY);
-        conf.Setup(x => x["RSA_PRIVATE_KEY"]).Returns(_config.RSA_PRIVATE_KEY);
-        conf.Setup(x => x["Jwt:Issuer"]).Returns(_config.JwtIssuer);
-        conf.Setup(x => x["Jwt:Audience"]).Returns(_config.JwtAudience);
-
-        return new JwtSDK(conf.Object, cache);
+        return new JwtSDK(Configuration, cache);
     }
 
     /// <summary>
