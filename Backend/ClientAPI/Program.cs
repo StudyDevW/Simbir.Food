@@ -179,22 +179,6 @@ namespace ClientAPI
                 }
             });
 
-            var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>();
-            var dataService = app.Services.GetRequiredService<IDatabaseService>();
-
-            rabbitMQService.StartListening<JsonElement>("order_review_queue", message =>
-            {
-                if (message.TryGetProperty("OrderId", out JsonElement orderIdElement) &&
-                    Guid.TryParse(orderIdElement.GetString(), out Guid orderId))
-                {
-                    dataService.ReviewForOrder(orderId);
-                }
-                else
-                {
-                    Console.WriteLine("Ошибка: Не удалось распарсить OrderId из сообщения RabbitMQ.");
-                }
-            });
-
             await app.RunAsync();
         }
     }
