@@ -25,7 +25,7 @@ namespace ClientAPI
 
             builder.Services.AddControllers();
 
-            //Переменные окружения
+         
             builder.Configuration.AddDotNetEnv(".env", LoadOptions.TraversePath());
 
             var securityScheme = new OpenApiSecurityScheme()
