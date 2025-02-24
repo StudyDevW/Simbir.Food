@@ -1,66 +1,73 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
-using RestaurantAPI.Model.Interface;
 
 
 namespace RestaurantAPI.Model.Controllers
 {
     [Route("api/Photos")]
-    //[ValidateJwt]
     [ApiController]
     public class PhotoController : ControllerBase
     {
-        private readonly IPhotoServices _photoServices;
         private readonly DataContext _dbContext;
         private readonly IWebHostEnvironment _hostingEnvironment;
-        private readonly IJwtService _jwtServices;
 
-        public PhotoController(DataContext dbContext, IWebHostEnvironment hostingEnvironment, IJwtService jwtServices, IPhotoServices photoServices)
+        public PhotoController(DataContext dbContext, IWebHostEnvironment hostingEnvironment)
         {
-            _jwtServices = jwtServices;
             _dbContext = dbContext;
             _hostingEnvironment = hostingEnvironment;
-            _photoServices = photoServices;
         }
+
         [HttpPost("AddPhoto")]
-        public async Task<ActionResult> AddPhoto([FromForm] Photos_DTO photo_DTO)
+        public async Task<IActionResult> AddPhoto([FromForm] Photos_DTO photo_DTO)
         {
-            try
+            if (photo_DTO.File == null || photo_DTO.File.Length == 0)
             {
-                await _photoServices.AddPhotos(photo_DTO);
-                return Ok("Фотография загружена");
+                return BadRequest("Файл не был загружен.");
             }
-            catch (Exception ex) {
-                return BadRequest(ex.Message);
+
+            var filePath = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", photo_DTO.File.FileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo_DTO.File.CopyToAsync(stream);
             }
+
+            
+            var restaurantItem = new RestaurantTable()
+            {
+                imagePath = $"/uploads/{photo_DTO.File.FileName}", // Путь к файлу
+            };
+
+            
+            _dbContext.restaurantTable.Add(restaurantItem);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok("Фото успешно добавлено.");
         }
+
         [HttpDelete("RemovePhoto/{id}")]
-        public async Task<ActionResult> RemovePhoto(int id)
+        public async Task<IActionResult> RemovePhoto(int id)
         {
-            await _photoServices.RemovePhoto(id);
-            return NoContent();
+            var restaurantItem = await _dbContext.restaurantTable.FindAsync(id);
+            if (restaurantItem == null)
+            {
+                return NotFound("Фото не найдено.");
+            }
+
+            _dbContext.restaurantTable.Remove(restaurantItem);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok("Фото успешно удалено.");
         }
-        [HttpDelete("RemoveRangePhoto/{id}")]
-        public async Task<ActionResult> RemoveRangePhoto(int id)
+
+        [HttpGet("GetPhotos")]
+        public async Task<IActionResult> GetPhotos()
         {
-            await _photoServices.RemoveAllPhotos();
-            return NoContent();
-        }
-        [HttpGet("GetPhotos/{id}")]
-        public async Task<List<RestaurantTable>> GetPhotos()
-        {
-             return await _photoServices.GetPhotos();
-        }
-        [HttpGet("GetAllPhotos")]
-        public async Task<List<RestaurantTable>> GetAllPhotos(Guid restaurantId) 
-        {
-            return await _photoServices.GetAllPhotos(restaurantId);
+            var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
+            return Ok(restaurantItems);
         }
     }
 }
