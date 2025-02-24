@@ -30,7 +30,7 @@ namespace RestaurantAPI.Model.Controllers
         [HttpPost("AddPhoto")]
         public async Task<IActionResult> AddPhoto([FromForm] Photos_DTO photo_DTO)
         {
-            var photoServices = await _photoServices.;
+            //var photoServices = await _photoServices.;
             var validation = await _jwtServices.AccessTokenValidation(Request.Headers["Authorization"]);
 
             if (validation.TokenHasError())
