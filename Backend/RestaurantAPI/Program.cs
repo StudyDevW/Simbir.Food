@@ -7,6 +7,8 @@ using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
+using RestaurantAPI.Model.Interface;
+using RestaurantAPI.Model.Services;
 using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
@@ -120,6 +122,8 @@ namespace RestaurantAPI
 
             builder.Services.AddSingleton<ICacheService, CacheSDK>();
 
+            builder.Services.AddSingleton<IPhotoServices, PhotoServices>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
@@ -128,6 +132,11 @@ namespace RestaurantAPI
                                       .AllowAnyHeader());
             });
 
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var rabbitListener = scope.ServiceProvider.GetRequiredService<IRabbitListenerService>();
+            //    rabbitListener.ListenPayment();
+            //}
 
             var app = builder.Build();
 
