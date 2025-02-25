@@ -6,6 +6,9 @@ using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
+using RestaurantAPI.Model.Services;
+using StackExchange.Redis;
+using Telegram.Bot.Requests.Abstractions;
 
 namespace RestaurantAPI.Model.Controllers
 {
@@ -14,13 +17,16 @@ namespace RestaurantAPI.Model.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
+        private readonly OrderServices _orderServices;
+        private readonly RabbitMQServices _rabbitMqService;
         private readonly DataContext _dbcontext;
         private readonly IJwtService _jwtService;
 
-        public OrderController(DataContext dbcontext, IJwtService jwtService)
+        public OrderController(DataContext dbcontext, IJwtService jwtService, OrderServices orderServices)
         {
             _dbcontext = dbcontext;
             _jwtService = jwtService;
+            _orderServices = orderServices;
         }
         private bool IsRestaurantOpen(RestaurantTable restaurant)
         {
@@ -31,6 +37,12 @@ namespace RestaurantAPI.Model.Controllers
             return currentTime >= openTime && currentTime <= closeTime;
         }
 
+        [HttpPost]
+        public IActionResult PlaceOrder([FromBody] Order_DTO order_DTO)
+        {
+            _orderServices.PlaceOrder(order_DTO);
+            return Ok();
+        }
         [HttpPost]
         [Route("OrderFromRestaurant/{id}")]
         public async Task<IActionResult> OrderFromRestaurant(Guid id)
@@ -59,7 +71,7 @@ namespace RestaurantAPI.Model.Controllers
             }
             return BadRequest();
             
-        }
+        }       
         [HttpPost]
         [Route("CreateOrder")]
         public async Task<IActionResult> CreateOrder([FromBody] Order_DTO order_DTO)
@@ -88,6 +100,15 @@ namespace RestaurantAPI.Model.Controllers
             {
                 return BadRequest("Цена заказа не может быть пустой или быть 0");
             }
+            // Логика проверки наличия ингредиентов
+            bool isIngredientsAvailable = CheckIngredients(order_DTO);
+
+            var orderMessage = new Order_DTO
+            {
+                //Заполнение DTO
+            };
+
+            _rabbitMqService.SendMessage(orderMessage);
 
             OrderTable orderTable = new OrderTable()
             {
@@ -102,6 +123,11 @@ namespace RestaurantAPI.Model.Controllers
             _dbcontext.orderTable.Add(orderTable);
             await _dbcontext.SaveChangesAsync();
             return Ok("Заказ успешно создан");
+        }
+        private bool CheckIngredients(OrderRequest request)
+        {
+            // Ваша логика проверки наличия ингредиентов
+            return true; // или false в зависимости от проверки
         }
         [HttpGet]
         [Route("GetOrders")]

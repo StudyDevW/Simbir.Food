@@ -10,6 +10,7 @@ namespace ORM_Components.DTO.RestaurantAPI
         public Guid? courier_id { get; set; }
         public OrderStatus status { get; set; }
         public int total_price { get; set; }
+        public List<string> ingredients { get; set; }
         public DateTime order_date { get; set; }
     }
 }
