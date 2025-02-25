@@ -96,19 +96,6 @@ namespace RestaurantAPI.Model.Controllers
             {
                 return BadRequest("Статус заказа не может быть пустым");
             }
-            if (order_DTO.total_price == null && order_DTO.total_price <= 0)
-            {
-                return BadRequest("Цена заказа не может быть пустой или быть 0");
-            }
-            // Логика проверки наличия ингредиентов
-            bool isIngredientsAvailable = CheckIngredients(order_DTO);
-
-            var orderMessage = new Order_DTO
-            {
-                //Заполнение DTO
-            };
-
-            _rabbitMqService.SendMessage(orderMessage);
 
             OrderTable orderTable = new OrderTable()
             {
@@ -123,11 +110,6 @@ namespace RestaurantAPI.Model.Controllers
             _dbcontext.orderTable.Add(orderTable);
             await _dbcontext.SaveChangesAsync();
             return Ok("Заказ успешно создан");
-        }
-        private bool CheckIngredients(OrderRequest request)
-        {
-            // Ваша логика проверки наличия ингредиентов
-            return true; // или false в зависимости от проверки
         }
         [HttpGet]
         [Route("GetOrders")]
@@ -173,10 +155,7 @@ namespace RestaurantAPI.Model.Controllers
             {
                 return BadRequest("Статус заказа не может быть пустым");
             }
-            if (order_DTO.total_price == null && order_DTO.total_price <= 0)
-            {
-                return BadRequest("Цена заказа не может быть пустой или быть 0");
-            }
+          
             var order = await _dbcontext.orderTable.FindAsync(id);
             if (order == null)
             {
