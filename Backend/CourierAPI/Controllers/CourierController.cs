@@ -1,4 +1,5 @@
 ﻿using CourierAPI.Contracts;
+using CourierAPI.Controllers.CustomAttributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ORM_Components.DTO.CourierAPI;
@@ -7,6 +8,7 @@ namespace CourierAPI.Controllers
 {
     [Authorize]
     [ApiController]
+    [ValidateJwt]
     [Route("api/courier/")]
     public class CourierController : ControllerBase
     {
@@ -19,6 +21,12 @@ namespace CourierAPI.Controllers
 
         [HttpGet("ordersForCourier")]
         public async Task<ActionResult<List<OrderForCourierDto>>> GetOrderList()
+        {
+            return await _courierService.GetOrders();
+        }
+
+        [HttpGet("ordersForCourierTest")]
+        public async Task<ActionResult<List<OrderForCourierDto>>> GetOrderListTest()
         {
             return await _courierService.GetOrders();
         }
@@ -81,6 +89,13 @@ namespace CourierAPI.Controllers
         public async Task<IActionResult> DeleteAsync(Guid courierId)
         {
             await _courierService.DeleteAsync(courierId);
+            return NoContent();
+        }
+
+        [HttpPost("TestMethod")]
+        public async Task<IActionResult> TestMethod()
+        {
+            await _courierService.TestMethod();
             return NoContent();
         }
     }

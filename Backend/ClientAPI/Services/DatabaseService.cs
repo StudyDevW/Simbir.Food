@@ -5,6 +5,7 @@ using ORM_Components;
 using ClientAPI.Interfaces;
 using Middleware_Components.JWT.DTO.CheckUsers;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClientAPI.Services
 {
@@ -430,6 +431,5 @@ namespace ClientAPI.Services
 
             _logger.LogInformation($"DeleteClientWithAdmin: (id: {id} ) был удален");
         }
-
     }
 }

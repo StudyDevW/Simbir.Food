@@ -14,6 +14,8 @@ using ClientAPI.Services;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Middleware_Components.Broker;
+using System.Text.Json;
 
 namespace ClientAPI
 {
@@ -129,6 +131,10 @@ namespace ClientAPI
             builder.Services.AddScoped<IJwtService, JwtSDK>();
 
             builder.Services.AddScoped<ICacheService, CacheSDK>();
+
+            builder.Services.AddSingleton<RabbitMQService>();
+
+            builder.Services.AddHostedService<RabbitMQListenerService>();
 
             builder.Services.AddCors(options =>
             {
