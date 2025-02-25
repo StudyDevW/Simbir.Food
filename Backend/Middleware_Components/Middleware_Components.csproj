@@ -10,7 +10,7 @@
 	  <PackageReference Include="DotNetEnv" Version="3.1.1" />
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
 	  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.0.2" />
-	  <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+	  <PackageReference Include="RabbitMQ.Client" Version="7.1.0" />
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
 	  <PackageReference Include="StackExchange.Redis" Version="2.8.0" />
   </ItemGroup>
