@@ -1,5 +1,6 @@
 ﻿using CourierAPI.Service;
 using FluentAssertions;
+using Middleware_Components.Broker;
 using Moq;
 using Moq.EntityFrameworkCore;
 using ORM_Components;
@@ -13,13 +14,24 @@ namespace CourierAPI.Tests.Services;
 
 public class CourierServiceTests
 {
+    private readonly Mock<RabbitMQService> _rabbit;
+    private readonly Mock<DataContext> _context;
+    private readonly Mock<IMessageSender> _sender;
+    private readonly CourierService _sut;
+
+    public CourierServiceTests()
+    {
+        _context = new Mock<DataContext>();
+        _sender = new Mock<IMessageSender>();
+        _rabbit = new Mock<RabbitMQService>();
+
+        _sut = new CourierService(_context.Object, _sender.Object, _rabbit.Object);
+    }
+
     [Fact]
     public async Task AcceptOrder_WithCorrectData_SetCourierOfAnOrder()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var order = Generator.GenerateOrder(OrderStatus.Ready);
 
         var courier = new CourierTable
@@ -27,15 +39,14 @@ public class CourierServiceTests
             Id = Guid.NewGuid(),
         };
 
-        context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
 
-        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
 
-        var sut = new CourierService(context.Object, sender.Object);
         var dto = new OrderLinkCourierDto(order.Id, courier.Id);
 
         // act
-        await sut.AcceptOrder(dto);
+        await _sut.AcceptOrder(dto);
 
         // asset
         order.courier_id.Should().Be(courier.Id);
@@ -45,9 +56,6 @@ public class CourierServiceTests
     public async Task AcceptOrder_WithWrongOrderId_ThrowsOrderException()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var order = Generator.GenerateOrder(OrderStatus.Ready);
 
         var courier = new CourierTable
@@ -55,15 +63,14 @@ public class CourierServiceTests
             Id = Guid.NewGuid(),
         };
 
-        context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
 
-        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
 
-        var sut = new CourierService(context.Object, sender.Object);
         var dto = new OrderLinkCourierDto(Guid.NewGuid(), courier.Id);
 
         // act
-        Func<Task> act = async () => await sut.AcceptOrder(dto);
+        Func<Task> act = async () => await _sut.AcceptOrder(dto);
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Заказ не найден.");
@@ -73,9 +80,6 @@ public class CourierServiceTests
     public async Task AcceptOrder_WithWrongCourierId_ThrowsCourierException()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var order = Generator.GenerateOrder(OrderStatus.Ready);
 
         var courier = new CourierTable
@@ -83,15 +87,14 @@ public class CourierServiceTests
             Id = Guid.NewGuid(),
         };
 
-        context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
 
-        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
 
-        var sut = new CourierService(context.Object, sender.Object);
         var dto = new OrderLinkCourierDto(order.Id, Guid.NewGuid());
 
         // act
-        Func<Task> act = async () => await sut.AcceptOrder(dto);
+        Func<Task> act = async () => await _sut.AcceptOrder(dto);
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
@@ -101,24 +104,21 @@ public class CourierServiceTests
     public async Task TakeOrder_WithStatusReady_SetOrderStatusToWaitingForDelivery()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.Ready);
 
         var history = new List<OrderStatusHistoryTable>();
 
-        context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-        context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
-        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-        context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
+        _context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
             .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
-        var sut = new CourierService(context.Object, sender.Object);
+        
 
         // act
-        await sut.TakeOrder(order.Id);
+        await _sut.TakeOrder(order.Id);
 
         // assert
         order.status.Should().Be(OrderStatus.WaitingForDelivery);
@@ -130,17 +130,14 @@ public class CourierServiceTests
     public async Task TakeOrder_WithNotExpectedStatus_ThrowsException()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var order = Generator.GenerateOrder(OrderStatus.WaitingForDelivery);
 
-        context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
 
-        var sut = new CourierService(context.Object, sender.Object);
+        
 
         // act
-        Func<Task> act = async() => await sut.TakeOrder(order.Id);
+        Func<Task> act = async() => await _sut.TakeOrder(order.Id);
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Статус не соответствует ожидаемому.");
@@ -150,17 +147,14 @@ public class CourierServiceTests
     public async Task TakeOrder_WithWrongOrderId_ThrowsException()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var order = Generator.GenerateOrder(OrderStatus.Ready);
 
-        context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
 
-        var sut = new CourierService(context.Object, sender.Object);
+        
 
         // act
-        Func<Task> act = async () => await sut.TakeOrder(Guid.NewGuid());
+        Func<Task> act = async () => await _sut.TakeOrder(Guid.NewGuid());
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Заказ не найден.");
@@ -170,24 +164,19 @@ public class CourierServiceTests
     public async Task CourierOnPlace_WithStatusWaitingForDelivery_SetOrderStatusToCourierOnPlace()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.WaitingForDelivery);
 
         var history = new List<OrderStatusHistoryTable>();
 
-        context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-        context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
-        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-        context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
+        _context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
             .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        await sut.CourierOnPlace(order.Id);
+        await _sut.CourierOnPlace(order.Id);
 
         // assert
         order.status.Should().Be(OrderStatus.CourierOnPlace);
@@ -199,24 +188,19 @@ public class CourierServiceTests
     public async Task OrderDelivered_WithStatusCourierOnPlace_SetOrderStatusToDelivered()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace);
 
         var history = new List<OrderStatusHistoryTable>();
 
-        context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-        context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
-        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-        context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
+        _context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
             .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        await sut.OrderDelivered(order.Id);
+        await _sut.OrderDelivered(order.Id);
 
         // assert
         order.status.Should().Be(OrderStatus.Delivered);
@@ -228,26 +212,21 @@ public class CourierServiceTests
     public async Task CreateAsync_WithCorrectData_CreatesCourier()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var user = Generator.GenerateUser();
 
         var users = new List<UserTable> { user };
 
         var couriers = new List<CourierTable>();
 
-        context.Setup(x => x.userTable).ReturnsDbSet(users);
-        context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
-        context.Setup(x => x.Add(It.IsAny<CourierTable>()))
+        _context.Setup(x => x.userTable).ReturnsDbSet(users);
+        _context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
+        _context.Setup(x => x.Add(It.IsAny<CourierTable>()))
             .Callback<CourierTable>(x => couriers.Add(x));
 
         var dto = new CourierDtoForCreate(user.Id, "B625CE73");
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        await sut.CreateAsync(dto);
+        await _sut.CreateAsync(dto);
 
         // assert
         couriers.First().car_number.Should().Be(dto.car_number);
@@ -259,26 +238,21 @@ public class CourierServiceTests
     public async Task CreateAsync_WithCorrectDataWithoutCarNumber_CreatesCourier()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var user = Generator.GenerateUser();
 
         var users = new List<UserTable> { user };
 
         var couriers = new List<CourierTable>();
 
-        context.Setup(x => x.userTable).ReturnsDbSet(users);
-        context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
-        context.Setup(x => x.Add(It.IsAny<CourierTable>()))
+        _context.Setup(x => x.userTable).ReturnsDbSet(users);
+        _context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
+        _context.Setup(x => x.Add(It.IsAny<CourierTable>()))
             .Callback<CourierTable>(x => couriers.Add(x));
 
         var dto = new CourierDtoForCreate(user.Id, null);
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        await sut.CreateAsync(dto);
+        await _sut.CreateAsync(dto);
 
         // assert
         couriers.First().car_number.Should().Be(null);
@@ -290,19 +264,14 @@ public class CourierServiceTests
     public async Task CreateAsync_WithWrongUserId_ThrowsException()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var users = new List<UserTable>();
 
-        context.Setup(x => x.userTable).ReturnsDbSet(users);
+        _context.Setup(x => x.userTable).ReturnsDbSet(users);
 
         var dto = new CourierDtoForCreate(Guid.NewGuid(), null);
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        Func<Task> act = async() => await sut.CreateAsync(dto);
+        Func<Task> act = async() => await _sut.CreateAsync(dto);
 
         // assert
         await act.Should().ThrowAsync<Exception>("Пользователь не найден.");
@@ -312,21 +281,16 @@ public class CourierServiceTests
     public async Task UpdateAsync_WithCorrectData_UpdatesCourier()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var user = Generator.GenerateUser();
         var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsInactive);
 
-        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { user });
-        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+        _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { user });
+        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
 
         var dto = new CourierDtoForUpdate(courier.Id, "B358AF73", CourierStatus.IsActive);
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        await sut.UpdateAsync(dto);
+        await _sut.UpdateAsync(dto);
 
         // assert
         courier.car_number.Should().Be(dto.car_number);
@@ -337,21 +301,16 @@ public class CourierServiceTests
     public async Task UpdateAsync_WithCarnumberIsNullAndTheSameStatus_UpdatesOnlyCarnumber()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var user = Generator.GenerateUser();
         var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsActive);
 
-        context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { user });
-        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+        _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { user });
+        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
 
         var dto = new CourierDtoForUpdate(courier.Id, null, CourierStatus.IsActive);
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        await sut.UpdateAsync(dto);
+        await _sut.UpdateAsync(dto);
 
         // assert
         courier.car_number.Should().BeNull();
@@ -362,17 +321,12 @@ public class CourierServiceTests
     public async Task UpdateAsync_WithWrongCourierId_ThrowsException()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
-        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable>());
+        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable>());
 
         var dto = new CourierDtoForUpdate(Guid.NewGuid(), null, CourierStatus.IsActive);
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        Func<Task> act = async() => await sut.UpdateAsync(dto);
+        Func<Task> act = async() => await _sut.UpdateAsync(dto);
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
@@ -382,20 +336,15 @@ public class CourierServiceTests
     public async Task DeleteAsync_WithCorrectCourierId_DeletesCourier()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
         var courier = Generator.GenerateCourier(Guid.NewGuid());
         var couriers = new List<CourierTable> { courier };
 
-        context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
-        context.Setup(x => x.Remove(It.IsAny<CourierTable>()))
+        _context.Setup(x => x.courierTable).ReturnsDbSet(couriers);
+        _context.Setup(x => x.Remove(It.IsAny<CourierTable>()))
             .Callback<CourierTable>(x => couriers.Remove(x));
 
-        var sut = new CourierService(context.Object, sender.Object);
-
         // act
-        await sut.DeleteAsync(courier.Id);
+        await _sut.DeleteAsync(courier.Id);
 
         // assert
         couriers.Count.Should().Be(0);
@@ -405,15 +354,10 @@ public class CourierServiceTests
     public async Task DeleteAsync_WithWrongCourierId_ThrowsException()
     {
         // arrange
-        var context = new Mock<DataContext>();
-        var sender = new Mock<IMessageSender>();
-
-        context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable>());
-
-        var sut = new CourierService(context.Object, sender.Object);
+        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable>());
 
         // act
-        Func<Task> act = async () => await sut.DeleteAsync(Guid.NewGuid());
+        Func<Task> act = async () => await _sut.DeleteAsync(Guid.NewGuid());
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
