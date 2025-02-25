@@ -63,7 +63,7 @@ public static class Generator
         var faker = new Faker<OrderTable>();
         faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
             .RuleFor(x => x.total_price, f => f.Random.Number(10, 5000))
-            .RuleFor(x => x.order_date, f => f.Date.Between(DateTime.Now.AddDays(-7), DateTime.Now))
+            .RuleFor(x => x.order_date, f => f.Date.Between(DateTime.UtcNow.AddDays(-7), DateTime.UtcNow))
             .RuleFor(x => x.courier_id, _ => courier_id)
             .RuleFor(x => x.restaurant_id, _ => restaurant_id)
             .RuleFor(x => x.client_id, _ => client_id)

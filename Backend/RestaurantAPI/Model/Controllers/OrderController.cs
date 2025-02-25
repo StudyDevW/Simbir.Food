@@ -80,11 +80,7 @@ namespace RestaurantAPI.Model.Controllers
             {
                 return BadRequest("Курьер Id не может быть пустым");
             }
-            if(order_DTO.status == null)
-            {
-                return BadRequest("Статус заказа не может быть пустым");
-            }
-            if (order_DTO.total_price == null && order_DTO.total_price <= 0)
+            if (order_DTO.total_price <= 0)
             {
                 return BadRequest("Цена заказа не может быть пустой или быть 0");
             }
@@ -131,26 +127,11 @@ namespace RestaurantAPI.Model.Controllers
             {
                 return BadRequest("Данные заказа не могут быть пустыми");
             }
-            if (order_DTO.restaurant_id == Guid.Empty)
-            {
-                return BadRequest("Ресторан Id не может быть пустым");
-            }
-            if (order_DTO.client_id == Guid.Empty)
-            {
-                return BadRequest("Клиент Id не может быть пустым");
-            }
-            if (order_DTO.courier_id == Guid.Empty)
-            {
-                return BadRequest("Курьер Id не может быть пустым");
-            }
-            if (order_DTO.status == null)
-            {
-                return BadRequest("Статус заказа не может быть пустым");
-            }
-            if (order_DTO.total_price == null && order_DTO.total_price <= 0)
+            if (order_DTO.total_price <= 0)
             {
                 return BadRequest("Цена заказа не может быть пустой или быть 0");
             }
+
             var order = await _dbcontext.orderTable.FindAsync(id);
             if (order == null)
             {
