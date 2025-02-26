@@ -13,6 +13,7 @@ using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
 using RestaurantAPI.Model.Controllers;
+using Telegram_Components.Interfaces;
 using TestsBaseLib.Base;
 
 namespace RestaurantAPI.Tests.Controllers;
@@ -234,6 +235,19 @@ public class OrderControllerTests
         result.Should().BeOfType<NotFoundObjectResult>();
     }
 
+    private void initJwt(string chatId = "32859325")
+    {
+        _jwt.Setup(x => x.AccessTokenValidation(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Token_ValidProperties
+            {
+                token_success = new Token_ValidSuccess
+                {
+                    Id = Guid.NewGuid(),
+                    telegramChatId = chatId
+                }
+            });
+    }
+
     private void initRestaurants(List<RestaurantTable> restaurants)
     {
         _context.Setup(x => x.restaurantTable).ReturnsDbSet(restaurants);
@@ -247,15 +261,7 @@ public class OrderControllerTests
                 return task;
             });
 
-        _jwt.Setup(x => x.AccessTokenValidation(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new Token_ValidProperties
-            {
-                token_success = new Token_ValidSuccess
-                {
-                    Id = Guid.NewGuid(),
-                    telegramChatId = "32859325"
-                }
-            });
+        initJwt();
     }
 
     [Fact]
@@ -335,5 +341,58 @@ public class OrderControllerTests
 
         // assert
         result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    [Fact]
+    public async Task SentOrder_WithCorrectData_ReturnsSuccessResult()
+    {
+        // arrange
+        var sender = new Mock<IMessageSender>();
+
+        var sut = new OrdersDeviationController(_jwt.Object, sender.Object);
+        sut.ControllerContext = new ControllerContext();
+        sut.ControllerContext.HttpContext = new DefaultHttpContext();
+        sut.ControllerContext.HttpContext.Request.Headers.Authorization = "auth";
+
+        var order = Generator.GenerateOrder(OrderStatus.Accepted);
+        var dto = mapOrderTableToOrderDto(order);
+
+        var chatId = "5235236236";
+
+        initJwt(chatId);
+
+        // act
+        var result = await sut.SentOrder(dto);
+
+        // assert
+        result.Should().BeOfType<OkObjectResult>();
+
+        sender.Verify(x => x.Send(chatId, It.IsAny<string>()), Times.Once());
+    }
+
+    [Fact]
+    public async Task SentOrder_WithNullDto_ReturnsBadRequest()
+    {
+        // arrange
+        var sender = new Mock<IMessageSender>();
+
+        var sut = new OrdersDeviationController(_jwt.Object, sender.Object);
+        sut.ControllerContext = new ControllerContext();
+        sut.ControllerContext.HttpContext = new DefaultHttpContext();
+        sut.ControllerContext.HttpContext.Request.Headers.Authorization = "auth";
+
+        Order_DTO dto = null;
+
+        var chatId = "5235236236";
+
+        initJwt(chatId);
+
+        // act
+        var result = await sut.SentOrder(dto);
+
+        // assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+
+        sender.Verify(x => x.Send(chatId, It.IsAny<string>()), Times.Never());
     }
 }
