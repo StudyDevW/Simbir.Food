@@ -136,7 +136,7 @@ namespace RestaurantAPI.Model.Controllers
 
         [HttpPut]
         [Route("PutRestaurantFoodItems")]
-        public async Task<IActionResult> PutRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO)
+        public async Task<IActionResult> PutRestaurantFoodItems(Guid food_id, [FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO)
         {
             if (restaurantFoodItems_DTO == null)
             {
@@ -174,7 +174,7 @@ namespace RestaurantAPI.Model.Controllers
                     return BadRequest(errors);
                 }
 
-                var restaurantFoodItem = await _dbcontext.restaurantFoodItemsTable.FindAsync(restaurantFoodItems_DTO.restaurant_id);
+                var restaurantFoodItem = await _dbcontext.restaurantFoodItemsTable.FindAsync(food_id);
                 if (restaurantFoodItem == null)
                 {
                     return NotFound("Блюдо с указанным ID не найдено.");

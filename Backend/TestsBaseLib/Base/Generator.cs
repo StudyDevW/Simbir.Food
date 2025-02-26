@@ -44,6 +44,12 @@ public static class Generator
         return faker.Generate();
     }
 
+    public static RestaurantFoodItemsTable GenerateFoodItem(Guid restaurant_id)
+    {
+        var items = GenerateFoodItems(restaurant_id, 1);
+        return items.First();
+    }
+
     public static List<RestaurantFoodItemsTable> GenerateFoodItems(Guid restaurant_id, int count)
     {
         var faker = new Faker<RestaurantFoodItemsTable>();
