@@ -8,12 +8,11 @@ using Middleware_Components.Services;
 using Moq;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
-using ORM_Components.Tables;
 using StackExchange.Redis;
 using Telegram_Components.Interfaces;
 using TestsBaseLib.Base;
 
-namespace ClientAPI.Tests.Services;
+namespace ClientAPI.IntegrationTests.Services;
 
 /// <summary>
 /// Integration tests of ClientService.
