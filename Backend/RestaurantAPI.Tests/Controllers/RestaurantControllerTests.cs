@@ -37,52 +37,10 @@ public class RestaurantControllerTests
         _context.Setup(x => x.restaurantTable.Remove(It.IsAny<RestaurantTable>()))
             .Callback<RestaurantTable>(x => _rests.Remove(x));
         _context.Setup(x => x.restaurantTable.FindAsync(It.IsAny<object>()))
-        .Returns<object[]>((x) =>
-        {
-                var guid = (Guid)x.First();
-                var rest = _rests.FirstOrDefault(c => c.Id == guid);
-                var task = ValueTask.FromResult(rest);
-                return task;
-        });
+            .ReturnsFindAsync(_rests);
 
         _sut = new RestaurantController(_context.Object, _jwt.Object);
-        _sut.ControllerContext = new ControllerContext();
-        _sut.ControllerContext.HttpContext = new DefaultHttpContext();
-        _sut.ControllerContext.HttpContext.Request.Headers.Authorization = "auth";
-    }
-
-    private Restaurants_DTO mapRestTableToRestDto(RestaurantTable table) =>
-        new Restaurants_DTO
-        {
-            address = table.address,
-            close_time = table.close_time,
-            description = table.description,
-            id = table.Id,
-            imagePath = table.imagePath,
-            open_time = table.open_time,
-            phone_number = table.phone_number,
-            restaurantName = table.restaurantName,
-            status = table.status,
-            user_id = table.user_id,
-        };
-
-    /// <summary>
-    /// Заменяет метод AccessTokenValidation моком, возвращающим успешный результат
-    /// </summary>
-    /// <param name="chatId">Id чата телеграм</param>
-    /// <param name="roles">Роли пользователя, указанные через пробел</param>
-    private void initJwt(string chatId = "29402152", string roles = "Client")
-    {
-        _jwt.Setup(x => x.AccessTokenValidation(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new Token_ValidProperties
-            {
-                token_success = new Token_ValidSuccess
-                {
-                    Id = Guid.NewGuid(),
-                    telegramChatId = chatId,
-                    userRoles = roles.Split(" ").ToList(),
-                }
-            });
+        _sut.ConfigureContext();
     }
 
     [Fact]
@@ -90,24 +48,18 @@ public class RestaurantControllerTests
     {
         // arrange
         var rest = Generator.GenerateRestaurant(Guid.NewGuid());
-        var dto = mapRestTableToRestDto(rest);
+        var dto = rest.ToDto();
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.AddRestaurant(dto);
 
         // assert
         result.Should().BeOfType<OkObjectResult>();
-        _rests.First().restaurantName.Should().Be(dto.restaurantName);
-        _rests.First().imagePath.Should().Be(dto.imagePath);
-        _rests.First().open_time.Should().Be(dto.open_time);
-        _rests.First().close_time.Should().Be(dto.close_time);
-        _rests.First().description.Should().Be(dto.description);
-        _rests.First().phone_number.Should().Be(dto.phone_number);
-        _rests.First().status.Should().Be(dto.status);
-        _rests.First().user_id.Should().Be(dto.user_id);
-        _rests.First().address.Should().Be(dto.address);
+
+        rest.Id = _rests.First().Id;
+        _rests.First().Should().BeEquivalentTo(rest);
     }
 
     [Fact]
@@ -116,7 +68,7 @@ public class RestaurantControllerTests
         // arrange
         Restaurants_DTO dto = null;
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.AddRestaurant(dto);
@@ -157,7 +109,7 @@ public class RestaurantControllerTests
             user_id = user_id,
         };
 
-        initJwt("98423523", roles);
+        _jwt.InitJwt("98423523", roles);
 
         // act
         var result = await _sut.AddRestaurant(dto);
@@ -174,9 +126,9 @@ public class RestaurantControllerTests
     {
         // arrange
         var rest = Generator.GenerateRestaurant(Guid.NewGuid());
-        var dto = mapRestTableToRestDto(rest);
+        var dto = rest.ToDto();
 
-        initJwt("98423523", role);
+        _jwt.InitJwt("98423523", role);
 
         // act
         var result = await _sut.AddRestaurant(dto);
@@ -192,7 +144,7 @@ public class RestaurantControllerTests
         var rest = Generator.GenerateRestaurant(Guid.NewGuid());
         _rests.Add(rest);
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.DeleteRestaurant(rest.Id);
@@ -208,7 +160,7 @@ public class RestaurantControllerTests
         // arrange
         var id = Guid.NewGuid();
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.DeleteRestaurant(id);
@@ -224,7 +176,7 @@ public class RestaurantControllerTests
         var rest = Generator.GenerateRestaurant(Guid.NewGuid());
         _rests.Add(rest);
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.GetRestaurantById(rest.Id);
@@ -242,7 +194,7 @@ public class RestaurantControllerTests
         // arrange
         var id = Guid.NewGuid();
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.GetRestaurantById(id);
@@ -259,9 +211,9 @@ public class RestaurantControllerTests
         _rests.Add(rest);
 
         var updateTo = Generator.GenerateRestaurant(Guid.NewGuid());
-        var dto = mapRestTableToRestDto(updateTo);
+        var dto = updateTo.ToDto();
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.PutRestaurant(rest.Id, dto);
@@ -286,9 +238,9 @@ public class RestaurantControllerTests
         var id = Guid.NewGuid(); 
         
         var updateTo = Generator.GenerateRestaurant(Guid.NewGuid());
-        var dto = mapRestTableToRestDto(updateTo);
+        var dto = updateTo.ToDto();
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.PutRestaurant(id, dto);
@@ -306,11 +258,11 @@ public class RestaurantControllerTests
         var id = Guid.NewGuid();
 
         var updateTo = Generator.GenerateRestaurant(Guid.NewGuid());
-        var dto = mapRestTableToRestDto(updateTo);
+        var dto = updateTo.ToDto();
         dto.restaurantName = restaurantName;
         dto.address = address;
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.PutRestaurant(id, dto);
@@ -326,7 +278,7 @@ public class RestaurantControllerTests
         var id = Guid.NewGuid();
         Restaurants_DTO dto = null;
 
-        initJwt("98423523", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.PutRestaurant(id, dto);

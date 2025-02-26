@@ -38,32 +38,10 @@ public class OrderControllerTests
         _context.Setup(x => x.orderTable.Remove(It.IsAny<OrderTable>()))
             .Callback<OrderTable>(x => _orders.Remove(x));
         _context.Setup(x => x.orderTable.FindAsync(It.IsAny<object>()))
-            .Returns<object[]>((x) =>
-            {
-                var guid = (Guid)x.First();
-                var order = _orders.FirstOrDefault(c => c.Id == guid);
-                var task = ValueTask.FromResult(order);
-                return task;
-            });
+            .ReturnsFindAsync(_orders);
 
         _sut = new OrderController(_context.Object, _jwt.Object);
-        _sut.ControllerContext = new ControllerContext();
-        _sut.ControllerContext.HttpContext = new DefaultHttpContext();
-        _sut.ControllerContext.HttpContext.Request.Headers.Authorization = "auth";
-    }
-
-    private Order_DTO mapOrderTableToOrderDto(OrderTable table)
-    {
-        return new Order_DTO
-        {
-            restaurant_id = table.restaurant_id,
-            client_id = table.client_id,
-            courier_id = table.courier_id,
-            id = table.Id,
-            order_date = table.order_date,
-            status = table.status,
-            total_price = table.total_price
-        };
+        _sut.ConfigureContext();
     }
 
     [Fact]
@@ -71,7 +49,7 @@ public class OrderControllerTests
     {
         // arrange
         var order = Generator.GenerateOrder(OrderStatus.Accepted);
-        var dto = mapOrderTableToOrderDto(order);
+        var dto = order.ToDto();
 
         //act 
         var result = await _sut.CreateOrder(dto);
@@ -235,19 +213,6 @@ public class OrderControllerTests
         result.Should().BeOfType<NotFoundObjectResult>();
     }
 
-    private void initJwt(string chatId = "32859325")
-    {
-        _jwt.Setup(x => x.AccessTokenValidation(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new Token_ValidProperties
-            {
-                token_success = new Token_ValidSuccess
-                {
-                    Id = Guid.NewGuid(),
-                    telegramChatId = chatId
-                }
-            });
-    }
-
     private void initRestaurants(List<RestaurantTable> restaurants)
     {
         _context.Setup(x => x.restaurantTable).ReturnsDbSet(restaurants);
@@ -261,7 +226,7 @@ public class OrderControllerTests
                 return task;
             });
 
-        initJwt();
+        _jwt.InitJwt();
     }
 
     [Fact]
@@ -355,11 +320,11 @@ public class OrderControllerTests
         sut.ControllerContext.HttpContext.Request.Headers.Authorization = "auth";
 
         var order = Generator.GenerateOrder(OrderStatus.Accepted);
-        var dto = mapOrderTableToOrderDto(order);
+        var dto = order.ToDto();
 
         var chatId = "5235236236";
 
-        initJwt(chatId);
+        _jwt.InitJwt(chatId);
 
         // act
         var result = await sut.SentOrder(dto);
@@ -385,7 +350,7 @@ public class OrderControllerTests
 
         var chatId = "5235236236";
 
-        initJwt(chatId);
+        _jwt.InitJwt(chatId);
 
         // act
         var result = await sut.SentOrder(dto);

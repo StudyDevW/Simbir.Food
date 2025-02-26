@@ -10,6 +10,7 @@ using ORM_Components.DTO.RestaurantAPI;
 using Middleware_Components.JWT.DTO.Token;
 using TestsBaseLib.Base;
 using FluentAssertions;
+using StackExchange.Redis;
 
 namespace RestaurantAPI.Tests.Controllers;
 
@@ -33,48 +34,10 @@ public class RestaurantFoodItemsControllerTests
         _context.Setup(x => x.restaurantFoodItemsTable.Remove(It.IsAny<RestaurantFoodItemsTable>()))
             .Callback<RestaurantFoodItemsTable>(x => _foods.Remove(x));
         _context.Setup(x => x.restaurantFoodItemsTable.FindAsync(It.IsAny<object>()))
-            .Returns<object[]>((x) =>
-            {
-                var guid = (Guid)x.First();
-                var food = _foods.FirstOrDefault(c => c.Id == guid);
-                var task = ValueTask.FromResult(food);
-                return task;
-            });
+            .ReturnsFindAsync(_foods);
 
         _sut = new RestaurantFoodItemsController(_context.Object, _jwt.Object);
-        _sut.ControllerContext = new ControllerContext();
-        _sut.ControllerContext.HttpContext = new DefaultHttpContext();
-        _sut.ControllerContext.HttpContext.Request.Headers.Authorization = "auth";
-    }
-
-    private RestaurantFoodItems_DTO mapFoodTableToFoodDto(RestaurantFoodItemsTable table) =>
-        new RestaurantFoodItems_DTO
-        {
-            calories = table.calories,
-            image = table.image,
-            name = table.name,
-            price = table.price,
-            restaurant_id = table.restaurant_id,
-            weight = table.weight
-        };
-
-    /// <summary>
-    /// Заменяет метод AccessTokenValidation моком, возвращающим успешный результат
-    /// </summary>
-    /// <param name="chatId">Id чата телеграм</param>
-    /// <param name="roles">Роли пользователя, указанные через пробел</param>
-    private void initJwt(string chatId = "29402152", string roles = "Client")
-    {
-        _jwt.Setup(x => x.AccessTokenValidation(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new Token_ValidProperties
-            {
-                token_success = new Token_ValidSuccess
-                {
-                    Id = Guid.NewGuid(),
-                    telegramChatId = chatId,
-                    userRoles = roles.Split(" ").ToList(),
-                }
-            });
+        _sut.ConfigureContext();
     }
 
     private List<RestaurantTable> restaurantsSetup()
@@ -82,15 +45,8 @@ public class RestaurantFoodItemsControllerTests
         var rests = new List<RestaurantTable>();
 
         _context.Setup(x => x.restaurantTable).ReturnsDbSet(rests);
-
         _context.Setup(x => x.restaurantTable.FindAsync(It.IsAny<object>()))
-            .Returns<object[]>((x) =>
-            {
-                var guid = (Guid)x.First();
-                var rest = rests.FirstOrDefault(c => c.Id == guid);
-                var task = ValueTask.FromResult(rest);
-                return task;
-            });
+            .ReturnsFindAsync(rests);
 
         return rests;
     }
@@ -104,9 +60,9 @@ public class RestaurantFoodItemsControllerTests
         rests.Add(rest);
 
         var food = Generator.GenerateFoodItem(rest.Id);
-        var dto = mapFoodTableToFoodDto(food);
+        var dto = food.ToDto();
 
-        initJwt("53829532", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.AddRestaurantFoodItems(dto);
@@ -138,9 +94,9 @@ public class RestaurantFoodItemsControllerTests
         var rests = restaurantsSetup();
 
         var food = Generator.GenerateFoodItem(Guid.NewGuid());
-        var dto = mapFoodTableToFoodDto(food);
+        var dto = food.ToDto();
 
-        initJwt("53829532", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.AddRestaurantFoodItems(dto);
@@ -163,14 +119,14 @@ public class RestaurantFoodItemsControllerTests
         rests.Add(rest);
 
         var food = Generator.GenerateFoodItem(rest.Id);
-        var dto = mapFoodTableToFoodDto(food);
+        var dto = food.ToDto();
 
         dto.name = name;
         dto.price = price;
         dto.weight = weight;
         dto.calories = calories;
 
-        initJwt("53829532", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.AddRestaurantFoodItems(dto);
@@ -186,7 +142,7 @@ public class RestaurantFoodItemsControllerTests
         var food = Generator.GenerateFoodItem(Guid.NewGuid());
         _foods.Add(food);
 
-        initJwt("423532623", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.DeleteRestaurantFoodItems(food.Id);
@@ -202,7 +158,7 @@ public class RestaurantFoodItemsControllerTests
         // arrange
         var id = Guid.NewGuid();
 
-        initJwt("423532623", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.DeleteRestaurantFoodItems(id);
@@ -220,9 +176,9 @@ public class RestaurantFoodItemsControllerTests
         _foods.Add(food);
 
         var newFood = Generator.GenerateFoodItem(rest);
-        var dto = mapFoodTableToFoodDto(newFood);
+        var dto = newFood.ToDto();
 
-        initJwt("53829532", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.PutRestaurantFoodItems(food.Id, dto);
@@ -239,9 +195,9 @@ public class RestaurantFoodItemsControllerTests
     {
         // arrange
         var newFood = Generator.GenerateFoodItem(Guid.NewGuid());
-        var dto = mapFoodTableToFoodDto(newFood);
+        var dto = newFood.ToDto();
 
-        initJwt("53829532", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.PutRestaurantFoodItems(Guid.NewGuid(), dto);
@@ -256,7 +212,7 @@ public class RestaurantFoodItemsControllerTests
         // arrange
         RestaurantFoodItems_DTO dto = null;
 
-        initJwt("53829532", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.PutRestaurantFoodItems(Guid.NewGuid(), dto);
@@ -278,14 +234,14 @@ public class RestaurantFoodItemsControllerTests
         _foods.Add(food);
 
         var newFood = Generator.GenerateFoodItem(rest);
-        var dto = mapFoodTableToFoodDto(newFood);
+        var dto = newFood.ToDto();
 
         dto.name = name;
         dto.price = price;
         dto.weight = weight;
         dto.calories = calories;
 
-        initJwt("53829532", "Client");
+        _jwt.InitJwt("98423523", "Client");
 
         // act
         var result = await _sut.PutRestaurantFoodItems(food.Id, dto);
