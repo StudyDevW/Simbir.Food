@@ -220,6 +220,59 @@ body
     background-position: center
     background-repeat: no-repeat
 
+@keyframes profile_open_background
+    0%
+        backdrop-filter: blur(0px)
+        background-color: rgb(0, 0, 0, 0.0)
+    100%
+        backdrop-filter: blur(2px)
+        background-color: rgb(0, 0, 0, 0.2)
+
+@keyframes profile_open_foreground
+    0%
+        transform: translateX(300px)
+    100%
+        transform: translateX(0px)
+
+@keyframes profile_close_background
+    0%
+        backdrop-filter: blur(2px)
+        background-color: rgb(0, 0, 0, 0.2)
+    100%
+        backdrop-filter: blur(0px)
+
+@keyframes profile_close_foreground
+    0%
+        transform: translateX(0px)
+    100%
+        transform: translateX(300px)
+
+
+.app_profile_area
+    position: absolute
+    width: 100%
+    height: 100vh
+    z-index: 1
+    animation: profile_open_background 1s forwards
+
+.app_profile_area.closed 
+    animation: profile_close_background 1s forwards
+
+.app_profile_area_panel
+    position: absolute
+    right: 0
+    width: 300px
+    max-width: calc(1000px - 300px)
+    height: 100vh
+    background-color: #EAEAEA
+    border-top: 1px solid white
+    border-right: 1px solid white
+    animation: profile_open_foreground 0.5s forwards
+    z-index: 50
+
+.app_profile_area_panel.closed
+    animation: profile_close_foreground 0.5s forwards
+
 .app_maincontent_searchbar_decor
     display: flex
     flex: none

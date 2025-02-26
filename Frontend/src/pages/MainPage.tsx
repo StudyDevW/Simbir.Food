@@ -6,6 +6,7 @@ import { useNavigate, useLocation, data } from 'react-router-dom';
 import { handleGetInfoMe } from '../api-integrations/ClientInfoAPI.ts';
 import { handleUserAuth } from '../api-integrations/AuthAPI.ts';
 import { telegramUser } from '../telegram-integrations/InitData.ts';
+import ProfilePage from './ProfilePage.tsx';
 
 
 interface GetMeInfo {
@@ -48,6 +49,7 @@ const MainPage: React.FC = () => {
 
   const [logined, setLogined] = useState<boolean>(false);
 
+  const [profileOpened, setProfileOpened] = useState<boolean>(false);
 
   const GetUserRequestAPI = async (accessToken: string) => {
     
@@ -70,7 +72,6 @@ const MainPage: React.FC = () => {
   }
 
   const ProfileGet = async () => {
-
     const accessToken: string = await StorageGetItem('AccessToken');
 
     if (accessToken !== "empty") {
@@ -124,6 +125,10 @@ const MainPage: React.FC = () => {
 
             <div className="app_layout_area" style={ isMobile ? { marginTop: '100px' } : {}}>
 
+                {(profileOpened && userInfo !== null) && 
+                  <ProfilePage isMobile={isMobile} info={userInfo} onChange={setProfileOpened} />
+                }
+
                 {userInfo !== null && <>
                   <div className="app_delivery_header">
                     <div className="app_delivery_header_image"></div>
@@ -133,7 +138,9 @@ const MainPage: React.FC = () => {
                         <div className="app_delivery_header_title big">Адрес доставки</div>
                     </div>
 
-                    <div className="app_delivery_header_profile"  style={{
+                    <div className="app_delivery_header_profile"
+                    onClick={()=>setProfileOpened(true)}
+                    style={{
                             backgroundImage: `url(${userInfo.photo_url})`,
                     }}></div>
                   </div>

@@ -122,6 +122,22 @@ const LoginPage: React.FC = () => {
         return () => clearTimeout(debounceFetch);
     }, [inputValue]);
 
+    const fetchSuggestion = async (latitude: number, longitude: number) => {
+
+        try {
+            const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=${longitude},${latitude}&format=json`);
+            const data = await response.json();
+        
+            if (data && data.response && data.response.GeoObjectCollection && data.response.GeoObjectCollection.featureMember) {
+                const newSuggestion = data.response.GeoObjectCollection.featureMember[0].GeoObject.name;
+                setInputValue(newSuggestion);
+                setAddress(newSuggestion);
+            }
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        } 
+    };
+
     const getCoordinates = async (address: string) => {
         try {
           const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=${encodeURIComponent(`Ульяновск, ${address}`)}&format=json`);
@@ -191,9 +207,6 @@ const LoginPage: React.FC = () => {
     }, [isAuthOperated])
 
     const LoadingDraw = () => {
-
-
-
         return (<>
             <div className="app_loading_area" style={ isMobile ? { height: 'calc(100% - 100px - 45px)' } : {} }>
                 <div className="app_loading_letter">
@@ -201,6 +214,11 @@ const LoginPage: React.FC = () => {
                 </div>
             </div>
         </>)
+    }
+
+    const handleMapClick = (event: any) => {
+        const coordinates = event.get('coords');
+        fetchSuggestion(coordinates[0], coordinates[1]);
     }
 
     return (
@@ -257,15 +275,27 @@ const LoginPage: React.FC = () => {
                         {location && <>
                             <Map 
                                 state={{center: location || [54.314194, 48.419610], zoom: 17}} 
-                                width="100%" height="100%">
-                                {<Placemark geometry={location} />}
+                                width="100%" height="100%"
+                                onClick={handleMapClick}>
+                                {<Placemark geometry={location} options={{
+                                    // Options. You must specify this type of layout.
+                                    iconLayout: 'default#image',
+                                    // Custom image for the placemark icon.
+                                    iconImageHref: "../../images/star_4_simbir.png",
+                                    // The size of the placemark.
+                                    iconImageSize: [30, 42],
+                                    // The offset of the upper left corner of the icon relative
+                                    // to its "tail" (the anchor point).
+                                    iconImageOffset: [-3, -42]}}/>
+                                }
                             </Map>
                         </>}
 
                         {location === null && <>
                             <Map 
                                 defaultState={{ center: location || [54.314194, 48.419610], zoom: 10 }} 
-                                width="100%" height="100%">
+                                width="100%" height="100%"
+                                onClick={handleMapClick}>
                             </Map>
                         </>}
 

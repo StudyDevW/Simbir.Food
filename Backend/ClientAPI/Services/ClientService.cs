@@ -82,8 +82,8 @@ namespace ClientAPI.Services
                     refreshToken = _cache.GetKeyFromStorage(check.check_success.Id, "refreshTokens")
                 };
 
-                await _tgmessage.Send(check.check_success.telegram_chat_id.ToString(),
-                    $"Техническое уведомление:\nЗапрос с {device_out} без обновления токенов");
+                //await _tgmessage.Send(check.check_success.telegram_chat_id.ToString(),
+                //    $"Техническое уведомление:\nЗапрос с {device_out} без обновления токенов");
 
                 return pair_tokens;
             }
