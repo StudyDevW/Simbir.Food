@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { StorageGetItemAsync, StorageSetItem, StorageDeleteItem } from '../cloudstorage-telegram/CloudStorage.ts';
+import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { TokenNeedUpdate } from './TokenObserver.ts';
 
 var CLIENT_API_URL = import.meta.env.VITE_CLIENT_API;
@@ -41,18 +41,15 @@ const handleGetInfoMe = async (accessToken: string, retry: boolean = true)  : Pr
 
                     if (await TokenNeedUpdate()) {
 
-                        const accessTokens: string | undefined = await StorageGetItemAsync("AccessToken");
+                     
 
-                        if (accessTokens !== undefined && accessTokens !== "")
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
                             return handleGetInfoMe(accessTokens, false);
                     }
                 }
                 else {
-
-                    StorageDeleteItem("AccessToken");
-                    StorageDeleteItem("RefreshToken");
-    
-
                     console.log(`Ошибка: ${error.response.status}`);
                 }
             }

@@ -9,7 +9,7 @@
         /// <summary>
         /// Bot or user ID.
         /// </summary>
-        public int id { get; set; }
+        public long id { get; set; }
 
         /// <summary>
         /// Bot or user name.

@@ -7,6 +7,9 @@ namespace ClientAPI.Interfaces
     public interface IClientService
     {
         public Task<Auth_PairTokens?> UserAuth(AuthAddUser dtoObj);
+
+        public Task<string> UserRegister(AuthAddUser dtoObj);
+
         public Task<string?> ClientSignOut(string bearer_key);
 
         public Task<Auth_PairTokens?> RefreshClientSession(Auth_RefreshTokens dtoObj);

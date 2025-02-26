@@ -12,8 +12,16 @@ const StorageGetItemAsync = (key: string): Promise<string | undefined> => {
     });
 }
 
+const StorageGetItem = async (key: string) => {
+    var getitem = await StorageGetItemAsync(key);
+
+    if (getitem !== undefined)
+        return getitem;
+
+    return "empty";
+}
+
 const StorageSetItem = (key: string, value: string) => {
-    WebApp.CloudStorage.removeItem(key);
     WebApp.CloudStorage.setItem(key, value);
 }
 
@@ -21,4 +29,4 @@ const StorageDeleteItem = (key: string) => {
     WebApp.CloudStorage.removeItem(key);
 }
 
-export { StorageGetItemAsync, StorageSetItem, StorageDeleteItem }
+export { StorageGetItem, StorageSetItem, StorageDeleteItem }

@@ -40,12 +40,21 @@ namespace ClientAPI.Controllers
             }
             catch (Exception e)
             {
+                return BadRequest(e.Message);
+            }
+        }
 
-                if (e.Message == "register_request_created" || e.Message == "register_request_already_exist")
-                {
-                    return Ok(e.Message);
-                }
+        [HttpPost("UserRegister")]
+        public async Task<IActionResult> UserTelegramRegister([FromBody] AuthAddUser dtoObj)
+        {
+            try
+            {
+                var regInfo = await _clientService.UserRegister(dtoObj);
 
+                return Ok(regInfo);
+            }
+            catch (Exception e)
+            {
                 return BadRequest(e.Message);
             }
         }

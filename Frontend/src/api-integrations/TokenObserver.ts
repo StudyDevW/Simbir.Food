@@ -1,16 +1,19 @@
 import { handleAccessTokenCheck, handleRefreshTokenUpdate } from "./TokenValidationAPI.ts";
-import { StorageGetItemAsync, StorageSetItem, StorageDeleteItem } from '../cloudstorage-telegram/CloudStorage.ts';
+import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
+import WebApp from "@twa-dev/sdk";
 
 const AccessTokenUpdate = async () => {
 
-    const refreshTokens: string | undefined = await StorageGetItemAsync("RefreshToken");
+    const refreshTokens: string = await StorageGetItem("RefreshToken");
 
-    if (refreshTokens !== undefined) {
+    if (refreshTokens !== "empty") {
         try {
             await handleRefreshTokenUpdate(refreshTokens);
             return true;
         }
         catch (e) {
+            alert("Токен обновления недействителен! " + refreshTokens)
+        
             console.log("Токен обновления недействителен!");
             return false;
         }

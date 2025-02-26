@@ -225,11 +225,11 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
-                    b.Property<int>("telegram_chat_id")
-                        .HasColumnType("integer");
+                    b.Property<long>("telegram_chat_id")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("telegram_id")
-                        .HasColumnType("integer");
+                    b.Property<long>("telegram_id")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("username")
                         .HasColumnType("text");

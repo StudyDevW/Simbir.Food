@@ -46,7 +46,7 @@ namespace ClientAPI.Services
                 await _dbcontext.SaveChangesAsync();
             }
 
-            if (selectedUser.address != dtoObj.address && dtoObj.address != "")
+            if (selectedUser.address != dtoObj.address && dtoObj.address != null && dtoObj.address != "")
             {
                 selectedUser.address = dtoObj.address;
                 await _dbcontext.SaveChangesAsync();

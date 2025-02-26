@@ -4,7 +4,7 @@
     {
         public Guid Id { get; set; }
 
-        public int telegram_id { get; set; }
+        public long telegram_id { get; set; }
 
         public string first_name { get; set; }
 
@@ -14,7 +14,7 @@
 
         public string? photo_url { get; set; }
 
-        public int chat_id { get; set; }
+        public long chat_id { get; set; }
 
         public string? address { get; set; }
 

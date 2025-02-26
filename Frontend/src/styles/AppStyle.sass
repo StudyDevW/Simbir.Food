@@ -146,10 +146,21 @@ body
 .app_maincontent.maps.clicked
     animation: app_content_open_maps 0.6s forwards
     z-index: 6
+    overflow-y: scroll
 
 .app_maincontent.maps.clicked.mobile
     animation: app_content_open_maps_mobile 0.6s forwards
     z-index: 6
+
+.app_maincontent_reg_text
+    position: absolute
+    width: 100%
+    height: 100%
+    text-align: center
+    align-content: center
+    font-family: MUSEOSANS
+    font-size: 18px
+    color: black
 
 
 .app_maincontent_searchbar
@@ -211,6 +222,7 @@ body
 
 .app_maincontent_searchbar_decor
     display: flex
+    flex: none
     flex-direction: row
     align-items: center
     position: relative

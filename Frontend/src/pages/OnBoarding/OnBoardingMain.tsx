@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import '../../styles/AppStyle.sass'
 import WebApp from '@twa-dev/sdk';
-import { StorageGetItemAsync, StorageSetItem, StorageDeleteItem } from '../../cloudstorage-telegram/CloudStorage.ts';
+import { StorageSetItem, StorageDeleteItem } from '../../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const OnBoardingPageFirst: React.FC = () => {

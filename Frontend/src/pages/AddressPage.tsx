@@ -1,10 +1,11 @@
 import { use, useEffect, useState } from 'react'
 import '../styles/AppStyle.sass'
 import WebApp from '@twa-dev/sdk';
-import { YMaps, Map, Placemark } from '@pbe/react-yandex-maps';
+import { YMaps, Map, Placemark, GeolocationControl } from '@pbe/react-yandex-maps';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { handleUserAuth, handleUserRegister } from "../api-integrations/AuthAPI.ts";
 import { telegramUser } from '../telegram-integrations/InitData.ts';
+import { BackButton } from '@twa-dev/sdk/react';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
@@ -45,7 +46,13 @@ interface AuthComponent {
     roles: string[]
 }
 
-const LoginPage: React.FC = () => {
+const AddressPage: React.FC = () => {
+
+    const locationReact = useLocation();
+
+    const address_default = locationReact.state?.address_default || '';
+
+
 
     const navigate = useNavigate();
     //Yandex Integrations
@@ -58,9 +65,9 @@ const LoginPage: React.FC = () => {
 
     const [isMobile, setIsMobile] = useState<boolean>(false);
 
-    const [isAuthOperated, setIsAuthOperated] = useState<boolean>(false);
+    const [clickedMaps, setClickedMaps] = useState<boolean>(false);
 
-    const [isRegisterRequested, setIsRegisterRequested] = useState<boolean>(false);
+    const [isAuthOperated, setIsAuthOperated] = useState<boolean>(false);
 
     const [keyboardFocused, setKeyboardFocused] = useState<boolean>(false);
 
@@ -87,6 +94,12 @@ const LoginPage: React.FC = () => {
         }
 
         WebApp.ready();
+
+        if (address_default !== "") {
+            setInputValue(address_default);
+            setAddress(address_default);
+        }
+
     }, []);
 
     useEffect(() => {
@@ -96,17 +109,13 @@ const LoginPage: React.FC = () => {
           setLoading(true);
     
           try {
-            const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=Ульяновск,${inputValue} &kind=house&format=json`);
+            const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=Ульяновск, ${inputValue} 0&format=json`);
             const data = await response.json();
     
             if (data && data.response && data.response.GeoObjectCollection && data.response.GeoObjectCollection.featureMember) {
-                const newSuggestions = data.response.GeoObjectCollection.featureMember.map((item: any) => {
-                    const address = item.GeoObject.name; 
-         
-                    return address; 
-                });
-
-                setSuggestions(newSuggestions);
+              const newSuggestions = data.response.GeoObjectCollection.featureMember.map((item: any) => item.GeoObject.name);
+              
+              setSuggestions(newSuggestions);
             }
           } catch (error) {
             console.error('Ошибка при получении данных:', error);
@@ -115,12 +124,28 @@ const LoginPage: React.FC = () => {
           }
         };
 
-    
+        
     
         const debounceFetch = setTimeout(fetchSuggestions, 300);
     
         return () => clearTimeout(debounceFetch);
     }, [inputValue]);
+
+    const fetchSuggestion = async (latitude: number, longitude: number) => {
+
+        try {
+            const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=${longitude},${latitude}&format=json`);
+            const data = await response.json();
+        
+            if (data && data.response && data.response.GeoObjectCollection && data.response.GeoObjectCollection.featureMember) {
+                const newSuggestion = data.response.GeoObjectCollection.featureMember[0].GeoObject.name;
+                setInputValue(newSuggestion);
+                setAddress(newSuggestion);
+            }
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        } 
+    };
 
     const getCoordinates = async (address: string) => {
         try {
@@ -171,12 +196,10 @@ const LoginPage: React.FC = () => {
 
     const UserAuthRequestAPI = async (authvars: AuthComponent) => {
 
-        var validate = await handleUserRegister(authvars);
+        const validate = await handleUserAuth(authvars);
 
-        if (validate === "register_request_created") {
-            setIsRegisterRequested(true);
-            WebApp.showAlert("Заявка на регистрацию создана и ожидает подтверждения");
-            WebApp.close();
+        if (validate) {
+            navigate("/");
         }
     
     }
@@ -191,9 +214,6 @@ const LoginPage: React.FC = () => {
     }, [isAuthOperated])
 
     const LoadingDraw = () => {
-
-
-
         return (<>
             <div className="app_loading_area" style={ isMobile ? { height: 'calc(100% - 100px - 45px)' } : {} }>
                 <div className="app_loading_letter">
@@ -203,8 +223,15 @@ const LoginPage: React.FC = () => {
         </>)
     }
 
+    const handleMapClick = (event: any) => {
+        const coordinates = event.get('coords');
+        fetchSuggestion(coordinates[0], coordinates[1]);
+    }
+
     return (
     <>
+        <BackButton onClick={()=>navigate("/")}/>
+
         <div className="app_background_area">
 
             <div className="app_layout_area" style={ isMobile ? { marginTop: '100px' } : {}}>
@@ -216,7 +243,8 @@ const LoginPage: React.FC = () => {
                         backdropFilter: 'blur(8px)', 
                         position: 'fixed', 
                         background: 'linear-gradient(#EAEAEA, transparent)',
-                        zIndex: '5'}
+                        zIndex: '5',
+                        maxWidth: '1000px'}
                     }>
 
                         <div className="app_delivery_header_image"></div>
@@ -257,15 +285,28 @@ const LoginPage: React.FC = () => {
                         {location && <>
                             <Map 
                                 state={{center: location || [54.314194, 48.419610], zoom: 17}} 
-                                width="100%" height="100%">
-                                {<Placemark geometry={location} />}
+                                width="100%" height="100%"
+                                onClick={handleMapClick}>
+                                {<Placemark geometry={location} options={{
+                                    // Options. You must specify this type of layout.
+                                    iconLayout: 'default#image',
+                                    // Custom image for the placemark icon.
+                                    iconImageHref: "../../images/star_4_simbir.png",
+                                    // The size of the placemark.
+                                    iconImageSize: [30, 42],
+                                    // The offset of the upper left corner of the icon relative
+                                    // to its "tail" (the anchor point).
+                                    iconImageOffset: [-3, -42]}}/>
+                                }
                             </Map>
                         </>}
 
                         {location === null && <>
                             <Map 
                                 defaultState={{ center: location || [54.314194, 48.419610], zoom: 10 }} 
-                                width="100%" height="100%">
+                                width="100%" height="100%"
+                                onClick={handleMapClick}>
+                             
                             </Map>
                         </>}
 
@@ -346,15 +387,8 @@ const LoginPage: React.FC = () => {
 
                 </>}
 
-                
                 {(isAuthOperated && userData.GetAddress() !== "" && userData.GetDevice() !== "") && <>
-                    {!isRegisterRequested && LoadingDraw()}
-
-                    {isRegisterRequested && <>
-                        <div className="app_maincontent_reg_text">
-                            {`Заявка на регистрацию создана`}
-                        </div>
-                    </>}
+                    {LoadingDraw()}
                 </>}
 
                 {(isMobile) && <div className="app_mobile_footer" style={{zIndex: '15'}}>Симбир Еда</div>}
@@ -366,4 +400,4 @@ const LoginPage: React.FC = () => {
     </>)
 }
 
-export default LoginPage
+export default AddressPage

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { StorageGetItemAsync, StorageSetItem, StorageDeleteItem } from '../cloudstorage-telegram/CloudStorage.ts';
+import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { TokenNeedUpdate } from './TokenObserver.ts';
 
 var CLIENT_API_URL = import.meta.env.VITE_CLIENT_API;
@@ -32,9 +32,9 @@ const handleAccessTokenCheck = async (accessToken: string, retry: boolean = true
 
                     if (await TokenNeedUpdate()) {
 
-                        const accessTokens: string | undefined = await StorageGetItemAsync("AccessToken");
+                        const accessTokens: string = await StorageGetItem("AccessToken");
 
-                        if (accessTokens !== undefined && accessTokens !== "")
+                        if (accessTokens !== "empty")
                             return handleAccessTokenCheck(accessTokens, false);
                     }
                 }
@@ -53,9 +53,6 @@ const handleAccessTokenCheck = async (accessToken: string, retry: boolean = true
 
 const handleRefreshTokenUpdate = async (refreshTokenIn: string) => {
 
-    StorageDeleteItem("AccessToken");
-    StorageDeleteItem("RefreshToken");
-
     const response = await axios.post(`${CLIENT_API_URL}/api/Auth/Refresh`, {
         refreshToken: refreshTokenIn
     });
@@ -67,6 +64,8 @@ const handleRefreshTokenUpdate = async (refreshTokenIn: string) => {
 
         StorageSetItem("AccessToken", accessToken);
         StorageSetItem("RefreshToken", refreshToken);
+
+        
 
         return true
     }
@@ -101,9 +100,9 @@ const handleLoginSignOut = async (accessToken: string, retry: boolean = true) : 
 
                     if (await TokenNeedUpdate()) {
 
-                        const accessTokens: string | undefined = await StorageGetItemAsync("AccessToken");
+                        const accessTokens: string = await StorageGetItem("AccessToken");
 
-                        if (accessTokens !== undefined && accessTokens !== "")
+                        if (accessTokens !== "empty")
                             return handleLoginSignOut(accessTokens, false);
                     }
                 }
@@ -123,8 +122,8 @@ const handleLoginSignOut = async (accessToken: string, retry: boolean = true) : 
 }
 const LoginSignOut = async () => {
 
-    const accessTokens: string | undefined = await StorageGetItemAsync("AccessToken");
-    if (accessTokens !== undefined && accessTokens !== "") {
+    const accessTokens: string = await StorageGetItem("AccessToken");
+    if (accessTokens !== "empty") {
         if (await handleLoginSignOut(accessTokens)) {
             StorageDeleteItem("AccessToken");
             StorageDeleteItem("RefreshToken");

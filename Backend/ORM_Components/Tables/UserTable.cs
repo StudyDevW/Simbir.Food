@@ -14,9 +14,9 @@ namespace ORM_Components.Tables
 
         public string? last_name { get; set; }
 
-        public int telegram_id { get; set; }
+        public long telegram_id { get; set; }
 
-        public int telegram_chat_id { get; set; }
+        public long telegram_chat_id { get; set; }
 
         public string? address { get; set; }
 

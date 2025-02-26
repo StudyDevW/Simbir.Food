@@ -16,7 +16,7 @@ namespace Telegram_Components.Services
 
         public async Task Send(string chatId, string message)
         {
-            await _botClient.SendMessage(chatId, message);
+            await _botClient.SendMessage(chatId, message, ParseMode.Markdown);
         }
 
         public async Task SendWithMarkup(string chatId, string message, string markupMessage, string markupFlag)

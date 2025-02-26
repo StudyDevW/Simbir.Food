@@ -51,7 +51,6 @@ namespace Telegram_Components.Services
 
                     _cache.DeleteKeyFromStorage($"register_request_{query.From.Id}");
 
-       
                 }
                 else
                 {

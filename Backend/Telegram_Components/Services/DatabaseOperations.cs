@@ -13,7 +13,7 @@ namespace Telegram_Components.Services
             _dbcontext = dbcontext;
         }
 
-        private bool UserExist(int telegram_id)
+        private bool UserExist(long telegram_id)
         {
             var checkUser = _dbcontext.userTable.Where(c => c.telegram_id == telegram_id).FirstOrDefault();
 

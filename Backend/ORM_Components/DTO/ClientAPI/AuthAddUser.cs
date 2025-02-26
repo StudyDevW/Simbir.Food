@@ -17,7 +17,7 @@ namespace ORM_Components.DTO.ClientAPI
         /// <summary>
         /// Bot or user ID.
         /// </summary>
-        public int id { get; set; }
+        public long id { get; set; }
 
         /// <summary>
         /// Bot or user name.
@@ -50,7 +50,7 @@ namespace ORM_Components.DTO.ClientAPI
         /// <summary>
         /// Unique chat ID.
         /// </summary>
-        public int chat_id { get; set; }
+        public long chat_id { get; set; }
 
         /// <summary>
         /// User address (кастомная переменная)
