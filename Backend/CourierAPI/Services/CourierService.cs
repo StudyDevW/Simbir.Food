@@ -19,9 +19,9 @@ namespace CourierAPI.Service
         private readonly ILogger _logger;
         private readonly DataContext _dataContext;
         private readonly IMessageSender _tgmessage;
-        private readonly RabbitMQService _rabbitMQService;
+        private readonly IRabbitMQService _rabbitMQService;
 
-        public CourierService(DataContext dataContext, IMessageSender tgmessage, RabbitMQService rabbitMQService) 
+        public CourierService(DataContext dataContext, IMessageSender tgmessage, IRabbitMQService rabbitMQService) 
         { 
             _dataContext = dataContext;
             _tgmessage = tgmessage;

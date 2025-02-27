@@ -133,7 +133,7 @@ namespace CourierAPI
                  new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
              );
 
-            builder.Services.AddSingleton<RabbitMQService>();
+            builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
 
             builder.Services.AddScoped<OrderConfig>();
 

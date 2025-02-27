@@ -132,7 +132,7 @@ namespace ClientAPI
 
             builder.Services.AddScoped<ICacheService, CacheSDK>();
 
-            builder.Services.AddSingleton<RabbitMQService>();
+            builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
 
             builder.Services.AddHostedService<RabbitMQListenerService>();
 

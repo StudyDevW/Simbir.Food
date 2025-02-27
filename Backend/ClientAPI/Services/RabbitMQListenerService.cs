@@ -7,10 +7,10 @@ namespace ClientAPI.Services
 {
     public class RabbitMQListenerService : BackgroundService
     {
-        private readonly RabbitMQService _rabbitMQService;
+        private readonly IRabbitMQService _rabbitMQService;
         private readonly IDatabaseService _dataService;
 
-        public RabbitMQListenerService(RabbitMQService rabbitMQService, IDatabaseService dataService)
+        public RabbitMQListenerService(IRabbitMQService rabbitMQService, IDatabaseService dataService)
         {
             _rabbitMQService = rabbitMQService;
             _dataService = dataService;
