@@ -11,6 +11,7 @@ using Telegram_Components.Interfaces;
 using System.Linq;
 using Middleware_Components.Broker;
 using ORM_Components.DTO.RestaurantAPI;
+using FluentValidation;
 
 namespace CourierAPI.Service
 {
@@ -20,8 +21,12 @@ namespace CourierAPI.Service
         private readonly DataContext _dataContext;
         private readonly IMessageSender _tgmessage;
         private readonly IRabbitMQService _rabbitMQService;
+        private readonly IValidator<CourierDtoForCreate> _courierCreateValidator;
+        private readonly IValidator<CourierDtoForUpdate> _courierUpdateValidator;
 
-        public CourierService(DataContext dataContext, IMessageSender tgmessage, IRabbitMQService rabbitMQService) 
+        public CourierService(DataContext dataContext, IMessageSender tgmessage, 
+            IRabbitMQService rabbitMQService,
+            IValidator<CourierDtoForCreate> _courierCreateValidator, IValidator<CourierDtoForUpdate> _courierUpdateValidator) 
         { 
             _dataContext = dataContext;
             _tgmessage = tgmessage;
@@ -122,6 +127,8 @@ namespace CourierAPI.Service
 
         public async Task CreateAsync(CourierDtoForCreate courierDtoForCreate)
         {
+            await _courierCreateValidator.ValidateAsync(courierDtoForCreate);
+
             var isUserExist = await _dataContext.userTable
                 .AnyAsync(x => x.Id == courierDtoForCreate.userId);
 
@@ -153,6 +160,8 @@ namespace CourierAPI.Service
 
         public async Task UpdateAsync(CourierDtoForUpdate courierDtoForUpdate)
         {
+            await _courierUpdateValidator.ValidateAsync(courierDtoForUpdate);
+
             var courier = await _dataContext.courierTable
                 .FirstOrDefaultAsync(x => x.Id == courierDtoForUpdate.Id)
                 ?? throw new Exception("Курьер не найден.");
@@ -175,14 +184,5 @@ namespace CourierAPI.Service
             _logger.LogInformation($"Курьера с ID: {courier.Id} был удалён.");
         }
 
-        //Пример
-        public Task TestMethod()
-        {
-            Guid firstId = Guid.NewGuid();
-            Guid secondId = Guid.NewGuid();
-            CourierDto courierDto = new CourierDto(firstId, secondId, "car_number1", CourierStatus.IsActive);
-            _rabbitMQService.SendMessage("test_courier_client", courierDto);
-            return Task.CompletedTask;
-        }
     }
 }
