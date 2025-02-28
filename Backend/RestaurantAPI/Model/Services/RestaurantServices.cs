@@ -37,7 +37,7 @@ namespace RestaurantAPI.Model.Services
                 await _dataContext.SaveChangesAsync();
             }
         }
-        private long GetUserChatId(Guid? clientId)
+        private long GetUserChatId(Guid clientId)
         {
             var finded = _dataContext.userTable.Where(c => c.Id == clientId).FirstOrDefault();
             return finded.telegram_chat_id;
