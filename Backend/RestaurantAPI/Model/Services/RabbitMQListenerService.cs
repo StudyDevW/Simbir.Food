@@ -6,6 +6,7 @@ using ORM_Components.DTO.CourierAPI;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables.Helpers;
 using StackExchange.Redis;
+using Telegram.Bot.Types;
 using Telegram_Components.Interfaces;
 
 namespace RestaurantAPI.Services
@@ -33,6 +34,8 @@ namespace RestaurantAPI.Services
                     await AcceptingAnOrder(order_DTO);
                     // Реализация обновление заказа
                     await OrderUpdate(order_DTO);
+                    // Реализация готовности заказа
+                    await  OrderFinished(order_DTO);
                     //// Реализация отклонения заказа
                     //await OrderRejections(order_DTO);
                     // Реализация отправки информации по заказу курьеру
@@ -54,7 +57,18 @@ namespace RestaurantAPI.Services
             var message = $"Ваш заказ с ID: {order.id} начал готовиться.";
             await _messageSender.Send(userChatId.ToString(), message);
         }
-
+        private async Task NotifyOrderFinishedClient(Order_DTO order)
+        {
+            var userChatId = GetUserChatId(order.client_id);
+            var message = $"Ваш заказ с ID: {order.id} приготовлен, мы ищем курбера который доставит вам заказ.";
+            await _messageSender.Send(userChatId.ToString(), message);
+        }
+        private async Task NotifyOrderFinishedCourier(Order_DTO order)
+        {
+            var courierChatId = GetCourierChatIdForOrder(order.courier_id);
+            var message = $"Теперь вам доступен новый заказ для приготовления и доставки";
+            await _messageSender.Send(courierChatId.ToString(), message);
+        }
         private async Task NotifyOrderCanceled(Order_DTO order)
         {
             var userChatId = GetUserChatId(order.client_id);
@@ -67,6 +81,7 @@ namespace RestaurantAPI.Services
             var finded = _dbcontext.userTable.Where(c => c.Id == clientId).FirstOrDefault();
             return finded.telegram_chat_id;
         }
+
 
         private async Task AcceptingAnOrder(Order_DTO order)
         {
@@ -105,10 +120,24 @@ namespace RestaurantAPI.Services
             await _dbcontext.SaveChangesAsync();
 
             var userChatId = GetUserChatId(order.client_id);
-            var messageToClient = $"Ваш заказ с ID: {order.id} был отклон.";
+            var messageToClient = $"Ваш заказ с ID: {order.id} был отклонён.";
             await _messageSender.Send(userChatId.ToString(), messageToClient);
 
             await SendingOrderInformationCourier(order);
+        }
+
+        private async Task OrderFinished(Order_DTO order)
+        {
+            var orderFinished = await _dbcontext.orderTable.FindAsync(order.id);
+            
+            if(orderFinished == null)
+            {
+                throw new Exception($"Заказ с идентификатором: {order.id} не существует.");
+            }
+
+            orderFinished.status = OrderStatus.Ready;
+            await _dbcontext.SaveChangesAsync();
+            await NotifyOrderFinishedClient(order);
         }
 
         private async Task OrderUpdate(Order_DTO order)
@@ -158,19 +187,19 @@ namespace RestaurantAPI.Services
         }
         private async Task SendingOrderInformationCourier(Order_DTO order)
         {
-            //получение курьера из бд
-            var GetCourier = await _dbcontext.orderItemsTable.FindAsync(order.courier_id);
-            //проверка курьера
-            if (GetCourier == null)
+            var courierChatId = await GetCourierChatIdForOrder(order.id);
+
+            if (courierChatId == null)
             {
                 throw new Exception($"Курьер для заказа с ID: {order.id} не найден.");
             }
-            // Подготавливаем сообщение с деталями заказа
-            var orderDetailsMessage = GenerateOrderDetailsMessage(order);
+            await NotifyOrderFinishedCourier(order);
 
-            // Отправляем информацию о заказе курьеру
-            await _messageSender.Send(GetCourierChatIdForOrder(orderId), orderDetailsMessage);
+            var orderDetailsMessage = await GenerateOrderDetailsMessage(order);
+            await _messageSender.Send(courierChatId.Value.ToString(), orderDetailsMessage);
+            
         }
+
 
         private async Task<string> GenerateOrderDetailsMessage(Order_DTO order)
         {
