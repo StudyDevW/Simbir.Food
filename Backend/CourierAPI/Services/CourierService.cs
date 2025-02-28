@@ -10,7 +10,6 @@ using ORM_Components.Tables;
 using Telegram_Components.Interfaces;
 using System.Linq;
 using Middleware_Components.Broker;
-using ORM_Components.DTO.RestaurantAPI;
 
 namespace CourierAPI.Service
 {
@@ -113,7 +112,7 @@ namespace CourierAPI.Service
             var user = await _dataContext.userTable
                 .FirstOrDefaultAsync(x => x.Id == order.client_id);
 
-            await _tgmessage.Send(user!.chatId,
+            await _tgmessage.Send(user!.telegram_chat_id.ToString(),
                     $"Статус заказа был изменён с {expectedStatus} на {newStatus}");
 
             _logger.LogInformation($"Статус заказа с ID: {orderId} был изменён с {expectedStatus} на {newStatus}.");

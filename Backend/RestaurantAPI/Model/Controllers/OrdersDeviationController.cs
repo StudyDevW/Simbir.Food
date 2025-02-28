@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
-using ORM_Components.DTO.RestaurantAPI;
+using ORM_Components.DTO.ClientAPI;
 using Telegram_Components.Interfaces;
 
 namespace RestaurantAPI.Model.Controllers

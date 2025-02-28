@@ -3,6 +3,7 @@ using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Middleware_Components.Broker;
 using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
@@ -119,6 +120,8 @@ namespace RestaurantAPI
                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
            );
             builder.Services.AddSingleton<IJwtService, JwtSDK>();
+
+            builder.Services.AddSingleton<RabbitMQService>();
 
             builder.Services.AddSingleton<ICacheService, CacheSDK>();
 
