@@ -38,13 +38,13 @@ namespace RestaurantAPI.Services
                     await  OrderFinished(order_DTO);
                     //// Реализация отклонения заказа
                     //await OrderRejections(order_DTO);
-                    // Реализация отправки информации по заказу курьеру
-                    await SendingOrderInformationCourier(order_DTO);
                 });
 
                 _rabbitMQService.StartListening<Order_DTO>("restaurant_to_courier", async order_DTO =>
                 {
-                   
+                    // Реализация отправки информации по заказу курьеру
+                    await SendingOrderInformationCourier(order_DTO);
+
                 });
             }, stoppingToken);
 
