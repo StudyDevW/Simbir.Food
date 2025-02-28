@@ -4,15 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ORM_Components.Tables.Helpers;
 
 namespace ORM_Components.Tables
 {
-    public class RestaurantTable
+    public class RestaurantTable : IId
     {
-        [Key]
-        public int id { get; set; }
-
-        public int user_id { get; set; }
+        public Guid user_id { get; set; }
 
         public string restaurantName { get; set; }
 
@@ -26,8 +24,8 @@ namespace ORM_Components.Tables
 
         public string imagePath { get; set; }
 
-        public DateTime open_time { get; set; }
+        public string open_time { get; set; }
 
-        public DateTime close_time { get; set; }
+        public string close_time { get; set; }
     }
 }

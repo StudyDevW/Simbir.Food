@@ -5,6 +5,9 @@ using ORM_Components;
 using ClientAPI.Interfaces;
 using Middleware_Components.JWT.DTO.CheckUsers;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
+using Microsoft.EntityFrameworkCore;
+using ORM_Components.DTO.ClientAPI.Basket;
+using Telegram.Bot.Types;
 
 namespace ClientAPI.Services
 {
@@ -34,7 +37,13 @@ namespace ClientAPI.Services
                 await _dbcontext.SaveChangesAsync();
             }
 
-            if (selectedUser.last_name != dtoObj.last_name && dtoObj.last_name != null)
+            if (dtoObj.last_name != "" && dtoObj.last_name != null && selectedUser.last_name != dtoObj.last_name)
+            {
+                selectedUser.last_name = dtoObj.last_name;
+                await _dbcontext.SaveChangesAsync();
+            }
+
+            if (dtoObj.address != "" && dtoObj.address != "NO_CHANGE" && selectedUser.address != dtoObj.address)
             {
                 selectedUser.address = dtoObj.address;
                 await _dbcontext.SaveChangesAsync();
@@ -43,12 +52,6 @@ namespace ClientAPI.Services
             if (selectedUser.username != dtoObj.username && dtoObj.username != null)
             {
                 selectedUser.username = dtoObj.username;
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            if (selectedUser.address != dtoObj.address && dtoObj.address != null && dtoObj.address != "")
-            {
-                selectedUser.address = dtoObj.address;
                 await _dbcontext.SaveChangesAsync();
             }
 
@@ -90,6 +93,25 @@ namespace ClientAPI.Services
             return new Auth_CheckInfo() { check_error = new Auth_CheckError { errorLog = "error_found" } };
         }
 
+        //Проверка на то владеет ли пользователь ресторанами или нет
+        private List<Guid>? RestaurantOwner(Guid userGUID)
+        {
+            var selectedRestaurants = _dbcontext.restaurantTable.Where(c => c.user_id == userGUID).ToList();
+
+            if (selectedRestaurants != null)
+            {
+                var outputVals = new List<Guid>();
+
+                foreach (var restaurant in selectedRestaurants) {
+                    outputVals.Add(restaurant.Id);
+                }
+
+                return outputVals;
+            }
+
+            return null;
+        }
+
         public ClientInfo? InfoClientDatabase(Guid userGUID)
         {
             var selectedUser = _dbcontext.userTable.Where(c => c.Id  == userGUID).FirstOrDefault();
@@ -97,6 +119,10 @@ namespace ClientAPI.Services
             if (selectedUser != null)
             {
                 _logger.LogInformation($"InfoClientDatabase: Запрошена информация о аккаунте (id: {userGUID})");
+
+                _logger.LogWarning($"InfoClientDatabase: информация о аккаунте (address: {selectedUser.address})");
+
+                var restaurantOwnerId = RestaurantOwner(userGUID);
 
                 return new ClientInfo()
                 {
@@ -108,12 +134,15 @@ namespace ClientAPI.Services
                     username = selectedUser.username,
                     address = selectedUser.address,
                     photo_url = selectedUser.photo_url,
+                    restaurant_own = restaurantOwnerId,
                     roles = selectedUser.roles.ToList()
                 };
             }
 
             return null;
         }
+
+
 
         public ClientGetAll GetAllClients(int _from, int _count)
         {
@@ -129,6 +158,8 @@ namespace ClientAPI.Services
 
                 foreach (var client in filteredQuery)
                 {
+                    var restaurantOwnerId = RestaurantOwner(client.Id);
+
                     ClientInfo clientInfo = new ClientInfo()
                     {
                         Id = client.Id,
@@ -139,6 +170,7 @@ namespace ClientAPI.Services
                         username = client.username,
                         address = client.address,
                         photo_url = client.photo_url,
+                        restaurant_own = restaurantOwnerId,
                         roles = client.roles.ToList()
                     };
 
@@ -151,6 +183,8 @@ namespace ClientAPI.Services
 
                 foreach (var client in filteredQuery)
                 {
+                    var restaurantOwnerId = RestaurantOwner(client.Id);
+
                     ClientInfo clientInfo = new ClientInfo()
                     {
                         Id = client.Id,
@@ -161,6 +195,7 @@ namespace ClientAPI.Services
                         username = client.username,
                         address = client.address,
                         photo_url = client.photo_url,
+                        restaurant_own = restaurantOwnerId,
                         roles = client.roles.ToList()
                     };
 
@@ -233,5 +268,120 @@ namespace ClientAPI.Services
             _logger.LogInformation($"DeleteClientWithAdmin: (id: {id} ) был удален");
         }
 
+        private async Task DeleteFullBasket(Guid userGUID)
+        {
+            var selectedItems = _dbcontext.basketTable.Where(c => c.user_id == userGUID).ToList();
+
+            foreach (var foodItem in selectedItems)
+            {
+                _dbcontext.basketTable.Remove(foodItem); 
+                await _dbcontext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckExistItemBasket(Guid userGUID, Guid foodItemId)
+        {
+            var selectedBasketItems = _dbcontext.basketTable.Where(c => c.user_id == userGUID).ToList();
+
+            var selectedNewItem = _dbcontext.restaurantFoodItemsTable
+                    .Where(c => c.Id == foodItemId)
+                    .FirstOrDefault();
+
+
+            foreach (var basketItem in selectedBasketItems)
+            {
+                var selectedExistsItem = _dbcontext.restaurantFoodItemsTable
+                    .Where(c => c.Id == basketItem.food_item_id)
+                    .FirstOrDefault();
+
+                //Рестораны не совпадают, удаляем корзину
+                if (selectedNewItem?.restaurant_id != selectedExistsItem?.restaurant_id)
+                {
+                    await DeleteFullBasket(userGUID);
+                }
+            }
+        }
+
+        public async Task AddBasketItem(Basket_Add dtoObj)
+        {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == dtoObj.user_id).FirstOrDefault();
+
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
+
+            var selectedFoodItem = _dbcontext.restaurantFoodItemsTable.Where(c => c.Id == dtoObj.food_item_id).FirstOrDefault();
+
+            if (selectedFoodItem == null)
+                throw new Exception("food_item_not_found");
+
+            await CheckExistItemBasket(dtoObj.user_id, dtoObj.food_item_id);
+
+            BasketTable basket = new BasketTable()
+            {
+                user_id = dtoObj.user_id,
+                food_item_id = dtoObj.food_item_id,
+            };
+
+            _dbcontext.basketTable.Add(basket);
+            await _dbcontext.SaveChangesAsync();
+
+            _logger.LogInformation($"AddBasketItem: Товар {dtoObj.food_item_id} был добавлен в корзину пользователя {dtoObj.user_id}");
+
+        }
+
+        public async Task<Basket_GetAll> GetBasketItems(Guid userGUID)
+        {
+            Basket_GetAll basket_GetAll = new Basket_GetAll()
+            {
+                basketItem = new List<Basket_GetAll_Item>(),
+                basketInfo = new Basket_GetAll_Info()
+            };
+
+            List<Basket_GetAll_Item> basketItems = new List<Basket_GetAll_Item>();
+
+            Basket_GetAll_Info basketInfo = new Basket_GetAll_Info();
+
+            int priceFinal = 0;
+            int countFinal = 0;
+
+            var basketItemDbObj = _dbcontext.basketTable.Where(c => c.user_id == userGUID).ToListAsync();
+            
+            foreach (var basketItemDb in await basketItemDbObj)
+            {
+                var selectedFoodItem = _dbcontext.restaurantFoodItemsTable.Where(c => c.Id == basketItemDb.food_item_id).FirstOrDefault();
+
+                if (selectedFoodItem != null)
+                {
+                    Basket_GetAll_Item basketItem = new Basket_GetAll_Item()
+                    {
+                        restaurant_id = selectedFoodItem.restaurant_id,
+                        name = selectedFoodItem.name,
+                        weight = selectedFoodItem.weight,   
+                        calories = selectedFoodItem.calories,
+                        image = selectedFoodItem.image,
+                        price = selectedFoodItem.price
+                    };
+
+                    priceFinal += basketItem.price;
+                    countFinal++;
+                    basketItems.Add(basketItem);
+                }
+            }
+
+
+            basketInfo = new Basket_GetAll_Info()
+            {
+                count = countFinal,
+                totalPrice = priceFinal
+            };
+
+            basket_GetAll = new Basket_GetAll()
+            {
+                basketItem = basketItems,
+                basketInfo = basketInfo
+            };
+
+            return basket_GetAll;
+        }
     }
 }

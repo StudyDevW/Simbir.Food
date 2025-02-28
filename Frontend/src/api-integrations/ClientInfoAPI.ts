@@ -13,6 +13,7 @@ interface GetMeInfo {
     photo_url: string | null,
     chat_id: number,
     address: string | null,
+    restaurant_own: string[] | null,
     roles: string[]
 }
 

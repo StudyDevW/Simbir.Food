@@ -16,6 +16,8 @@
 
         public long chat_id { get; set; }
 
+        public List<Guid>? restaurant_own { get; set; }
+
         public string? address { get; set; }
 
         public List<string> roles { get; set; }

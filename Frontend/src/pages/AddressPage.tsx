@@ -291,12 +291,12 @@ const AddressPage: React.FC = () => {
                                     // Options. You must specify this type of layout.
                                     iconLayout: 'default#image',
                                     // Custom image for the placemark icon.
-                                    iconImageHref: "../../images/star_4_simbir.png",
+                                    iconImageHref: "../../images/location.png",
                                     // The size of the placemark.
-                                    iconImageSize: [30, 42],
+                                    iconImageSize: [40, 40],
                                     // The offset of the upper left corner of the icon relative
                                     // to its "tail" (the anchor point).
-                                    iconImageOffset: [-3, -42]}}/>
+                                    iconImageOffset: [-18, -42]}}/>
                                 }
                             </Map>
                         </>}

@@ -3,6 +3,7 @@ using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
 using ORM_Components.DTO.ClientAPI;
+using ORM_Components.DTO.ClientAPI.Basket;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
 using Telegram_Components.Interfaces;
 
@@ -68,7 +69,7 @@ namespace ClientAPI.Services
                 };
 
                 await _tgmessage.Send(check.check_success.telegram_chat_id.ToString(),
-                    $"Техническое уведомление:\nВход с {device_out}");
+                    $"Техническое уведомление:\nВход с {device_out}\nAccessToken: ```{pair_tokens.accessToken}```");
 
                 _logger.LogInformation($"Пользователь {check.check_success.Id} успешно вошел!");
 
@@ -103,6 +104,9 @@ namespace ClientAPI.Services
 
             if (checkUserExist[StepsAuth.StepCheck].CheckHasSuccess())
             {
+
+                _logger.LogWarning($"Адрес был передан: {dtoObj.address}");
+
                 //Обновляем профиль в сервисе если есть изменения
                 await _database.UserUpdateFromTelegram(
                     new ClientUpdate()
@@ -115,6 +119,7 @@ namespace ClientAPI.Services
                         username = dtoObj.username
                     }
                 );
+
 
                 checkUserExist[StepsAuth.StepUpdated] = _database.CheckUser(new AuthSignIn()
                 {
@@ -353,6 +358,36 @@ namespace ClientAPI.Services
                     throw new Exception("role_invalid");
                 }
             }
+        }
+
+        public async Task AddBasketItem(string bearer_key, Basket_Add dtoObj)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                await _database.AddBasketItem(dtoObj);  
+            }
+        }
+
+        public async Task<Basket_GetAll?> GetItemsBasket(string bearer_key)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                return await _database.GetBasketItems(validation.token_success.Id);
+            }
+
+            return null;
         }
     }
 }

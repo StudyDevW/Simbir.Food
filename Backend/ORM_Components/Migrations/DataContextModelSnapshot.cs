@@ -22,6 +22,23 @@ namespace ORM_Components.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ORM_Components.Tables.BasketTable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("food_item_id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("user_id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("basketTable");
+                });
+
             modelBuilder.Entity("ORM_Components.Tables.CourierTable", b =>
                 {
                     b.Property<Guid>("Id")
@@ -124,6 +141,28 @@ namespace ORM_Components.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("restaurantFoodItemsTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("5c34d1fa-46fc-4f5f-9ee2-94221e9f01df"),
+                            calories = 2000,
+                            image = "NONE",
+                            name = "Тестовое блюдо",
+                            price = 1000,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 100
+                        },
+                        new
+                        {
+                            Id = new Guid("fef39909-1e0a-4360-95cc-e92fcf0324ce"),
+                            calories = 1000,
+                            image = "NONE",
+                            name = "Тестовое блюдо 2",
+                            price = 1200,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 100
+                        });
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.RestaurantTable", b =>
@@ -136,8 +175,9 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("close_time")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("close_time")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("description")
                         .IsRequired()
@@ -147,8 +187,9 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("open_time")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("open_time")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("phone_number")
                         .IsRequired()
@@ -168,6 +209,34 @@ namespace ORM_Components.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("restaurantTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            address = "ул. Шолмова 5",
+                            close_time = "21:00",
+                            description = "Отличный тестовый ресторан",
+                            imagePath = "NONE",
+                            open_time = "10:00",
+                            phone_number = "+78005555535",
+                            restaurantName = "Тестовый ресторан",
+                            status = "approved",
+                            user_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47")
+                        },
+                        new
+                        {
+                            Id = new Guid("8108d64a-17b8-49a1-8ec5-3f9483735760"),
+                            address = "ул. Шолмова 3",
+                            close_time = "20:00",
+                            description = "Хороший тестовый ресторан",
+                            imagePath = "NONE",
+                            open_time = "10:00",
+                            phone_number = "+78004444434",
+                            restaurantName = "Тестовый ресторан 2",
+                            status = "approved",
+                            user_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47")
+                        });
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.ReviewTable", b =>
@@ -237,6 +306,20 @@ namespace ORM_Components.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("userTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
+                            address = "улица Шолмова, 7",
+                            first_name = "Антон (Study)",
+                            last_name = "",
+                            photo_url = "https://t.me/i/userpic/320/YC895p02kbd-O-aU-F49vK8j1qFbmbObwS_DaaPkKdg.svg",
+                            roles = new[] { "Client", "Admin", "Courier" },
+                            telegram_chat_id = 1006365928L,
+                            telegram_id = 1006365928L,
+                            username = "studywhite"
+                        });
                 });
 #pragma warning restore 612, 618
         }

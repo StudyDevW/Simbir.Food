@@ -1,5 +1,6 @@
 ﻿using Middleware_Components.DTO.ClientAPI;
 using ORM_Components.DTO.ClientAPI;
+using ORM_Components.DTO.ClientAPI.Basket;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
 
 namespace ClientAPI.Interfaces
@@ -25,5 +26,9 @@ namespace ClientAPI.Interfaces
         //public Task CreateClientWithAdmin(string bearer_key, ClientAdd_Admin dtoObj);
 
         public Task DeleteClientWithAdmin(string bearer_key, Guid userGUID);
+
+        public Task<Basket_GetAll?> GetItemsBasket(string bearer_key);
+
+        public Task AddBasketItem(string bearer_key, Basket_Add dtoObj);
     }
 }

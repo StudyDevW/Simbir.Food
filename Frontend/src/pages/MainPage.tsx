@@ -18,6 +18,7 @@ interface GetMeInfo {
   photo_url: string | null,
   chat_id: number,
   address: string | null,
+  restaurant_own: string[] | null,
   roles: string[]
 }
 
@@ -92,6 +93,8 @@ const MainPage: React.FC = () => {
 
     WebApp.ready();
 
+    userData.SetAddress("NO_CHANGE");
+
     UserAuthRequestAPI(userData.AuthData());
     
   }, []);
@@ -118,7 +121,7 @@ const MainPage: React.FC = () => {
         </div>
     </>)
   }
-
+ 
   return (
     <>
         <div className="app_background_area">
@@ -133,10 +136,23 @@ const MainPage: React.FC = () => {
                   <div className="app_delivery_header">
                     <div className="app_delivery_header_image"></div>
 
-                    <div className="app_delivery_header_title_area" onClick={()=>navigate("/address_select", { state: { address_default: userInfo.address } })}>
-                        <div className="app_delivery_header_title">{userInfo.address}</div>
-                        <div className="app_delivery_header_title big">Адрес доставки</div>
-                    </div>
+                    {userInfo.address !== null && 
+                        <>
+                            <div className="app_delivery_header_title_area" onClick={()=>navigate("/address_select", { state: { address_default: userInfo.address } })}>
+                                <div className="app_delivery_header_title">{userInfo.address}</div>
+                                <div className="app_delivery_header_title big">Адрес доставки</div>
+                            </div>
+                    </>}
+
+                    {userInfo.address === null && 
+                    <>
+                        <div className="app_delivery_header_title_area" onClick={()=>navigate("/address_select")}>
+                            <div className="app_delivery_header_title big" style={{
+                                marginTop: '15px'
+                            }}>{`Укажите адрес доставки`}</div>
+                        </div>
+                    </>
+                    }
 
                     <div className="app_delivery_header_profile"
                     onClick={()=>setProfileOpened(true)}
