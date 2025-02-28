@@ -1,5 +1,6 @@
 ﻿using CourierAPI.Service;
 using FluentAssertions;
+using FluentValidation;
 using Middleware_Components.Broker;
 using Moq;
 using Moq.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using ORM_Components;
 using ORM_Components.DTO.CourierAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
+using ORM_Components.Validators.CourierValidators;
 using Telegram_Components.Interfaces;
 using TestsBaseLib.Base;
 
@@ -14,7 +16,7 @@ namespace CourierAPI.Tests.Services;
 
 public class CourierServiceTests
 {
-    private readonly Mock<RabbitMQService> _rabbit;
+    private readonly Mock<IRabbitMQService> _rabbit;
     private readonly Mock<DataContext> _context;
     private readonly Mock<IMessageSender> _sender;
     private readonly CourierService _sut;
@@ -23,9 +25,11 @@ public class CourierServiceTests
     {
         _context = new Mock<DataContext>();
         _sender = new Mock<IMessageSender>();
-        _rabbit = new Mock<RabbitMQService>();
+        _rabbit = new Mock<IRabbitMQService>();
 
-        _sut = new CourierService(_context.Object, _sender.Object, _rabbit.Object);
+        _sut = new CourierService(_context.Object, _sender.Object, _rabbit.Object,
+            Mock.Of<IValidator<CourierDtoForCreate>>(),
+            Mock.Of<IValidator<CourierDtoForUpdate>>());
     }
 
     [Fact]
@@ -189,7 +193,7 @@ public class CourierServiceTests
     {
         // arrange
         var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
-        var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace);
+        var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace, Guid.NewGuid());
 
         var history = new List<OrderStatusHistoryTable>();
 
@@ -206,6 +210,28 @@ public class CourierServiceTests
         order.status.Should().Be(OrderStatus.Delivered);
         history.First().status.Should().Be(OrderStatus.Delivered);
         history.First().order_id.Should().Be(order.Id);
+    }
+
+    [Fact]
+    public async Task OrderDelivered_WithOrderHasNoCourier_ThrowsException()
+    {
+        // arrange
+        var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
+        var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace);
+
+        var history = new List<OrderStatusHistoryTable>();
+
+        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        _context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
+        _context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+            .Callback<OrderStatusHistoryTable>(x => history.Add(x));
+
+        // act
+        Func<Task> act = async() => await _sut.OrderDelivered(order.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>();
     }
 
     [Fact]

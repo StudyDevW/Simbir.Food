@@ -15,8 +15,7 @@ namespace ORM_Components.Validators.CourierValidators
                 .When(courier => courier.car_number != null);
 
             RuleFor(courier => courier.status)
-                .IsInEnum().WithMessage("Status must be 'IsInactive', 'IsActive'.")
-                .When(courier => courier.status.HasValue);
+                .IsInEnum().WithMessage("Status must be 'IsInactive', 'IsActive'.");
         }
     }
 }
