@@ -1,4 +1,5 @@
-﻿using ORM_Components.DTO.CourierAPI;
+﻿using FluentValidation;
+using ORM_Components.DTO.CourierAPI;
 
 namespace CourierAPI.Contracts
 {
@@ -15,7 +16,5 @@ namespace CourierAPI.Contracts
         Task CreateAsync(CourierDtoForCreate courierDtoForCreate);
         Task UpdateAsync(CourierDtoForUpdate courierDtoForUpdate);
         Task DeleteAsync(Guid courierId);
-
-        Task TestMethod();
     }
 }

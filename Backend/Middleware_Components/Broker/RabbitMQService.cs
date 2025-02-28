@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Middleware_Components.Broker
 {
-    public class RabbitMQService : IDisposable
+    public class RabbitMQService : IDisposable, IRabbitMQService
     {
         private readonly ConnectionFactory _factory;
         private readonly IConnection _connection;
