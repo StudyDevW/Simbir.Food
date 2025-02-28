@@ -1,6 +1,6 @@
 ﻿
 
-using ORM_Components.DTO.RestaurantAPI;
+using ORM_Components.DTO.ClientAPI;
 
 namespace RestaurantAPI.Model.Services
 {
