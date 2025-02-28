@@ -7,6 +7,9 @@ using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
+using RestaurantAPI.Model.GetRastaurant;
+using RestaurantAPI.Model.Interface;
+using StackExchange.Redis;
 using System.Net;
 
 namespace RestaurantAPI.Model.Controllers
@@ -18,191 +21,76 @@ namespace RestaurantAPI.Model.Controllers
     {
         private readonly DataContext _dbcontext;
         private readonly IJwtService _jwtServices;
+        private readonly IRestaurantServices _restaurantService;
 
-        public RestaurantController(DataContext dbcontext, IJwtService jwtServices)
+
+        public RestaurantController(DataContext dbcontext, IJwtService jwtServices, IRestaurantServices restaurantService)
         {
             _dbcontext = dbcontext;
             _jwtServices = jwtServices;
+            _restaurantService = restaurantService;
+        }
+        [HttpGet("Get/AverageMarkRestaurant")]
+        public async Task<ActionResult<List<RestaurantMark_DTO>>> GetAverageMarkForEveryRestaurant(Order_DTO order)
+        {
+            await _restaurantService.OrderRejections(order);
+            return await _restaurantService.GetRestaurantMark();
+        }
+        [HttpPost("OrderRejections")]
+        public async Task<IActionResult> OrderReject(Order_DTO order_DTO)
+        {
+            try
+            {
+                await _restaurantService.OrderRejections(order_DTO);
+                return Ok("Заказ отменён");
+            }
+            catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("{restaurantId}/GetRestaurant")]
+        public async Task<ActionResult<Restaurants_DTO>> GetRestaurant(Guid restaurantId)
+        {
+            return await _restaurantService.GetRestaurant(restaurantId);
         }
 
-        [HttpPost]
-        [Route("SentRestaurant")]
-        public async Task<IActionResult> AddRestaurant([FromBody] Restaurants_DTO restaurant_DTO)
+        [HttpGet("GetAllRestaurant")]
+        public async Task<ActionResult<List<Restaurants_DTO>>> GetAllRestaurant()
         {
-            var validation = await _jwtServices.AccessTokenValidation(Request.Headers["Authorization"]);
-
-            if (validation.TokenHasError())
-            {
-                return Unauthorized();
-            }
-            else if (validation.TokenHasSuccess())
-            {
-                if (validation.token_success.userRoles.Contains("Admin"))
-                {
-                    return Forbid("У вас нет прав для создания ресторана.");
-                }
-                if (validation.token_success.userRoles.Contains("Courier"))
-                {
-                    return Forbid("У вас нет прав для создания ресторана.");
-                }
-                if (restaurant_DTO == null)
-                {
-                    return BadRequest("Данные ресторана не могут быть пустыми.");
-                }
-
-                if (string.IsNullOrWhiteSpace(restaurant_DTO.restaurantName))
-                {
-                    return BadRequest("Название ресторана не может быть пустым.");
-                }
-
-                if (string.IsNullOrWhiteSpace(restaurant_DTO.address))
-                {
-                    return BadRequest("Адрес ресторана не может быть пустым.");
-                }
-
-                if (string.IsNullOrWhiteSpace(restaurant_DTO.phone_number))
-                {
-                    return BadRequest("Номер телефона ресторана не может быть пустым.");
-                }
-
-                RestaurantTable restaurantTable = new RestaurantTable()
-                {
-                    user_id = restaurant_DTO.user_id,
-                    restaurantName = restaurant_DTO.restaurantName,
-                    address = restaurant_DTO.address,
-                    phone_number = restaurant_DTO.phone_number,
-                    status = restaurant_DTO.status,
-                    description = restaurant_DTO.description,
-                    imagePath = restaurant_DTO.imagePath,
-                    open_time = restaurant_DTO.open_time,
-                    close_time = restaurant_DTO.close_time
-                };
-
-                _dbcontext.restaurantTable.Add(restaurantTable);
-                await _dbcontext.SaveChangesAsync();
-                return Ok("Успех");
-            }
-            return BadRequest();
+            return await _restaurantService.GetAllRestaurant();
         }
 
-
-        [HttpDelete]
-        [Route("DeleteRestaurant/{id}")]
-        public async Task<IActionResult> DeleteRestaurant(Guid id)
+        [HttpPost("CreateRestaurant")]
+        public async Task<ActionResult> CreateRestaurant([FromBody] RestaurantCreate_DTO restaurantCreate_DTO)
         {
-            var validation = await _jwtServices.AccessTokenValidation(Request.Headers["Authorization"]);
-
-            if (validation.TokenHasError())
-            {
-                return Unauthorized();
-            }
-            else if (validation.TokenHasSuccess())
-            {
-                var restaurant = await _dbcontext.restaurantTable.FindAsync(id);
-                if (restaurant == null)
-                {
-                    return NotFound("Ресторан не найден.");
-                }
-
-                _dbcontext.restaurantTable.Remove(restaurant);
-                await _dbcontext.SaveChangesAsync();
-                return Ok("Ресторан успешно удалён");
-            }
-            return BadRequest();
-
-            
+            await _restaurantService.CreateRestaurant(restaurantCreate_DTO);
+            return NoContent();
+        }
+        [HttpPut("{restaurantId}/UpdateRestaurant")]
+        public async Task<ActionResult> UpdateRestaurant(Guid restaurantId, [FromBody] RestaurantUpdate_DTO restaurantUpdate_DTO)
+        {
+            await _restaurantService.UpdateRestaurant(restaurantId, restaurantUpdate_DTO);
+            return NoContent();
         }
 
-        [HttpGet]
-        [Route("GetRestaurant")]
-        public async Task<IActionResult> GetRestaurant()
+        [HttpDelete("{restaurantId}/DeleteRestaurant")]
+        public async Task<ActionResult> DeleteRestaurant(Guid restaurantId)
         {
-            var validation = await _jwtServices.AccessTokenValidation(Request.Headers["Authorization"]);
-
-            if (validation.TokenHasError())
-            {
-                return Unauthorized();
-            }
-            else if (validation.TokenHasSuccess())
-            {
-                var restaurants = await _dbcontext.restaurantTable.ToListAsync();
-                return Ok(restaurants);
-            }
-            return BadRequest();
-            
+            await _restaurantService.DeleteRestaurant(restaurantId);
+            return NoContent();
         }
 
-        [HttpGet]
-        [Route("GetRestaurant/{id}")]
-        public async Task<IActionResult> GetRestaurantById(Guid id)
+        [HttpDelete("DeleteAllRestaurant")]
+        public async Task<ActionResult> DeleteAllRestaurant()
         {
-            var validation = await _jwtServices.AccessTokenValidation(Request.Headers["Authorization"]);
-
-            if (validation.TokenHasError())
-            {
-                return Unauthorized();
-            }
-            else if (validation.TokenHasSuccess())
-            {
-                var restaurant = await _dbcontext.restaurantTable.FindAsync(id);
-                if (restaurant == null)
-                {
-                    return NotFound("Ресторан не найден.");
-                }
-
-                return Ok(restaurant);
-            }
-            return BadRequest();
-            
+            await _restaurantService.DeleteAllRestaurant();
+            return NoContent();
         }
-
-        [HttpPut]
-        [Route("PutRestaurant/{id}")]
-        public async Task<IActionResult> PutRestaurant(Guid id, [FromBody] Restaurants_DTO restaurants_DTO)
+        [HttpPost("{orderId}/SetReadyStatusForOrder")]
+        public async Task<ActionResult> SetReadyStatusForOrder(Guid orderId)
         {
-            var validation = await _jwtServices.AccessTokenValidation(Request.Headers["Authorization"]);
-
-            if (validation.TokenHasError())
-            {
-                return Unauthorized();
-            }
-            else if (validation.TokenHasSuccess())
-            {
-                if (restaurants_DTO == null)
-                {
-                    return BadRequest("Данные ресторана не могут быть пустыми.");
-                }
-
-                if (string.IsNullOrWhiteSpace(restaurants_DTO.restaurantName))
-                {
-                    return BadRequest("Название ресторана не может быть пустым.");
-                }
-
-                if (string.IsNullOrWhiteSpace(restaurants_DTO.address))
-                {
-                    return BadRequest("Адрес ресторана не может быть пустым.");
-                }
-
-                var restaurant = await _dbcontext.restaurantTable.FindAsync(id);
-                if (restaurant == null)
-                {
-                    return NotFound("Ресторан не найден.");
-                }
-
-                restaurant.restaurantName = restaurants_DTO.restaurantName;
-                restaurant.address = restaurants_DTO.address;
-                restaurant.phone_number = restaurants_DTO.phone_number;
-                restaurant.status = restaurants_DTO.status;
-                restaurant.description = restaurants_DTO.description;
-                restaurant.imagePath = restaurants_DTO.imagePath;
-                restaurant.open_time = restaurants_DTO.open_time;
-                restaurant.close_time = restaurants_DTO.close_time;
-
-                _dbcontext.restaurantTable.Update(restaurant);
-                await _dbcontext.SaveChangesAsync();
-                return Ok("Данные ресторана успешно обновлены.");
-            }
-            return BadRequest();    
+            await _restaurantService.SetReadyStatusForOrder(orderId);
+            return NoContent();
         }
     }
 }

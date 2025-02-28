@@ -1,13 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Mapster;
+using Microsoft.EntityFrameworkCore;
 using Middleware_Components.Broker;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.CourierAPI;
 using ORM_Components.DTO.RestaurantAPI;
+using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
 using StackExchange.Redis;
 using Telegram.Bot.Types;
 using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
 
 namespace RestaurantAPI.Services
 {
@@ -39,7 +42,6 @@ namespace RestaurantAPI.Services
                     //// Реализация отклонения заказа
                     //await OrderRejections(order_DTO);
                 });
-
                 _rabbitMQService.StartListening<Order_DTO>("restaurant_to_courier", async order_DTO =>
                 {
                     // Реализация отправки информации по заказу курьеру
@@ -81,22 +83,17 @@ namespace RestaurantAPI.Services
             var finded = _dbcontext.userTable.Where(c => c.Id == clientId).FirstOrDefault();
             return finded.telegram_chat_id;
         }
-
-
+ 
         private async Task AcceptingAnOrder(Order_DTO order)
         {
-            //Поиск в бд
             var orderAccepting = await _dbcontext.orderTable.FindAsync(order.id);
 
             if (orderAccepting == null)
             {
-                // Если заказ не найден, можно выбросить исключение или логировать ошибку
                 throw new Exception($"Заказ с идентификатором: {order.id} не существует.");
             }
 
-
             orderAccepting.status = OrderStatus.Accepted; 
-
             await _dbcontext.SaveChangesAsync();
 
             var userChatId = GetUserChatId(order.client_id);
@@ -149,7 +146,6 @@ namespace RestaurantAPI.Services
                 throw new Exception($"Заказ с ID: {order.id} не удалось получить из ClientAPI.");
             }
 
-            // Обновление заказа в базе данных
             var orderEntity = await _dbcontext.orderTable.FindAsync(order.id);
             if (orderEntity == null)
             {
@@ -200,7 +196,23 @@ namespace RestaurantAPI.Services
             
         }
 
+        private async Task SendMessageForEveryActiveCourier()
+        {
+            var activeCouriersWithChatIds = await _dbcontext.courierTable
+            .Where(x => x.status == CourierStatus.IsActive)
+            .Join(
+                _dbcontext.userTable,
+                courier => courier.userId,
+                user => user.Id,
+                (courier, user) => user.telegram_chat_id
+            )
+            .ToListAsync();
 
+            foreach (var chatId in activeCouriersWithChatIds)
+            {
+                await _messageSender.Send(chatId.ToString(), "Доступен новый заказ к доставке!");
+            }
+        }
         private async Task<string> GenerateOrderDetailsMessage(Order_DTO order)
         {
             var restaurant = await _dbcontext.restaurantTable.FindAsync(order.restaurant_id);
