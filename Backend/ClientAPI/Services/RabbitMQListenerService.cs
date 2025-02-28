@@ -1,7 +1,6 @@
 ﻿using ClientAPI.Interfaces;
 using Middleware_Components.Broker;
 using ORM_Components.DTO.CourierAPI;
-using ORM_Components.DTO.RestaurantAPI;
 
 namespace ClientAPI.Services
 {

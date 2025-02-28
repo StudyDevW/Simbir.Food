@@ -10,22 +10,21 @@ namespace ORM_Components.Tables
 {
     public class UserTable : IId
     {
-        public string name { get; set; }
+        public string first_name { get; set; }
 
-        public string phone_number { get; set; }
+        public string? last_name { get; set; }
 
-        public string address { get; set; }
+        public long telegram_id { get; set; }
 
-        public string email { get; set; }
+        public long telegram_chat_id { get; set; }
 
-        public string? avatarImage { get; set; }
+        public string? address { get; set; }
 
-        public string login { get; set; }
+        public string? photo_url { get; set; }
 
-        public string password { get; set; }
-
-        public string chatId { get; set; }
+        public string? username { get; set; }
 
         public string[] roles { get; set; }
     }
+
 }

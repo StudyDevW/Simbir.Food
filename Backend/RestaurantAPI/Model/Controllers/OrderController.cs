@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Middleware_Components.Broker;
 using Middleware_Components.Services;
 using ORM_Components;
-using ORM_Components.DTO.RestaurantAPI;
+using ORM_Components.DTO.ClientAPI;
 using ORM_Components.Tables;
 using RestaurantAPI.Model.Services;
 using StackExchange.Redis;
@@ -18,7 +19,7 @@ namespace RestaurantAPI.Model.Controllers
     public class OrderController : ControllerBase
     {
         private readonly OrderServices _orderServices;
-        private readonly RabbitMQServices _rabbitMqService;
+        private readonly RabbitMQService _rabbitMqService;
         private readonly DataContext _dbcontext;
         private readonly IJwtService _jwtService;
 
