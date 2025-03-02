@@ -5,6 +5,7 @@ using ORM_Components;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using RestaurantAPI.Model.Interface;
+using Telegram.Bot.Requests.Abstractions;
 
 namespace RestaurantAPI.Model.Services
 {
@@ -18,15 +19,15 @@ namespace RestaurantAPI.Model.Services
             _dbcontext = dbcontext;
             _jwtServices = jwtServices;
         }
-
-        public async Task<string> AddRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO)
+        public async Task<IRestaurantFoodItemsServices> AddRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO)
         {
             if (restaurantFoodItems_DTO == null)
             {
                 throw new Exception("Данные блюда не могут быть пустыми.");
             }
-
+            
             var errors = new List<string>();
+
             if (string.IsNullOrWhiteSpace(restaurantFoodItems_DTO.name))
             {
                 errors.Add("Название блюда не может быть пустым.");
@@ -55,7 +56,7 @@ namespace RestaurantAPI.Model.Services
                 throw new Exception("Ресторан с указанным ID не найден.");
             }
 
-            var restaurantFoodItemsTable = new RestaurantFoodItemsTable()
+            RestaurantFoodItemsTable restaurantFoodItemsTable = new RestaurantFoodItemsTable()
             {
                 restaurant_id = restaurantFoodItems_DTO.restaurant_id,
                 name = restaurantFoodItems_DTO.name,
@@ -67,52 +68,43 @@ namespace RestaurantAPI.Model.Services
 
             _dbcontext.restaurantFoodItemsTable.Add(restaurantFoodItemsTable);
             await _dbcontext.SaveChangesAsync();
+            throw new Exception("Успешно добавлено блюдо.");
 
-            return "Блюдо успешно добавлено.";
         }
-
-        public async Task<string> DeleteRestaurantFoodItems(Guid id)
+        public async Task<IRestaurantFoodItemsServices> DeleteRestaurantFoodItems(Guid id)
         {
             var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable.FindAsync(id);
             if (restaurantFoodItems == null)
             {
-                throw new Exception("Блюдо не найдено.");
+                throw new Exception("Ресторан не найден.");
             }
 
             _dbcontext.restaurantFoodItemsTable.Remove(restaurantFoodItems);
             await _dbcontext.SaveChangesAsync();
-
-            return "Блюдо успешно удалено.";
+            throw new Exception("Ресторан упешно удалён.");
         }
-
-        public async Task<string> DeleteAllRestaurantFoodItems()
+        public async Task<IRestaurantFoodItemsServices> DeleteAllRestaurantFoodItems()
         {
-            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable.ToListAsync();
-            if (!restaurantFoodItems.Any())
+            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable.FindAsync();
+            if (restaurantFoodItems == null)
             {
-                throw new Exception("Нет доступных блюд для удаления.");
+                throw new Exception("Рестораны не найден.");
             }
 
             _dbcontext.restaurantFoodItemsTable.RemoveRange(restaurantFoodItems);
             await _dbcontext.SaveChangesAsync();
-
-            return "Все блюда успешно удалены.";
+            throw new Exception("Рестораны упешно удалён.");
         }
-
         public async Task<List<RestaurantFoodItemsTable>> GetRestaurantFoodItems(Guid restaurantId)
         {
-            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable
-                .Where(c => c.restaurant_id == restaurantId)
-                .ToListAsync();
-            return restaurantFoodItems;
+            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable.Where(c=>c.restaurant_id == restaurantId).ToListAsync();
+            return(restaurantFoodItems);
         }
-
         public async Task<List<RestaurantFoodItemsTable>> GetAllRestaurantFoodItems()
         {
             var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable.ToListAsync();
-            return restaurantFoodItems;
+            return(restaurantFoodItems);
         }
-
         public async Task<string> PutRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO, Guid food_Id)
         {
             if (restaurantFoodItems_DTO == null)
@@ -121,6 +113,7 @@ namespace RestaurantAPI.Model.Services
             }
 
             var errors = new List<string>();
+
             if (string.IsNullOrWhiteSpace(restaurantFoodItems_DTO.name))
             {
                 errors.Add("Название блюда не может быть пустым.");
@@ -140,7 +133,7 @@ namespace RestaurantAPI.Model.Services
 
             if (errors.Any())
             {
-                throw new Exception(string.Join(",", errors.ToArray()));
+                throw new Exception(string.Join(",", errors.ToArray())); 
             }
 
             var restaurantFoodItem = await _dbcontext.restaurantFoodItemsTable.FindAsync(food_Id);
@@ -157,8 +150,8 @@ namespace RestaurantAPI.Model.Services
 
             _dbcontext.restaurantFoodItemsTable.Update(restaurantFoodItem);
             await _dbcontext.SaveChangesAsync();
-
-            return "Блюдо успешно обновлено.";
+            return("Блюдо успешно обновлено.");
+            
         }
     }
 }
