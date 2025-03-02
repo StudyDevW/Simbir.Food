@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ORM_Components.Tables;
+using ORM_Components.Tables.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
@@ -38,6 +39,14 @@ namespace ORM_Components
 
         public DbSet<BasketTable> basketTable { get; set; }
 
+        public DbSet<CardUsersTable> cardUsersTable { get; set; } 
+
+        public DbSet<BankCardTable> bankCardTable { get; set; }
+
+        public DbSet<PayTable> payTable { get; set; }
+
+        public DbSet<RequestTable> requestTable { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -57,7 +66,7 @@ namespace ORM_Components
                     phone_number = "+78005555535",
                     description = "Отличный тестовый ресторан",
                     imagePath = "NONE",
-                    status = "approved"
+                    status = RestaurantStatus.Verified
                 },
                 new RestaurantTable()
                 {
@@ -70,7 +79,7 @@ namespace ORM_Components
                     phone_number = "+78004444434",
                     description = "Хороший тестовый ресторан",
                     imagePath = "NONE",
-                    status = "approved"
+                    status = RestaurantStatus.Verified
                 }
             );
 
@@ -109,6 +118,7 @@ namespace ORM_Components
                     address = "улица Шолмова, 7",
                     photo_url = "https://t.me/i/userpic/320/YC895p02kbd-O-aU-F49vK8j1qFbmbObwS_DaaPkKdg.svg",
                     username = "studywhite",
+                    money_value = 5000,
                     roles = new[] { "Client", "Admin", "Courier" }
                 }
             );

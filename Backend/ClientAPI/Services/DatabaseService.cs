@@ -8,6 +8,9 @@ using ORM_Components.DTO.ClientAPI.ClientsAll;
 using Microsoft.EntityFrameworkCore;
 using ORM_Components.DTO.ClientAPI.Basket;
 using Telegram.Bot.Types;
+using ORM_Components.Tables.Helpers;
+using ORM_Components.DTO.ClientAPI.RequestsAll;
+using ORM_Components.DTO.ClientAPI.FrozenAll;
 
 namespace ClientAPI.Services
 {
@@ -102,7 +105,8 @@ namespace ClientAPI.Services
             {
                 var outputVals = new List<Guid>();
 
-                foreach (var restaurant in selectedRestaurants) {
+                foreach (var restaurant in selectedRestaurants)
+                {
                     outputVals.Add(restaurant.Id);
                 }
 
@@ -114,7 +118,7 @@ namespace ClientAPI.Services
 
         public ClientInfo? InfoClientDatabase(Guid userGUID)
         {
-            var selectedUser = _dbcontext.userTable.Where(c => c.Id  == userGUID).FirstOrDefault();
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
 
             if (selectedUser != null)
             {
@@ -135,13 +139,13 @@ namespace ClientAPI.Services
                     address = selectedUser.address,
                     photo_url = selectedUser.photo_url,
                     restaurant_own = restaurantOwnerId,
+                    money_value = selectedUser.money_value,
                     roles = selectedUser.roles.ToList()
                 };
             }
 
             return null;
         }
-
 
 
         public ClientGetAll GetAllClients(int _from, int _count)
@@ -154,7 +158,7 @@ namespace ClientAPI.Services
 
             if (_count != 0)
             {
-                var filteredQuery = _dbcontext.userTable.Skip(_from).Take(_count);
+                var filteredQuery = _dbcontext.userTable.Skip(_from).Take(_count).ToList();
 
                 foreach (var client in filteredQuery)
                 {
@@ -171,6 +175,7 @@ namespace ClientAPI.Services
                         address = client.address,
                         photo_url = client.photo_url,
                         restaurant_own = restaurantOwnerId,
+                        money_value = client.money_value,
                         roles = client.roles.ToList()
                     };
 
@@ -179,7 +184,7 @@ namespace ClientAPI.Services
             }
             else
             {
-                var filteredQuery = _dbcontext.userTable.Skip(_from);
+                var filteredQuery = _dbcontext.userTable.Skip(_from).ToList();
 
                 foreach (var client in filteredQuery)
                 {
@@ -196,6 +201,7 @@ namespace ClientAPI.Services
                         address = client.address,
                         photo_url = client.photo_url,
                         restaurant_own = restaurantOwnerId,
+                        money_value = client.money_value,
                         roles = client.roles.ToList()
                     };
 
@@ -274,7 +280,7 @@ namespace ClientAPI.Services
 
             foreach (var foodItem in selectedItems)
             {
-                _dbcontext.basketTable.Remove(foodItem); 
+                _dbcontext.basketTable.Remove(foodItem);
                 await _dbcontext.SaveChangesAsync();
             }
         }
@@ -345,7 +351,7 @@ namespace ClientAPI.Services
             int countFinal = 0;
 
             var basketItemDbObj = _dbcontext.basketTable.Where(c => c.user_id == userGUID).ToListAsync();
-            
+
             foreach (var basketItemDb in await basketItemDbObj)
             {
                 var selectedFoodItem = _dbcontext.restaurantFoodItemsTable.Where(c => c.Id == basketItemDb.food_item_id).FirstOrDefault();
@@ -356,7 +362,7 @@ namespace ClientAPI.Services
                     {
                         restaurant_id = selectedFoodItem.restaurant_id,
                         name = selectedFoodItem.name,
-                        weight = selectedFoodItem.weight,   
+                        weight = selectedFoodItem.weight,
                         calories = selectedFoodItem.calories,
                         image = selectedFoodItem.image,
                         price = selectedFoodItem.price
@@ -383,5 +389,566 @@ namespace ClientAPI.Services
 
             return basket_GetAll;
         }
+
+        public async Task DeleteAllBasketWrites(Guid userGUID)
+        {
+            await DeleteFullBasket(userGUID);
+        }
+
+        public async Task DeleteOneBasketWrite(Guid userGUID, Guid basketId)
+        {
+            var selectedItem = _dbcontext.basketTable.Where(c => c.Id == basketId && c.user_id == userGUID).FirstOrDefault();
+
+            if (selectedItem != null)
+            {
+                _dbcontext.basketTable.Remove(selectedItem);
+                await _dbcontext.SaveChangesAsync();
+            }
+            else
+                throw new Exception("write_not_founded");
+        }
+
+        public async Task<Guid> CreateRequestRestaurantFromUser(Guid userGUID, RestaurantAddRequest dtoObj)
+        {
+            var selectedRestaurants = _dbcontext.restaurantTable.Where(c => c.user_id == userGUID).ToList();
+
+            if (selectedRestaurants.Count > 5)
+                throw new Exception("max_restaurants_detected");
+
+            RestaurantTable restaurantAdd = new RestaurantTable()
+            {
+                user_id = userGUID,
+                restaurantName = dtoObj.restaurantName,
+                address = dtoObj.address,
+                phone_number = dtoObj.phone_number,
+                status = RestaurantStatus.Unverified,
+                description = dtoObj.description,
+                imagePath = dtoObj.imagePath,
+                open_time = dtoObj.open_time,
+                close_time = dtoObj.close_time
+            };
+
+            _dbcontext.restaurantTable.Add(restaurantAdd);
+            await _dbcontext.SaveChangesAsync();
+
+            RequestTable requestAdd = new RequestTable()
+            {
+                restaurant_id = restaurantAdd.Id,
+                courier_id = null,
+                user_id = userGUID,
+                time_add = DateTime.UtcNow,
+                description = dtoObj.request_description
+            };
+
+            _dbcontext.requestTable.Add(requestAdd);
+            await _dbcontext.SaveChangesAsync();
+
+            return requestAdd.Id;
+        }
+
+        public async Task<Guid> CreateRequestCourierFromUser(Guid userGUID, string? car_number, string description)
+        {
+            var selectedCouriers = _dbcontext.courierTable.Where(c => c.userId == userGUID).ToList();
+
+            if (selectedCouriers.Count > 0)
+                throw new Exception("max_courier_detected");
+
+            CourierTable courierAdd = new CourierTable() { 
+                userId = userGUID,
+                car_number = car_number,
+                status = CourierStatus.Unverified
+            };
+
+            _dbcontext.courierTable.Add(courierAdd);
+            await _dbcontext.SaveChangesAsync();
+
+            RequestTable requestAdd = new RequestTable()
+            {
+                restaurant_id = null,
+                courier_id = courierAdd.Id,
+                user_id = userGUID,
+                time_add = DateTime.UtcNow,
+                description = description
+            };
+
+            _dbcontext.requestTable.Add(requestAdd);
+            await _dbcontext.SaveChangesAsync();
+
+            return requestAdd.Id;
+        }
+
+        public async Task AcceptRequestRestaurantFromAdmin(Guid requestId)
+        {
+            var selectedRequest = _dbcontext.requestTable.Where(c => c.Id == requestId).FirstOrDefault();
+
+  
+            if (selectedRequest != null/* && selectedRestaurant != null*/)
+            {
+                var selectedRestaurant = _dbcontext.restaurantTable.Where(c => c.user_id == selectedRequest.user_id && c.Id == selectedRequest.restaurant_id).FirstOrDefault();
+
+                if (selectedRestaurant == null)
+                    throw new Exception("restaurant_not_found");
+
+                selectedRestaurant.status = RestaurantStatus.Verified;
+                await _dbcontext.SaveChangesAsync();
+
+                _dbcontext.requestTable.Remove(selectedRequest);
+                await _dbcontext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("request_not_found");
+            }
+        }
+
+        public async Task AcceptRequestCourierFromAdmin(Guid requestId)
+        {
+            var selectedRequest = _dbcontext.requestTable.Where(c => c.Id == requestId).FirstOrDefault();
+
+            if (selectedRequest != null/* && selectedCourier != null*/)
+            {
+                var selectedCourier = _dbcontext.courierTable.Where(c => c.userId == selectedRequest.user_id && c.Id == selectedRequest.courier_id).FirstOrDefault();
+
+                if (selectedCourier == null)
+                    throw new Exception("courier_not_found");
+
+                var selectedUser = _dbcontext.userTable.Where(c => c.Id == selectedCourier.userId).FirstOrDefault();
+
+                if (selectedUser == null)
+                    throw new Exception("user_not_found");
+
+                { //Присваивание новой роли
+                    var existRoles = selectedUser.roles.ToList();
+
+                    existRoles.Add("Courier");
+
+                    selectedUser.roles = existRoles.ToArray();
+                    await _dbcontext.SaveChangesAsync();
+                }
+
+
+                selectedCourier.status = CourierStatus.IsInactive;
+                await _dbcontext.SaveChangesAsync();
+
+                _dbcontext.requestTable.Remove(selectedRequest);
+                await _dbcontext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("request_not_found");
+            }
+        }
+
+        public async Task RejectRequestRestaurantFromAdmin(Guid requestId)
+        {
+            var selectedRequest = _dbcontext.requestTable.Where(c => c.Id == requestId).FirstOrDefault();
+          
+            if (selectedRequest != null)
+            {
+                var selectedRestaurant = _dbcontext.restaurantTable.Where(c => c.user_id == selectedRequest.user_id && c.Id == selectedRequest.restaurant_id).FirstOrDefault();
+
+                if (selectedRestaurant == null)
+                    throw new Exception("restaurant_not_found");
+
+                _dbcontext.restaurantTable.Remove(selectedRestaurant);
+                await _dbcontext.SaveChangesAsync();
+
+                _dbcontext.requestTable.Remove(selectedRequest);
+                await _dbcontext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("request_not_found");
+            }
+        }
+
+        public async Task RejectRequestCourierFromAdmin(Guid requestId)
+        {
+            var selectedRequest = _dbcontext.requestTable.Where(c => c.Id == requestId).FirstOrDefault();
+
+            if (selectedRequest != null)
+            {
+                var selectedCourier = _dbcontext.courierTable.Where(c => c.userId == selectedRequest.user_id && c.Id == selectedRequest.courier_id).FirstOrDefault();
+
+                if (selectedCourier == null)
+                    throw new Exception("courier_not_found");
+
+                _dbcontext.courierTable.Remove(selectedCourier);
+                await _dbcontext.SaveChangesAsync();
+
+                _dbcontext.requestTable.Remove(selectedRequest);
+                await _dbcontext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("request_not_found");
+            }
+        }
+
+        public List<RequestInfo_Restaurants> GetOnlyMeRequestsRestaurant(Guid user_id)
+        {
+            List<RequestInfo_Restaurants> listRequestsRestaurants = new List<RequestInfo_Restaurants>();
+
+            var selectedRequests = _dbcontext.requestTable.Where(c => c.user_id == user_id).ToList();
+
+            if (selectedRequests != null)
+            {
+                foreach (var request in selectedRequests)
+                {
+                    var selectedRestaurants = _dbcontext.restaurantTable.Where(c => c.Id == request.restaurant_id).ToList();
+
+                    foreach (var restaurant in selectedRestaurants)
+                    {
+                        var selectedUser = _dbcontext.userTable.Where(c => c.Id == user_id).FirstOrDefault();
+
+                        if (selectedUser == null)
+                            throw new Exception("user_not_found");
+
+                        RequestInfo_Restaurants requestInfo_Restaurants = new RequestInfo_Restaurants()
+                        {
+                            request_id = request.Id,
+                            restaurantName = restaurant.restaurantName,
+                            address = restaurant.address,
+                            phone_number = restaurant.phone_number,
+                            description = restaurant.description,
+                            imagePath = restaurant.imagePath,
+                            open_time = restaurant.open_time,
+                            close_time = restaurant.close_time,
+                            request_description = request.description,
+                            request_time_add = request.time_add,
+                            client_info = new RequestClientInfo()
+                            {
+                                Id = selectedUser.Id,
+                                first_name = selectedUser.first_name,
+                                last_name = selectedUser.last_name,
+                                address = selectedUser.address,
+                                chat_id = selectedUser.telegram_chat_id,
+                                username = selectedUser.username,
+                                photo_url = selectedUser.photo_url,
+                                roles = selectedUser.roles.ToList()
+                            }
+                        };
+
+                        listRequestsRestaurants.Add(requestInfo_Restaurants);
+                    }
+                }
+            }
+
+            return listRequestsRestaurants;
+        }
+
+        public RequestInfo_Couriers? GetOnlyMeRequestCourier(Guid user_id)
+        {
+   
+            var selectedRequests = _dbcontext.requestTable.Where(c => c.user_id == user_id).ToList();
+
+            if (selectedRequests != null)
+            {
+                foreach (var request in selectedRequests)
+                {
+                    var selectedCourier = _dbcontext.courierTable.Where(c => c.Id == request.courier_id).FirstOrDefault();
+
+                    if (selectedCourier != null)
+                    {
+                        var selectedUser = _dbcontext.userTable.Where(c => c.Id == selectedCourier.userId).FirstOrDefault();
+
+                        if (selectedUser == null)
+                            throw new Exception("user_not_found");
+
+                        RequestInfo_Couriers requestInfo_Courier = new RequestInfo_Couriers()
+                        {
+                            request_id = request.Id,
+                            car_number = selectedCourier.car_number,
+                            request_description = request.description,
+                            request_time_add = request.time_add,
+                            client_info = new RequestClientInfo()
+                            {
+                                Id = selectedUser.Id,
+                                first_name = selectedUser.first_name,
+                                last_name = selectedUser.last_name,
+                                address = selectedUser.address,
+                                chat_id = selectedUser.telegram_chat_id,
+                                username = selectedUser.username,
+                                photo_url = selectedUser.photo_url,
+                                roles = selectedUser.roles.ToList()
+                            }
+                        };
+
+                        return requestInfo_Courier;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public RequestsGetAll GetAllRequestsForAdmin()
+        {
+            RequestsGetAll requestsAll = new RequestsGetAll();
+
+            List<RequestInfo_Restaurants> listRequestsRestaurants = new List<RequestInfo_Restaurants>();
+            
+            List<RequestInfo_Couriers> listRequestsCouriers = new List<RequestInfo_Couriers>();
+
+            var selectedRequests = _dbcontext.requestTable.ToList();
+
+            if (selectedRequests != null)
+            {
+                foreach (var request in selectedRequests)
+                {
+                    var selectedRestaurants = _dbcontext.restaurantTable.Where(c => c.Id == request.restaurant_id).ToList();
+
+                    foreach (var restaurant in selectedRestaurants)
+                    {
+                        var selectedUser = _dbcontext.userTable.Where(c => c.Id == restaurant.user_id).FirstOrDefault();
+
+                        if (selectedUser == null)
+                            throw new Exception("user_not_found");
+
+                        RequestInfo_Restaurants requestInfo_Restaurants = new RequestInfo_Restaurants()
+                        {
+                            request_id = request.Id,
+                            restaurantName = restaurant.restaurantName,
+                            address = restaurant.address,
+                            phone_number = restaurant.phone_number,
+                            description = restaurant.description,
+                            imagePath = restaurant.imagePath,
+                            open_time = restaurant.open_time,
+                            close_time = restaurant.close_time,
+                            request_description = request.description,
+                            request_time_add = request.time_add,
+                            client_info = new RequestClientInfo()
+                            {
+                                Id = selectedUser.Id,
+                                first_name = selectedUser.first_name,
+                                last_name = selectedUser.last_name,
+                                address = selectedUser.address,
+                                chat_id = selectedUser.telegram_chat_id,
+                                username = selectedUser.username,   
+                                photo_url = selectedUser.photo_url,
+                                roles = selectedUser.roles.ToList()
+                            }
+                        };
+
+                        listRequestsRestaurants.Add(requestInfo_Restaurants);
+                    }
+
+
+                    var selectedCouriers = _dbcontext.courierTable.Where(c => c.Id == request.courier_id).ToList();
+
+                    foreach (var courier in selectedCouriers)
+                    {
+                        var selectedUser = _dbcontext.userTable.Where(c => c.Id == courier.userId).FirstOrDefault();
+
+                        if (selectedUser == null)
+                            throw new Exception("user_not_found");
+
+                        RequestInfo_Couriers requestInfo_Couriers = new RequestInfo_Couriers()
+                        {
+                            request_id = request.Id,
+                            car_number = courier.car_number,
+                            request_description = request.description,
+                            request_time_add = request.time_add,
+                            client_info = new RequestClientInfo() {
+                                Id = selectedUser.Id,
+                                first_name = selectedUser.first_name,
+                                last_name = selectedUser.last_name,
+                                address = selectedUser.address,
+                                chat_id = selectedUser.telegram_chat_id,
+                                username = selectedUser.username,
+                                photo_url = selectedUser.photo_url,
+                                roles = selectedUser.roles.ToList()
+                            }
+                        };
+
+                        listRequestsCouriers.Add(requestInfo_Couriers);
+                    }
+                }
+            }
+
+            requestsAll.RestaurantFill(listRequestsRestaurants);
+
+            requestsAll.CourierFill(listRequestsCouriers);
+
+            return requestsAll;
+        }
+
+
+        public FrozenGetAll GetAllFrozenEntities()
+        {
+            FrozenGetAll frozenAll = new FrozenGetAll();
+
+            List<FrozenInfo_Restaurants> listFrozenRestaurants = new List<FrozenInfo_Restaurants>();
+
+            List<FrozenInfo_Couriers> listFrozenCouriers = new List<FrozenInfo_Couriers>();
+
+            var selectedRestaurants = _dbcontext.restaurantTable.Where(c => c.status == RestaurantStatus.Frozen).ToList();
+
+            foreach (var restaurant in selectedRestaurants)
+            {
+                FrozenInfo_Restaurants frozenInfo_Restaurant = new FrozenInfo_Restaurants()
+                {
+                    restaurantId = restaurant.Id,
+                    address = restaurant.address,
+                    imagePath = restaurant.imagePath,
+                    restaurantName = restaurant.restaurantName,
+                    user_id = restaurant.user_id
+                };
+
+                listFrozenRestaurants.Add(frozenInfo_Restaurant);
+            }
+
+            var selectedCouriers = _dbcontext.courierTable.Where(c => c.status == CourierStatus.Frozen).ToList();
+
+            foreach (var courier in selectedCouriers)
+            {
+                var selectedUser = _dbcontext.userTable.Where(c => c.Id == courier.userId).FirstOrDefault();
+
+                if (selectedUser == null)
+                    throw new Exception("user_not_found");
+
+                FrozenInfo_Couriers frozenInfo_Courier = new FrozenInfo_Couriers()
+                {
+                    first_name = selectedUser.first_name,
+                    last_name = selectedUser.last_name,
+                    user_id = selectedUser.Id,
+                    photo_url = selectedUser.photo_url
+                };
+
+                listFrozenCouriers.Add(frozenInfo_Courier);
+            }
+
+            frozenAll.RestaurantFill(listFrozenRestaurants);
+
+            frozenAll.CourierFill(listFrozenCouriers);
+
+            return frozenAll;
+        }
+
+        public async Task<Guid> UnfreezeRestaurantWork(Guid restaurantId)
+        {
+            var selectedRestaurant = _dbcontext.restaurantTable.Where(c => c.Id == restaurantId).FirstOrDefault();
+
+            if (selectedRestaurant == null)
+            {
+                throw new Exception("restaurant_not_found");
+            }
+
+            if (selectedRestaurant.status == RestaurantStatus.Verified)
+            {
+                throw new Exception("restaurant_not_frozen");
+            }
+
+            if (selectedRestaurant.status != RestaurantStatus.Unverified)
+            {
+                selectedRestaurant.status = RestaurantStatus.Verified;
+                await _dbcontext.SaveChangesAsync();
+                return selectedRestaurant.user_id;
+            }
+            else
+            {
+                throw new Exception("restaurant_unverified_now");
+            }
+        }
+
+        public async Task UnfreezeCourierWork(Guid userGUID)
+        {
+            var selectedCourier = _dbcontext.courierTable.Where(c => c.userId == userGUID).FirstOrDefault();
+
+            if (selectedCourier == null)
+            {
+                throw new Exception("courier_not_found");
+            }
+
+            if (selectedCourier.status == CourierStatus.IsInactive || selectedCourier.status == CourierStatus.IsActive)
+            {
+                throw new Exception("courier_not_frozen");
+            }
+
+            if (selectedCourier.status != CourierStatus.Unverified)
+            {
+                selectedCourier.status = CourierStatus.IsInactive;
+                await _dbcontext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("courier_unverified_now");
+            }
+        }
+
+        public async Task<Guid> FreezeRestaurantWork(Guid restaurantId)
+        {
+            var selectedRestaurant = _dbcontext.restaurantTable.Where(c => c.Id == restaurantId).FirstOrDefault();
+     
+            if (selectedRestaurant == null) {
+                throw new Exception("restaurant_not_found");
+            }
+
+            if (selectedRestaurant.status == RestaurantStatus.Frozen)
+                throw new Exception("restaurant_already_frozen");
+
+            if (selectedRestaurant.status != RestaurantStatus.Unverified)
+            {
+                selectedRestaurant.status = RestaurantStatus.Frozen;
+                await _dbcontext.SaveChangesAsync();
+                return selectedRestaurant.user_id;
+            }
+            else
+            {
+                throw new Exception("restaurant_unverified_now");
+            }
+        }
+
+        public async Task FreezeCourierWork(Guid userGUID)
+        {
+            var selectedCourier = _dbcontext.courierTable.Where(c => c.userId == userGUID).FirstOrDefault();
+
+            if (selectedCourier == null)
+            {
+                throw new Exception("courier_not_found");
+            }
+
+            if (selectedCourier.status == CourierStatus.Frozen)
+                throw new Exception("courier_already_frozen");
+
+            if (selectedCourier.status != CourierStatus.Unverified)
+            {
+                selectedCourier.status = CourierStatus.Frozen;
+                await _dbcontext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("courier_unverified_now");
+            }
+
+        }
+
+
+        public string GetTelegramChatIdFromRequestId(Guid requestId)
+        {
+            var selectedRequest = _dbcontext.requestTable.Where(c => c.Id == requestId).FirstOrDefault();
+
+            if (selectedRequest != null)
+            {
+                var selectedUser = _dbcontext.userTable.Where(c => c.Id == selectedRequest.user_id).FirstOrDefault();
+
+                if (selectedUser != null)
+                    return selectedUser.telegram_chat_id.ToString();
+            }
+
+            return string.Empty;
+        }
+
+        public string GetTelegramChatId(Guid userGUID)
+        {
+       
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedUser != null)
+                return selectedUser.telegram_chat_id.ToString();
+    
+            return string.Empty;
+        }
+
     }
 }

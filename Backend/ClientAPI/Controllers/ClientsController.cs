@@ -81,20 +81,35 @@ namespace ClientAPI.Controllers
             }
         }
 
-        //[Authorize(AuthenticationSchemes = "Asymmetric")]
-        //[HttpPost]
-        //public async Task<IActionResult> CreateUserWithAdmin([FromBody] ClientAdd_Admin dtoObj)
-        //{
-        //    try
-        //    {
-        //        await _clientService.CreateClientWithAdmin(Request.Headers["Authorization"], dtoObj);
-        //        return Ok("account_created");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProfileUserWithAdmin(Guid id)
+        {
+            try
+            {
+                var clientInfo = await _clientService.ClientFromIdInfo(Request.Headers["Authorization"], id);
+                return Ok(clientInfo);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+            //[Authorize(AuthenticationSchemes = "Asymmetric")]
+            //[HttpPost]
+            //public async Task<IActionResult> CreateUserWithAdmin([FromBody] ClientAdd_Admin dtoObj)
+            //{
+            //    try
+            //    {
+            //        await _clientService.CreateClientWithAdmin(Request.Headers["Authorization"], dtoObj);
+            //        return Ok("account_created");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        return BadRequest(ex.Message);
+            //    }
+            //}
 
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpDelete("{id}")]
@@ -110,5 +125,7 @@ namespace ClientAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+      
     }
 }

@@ -2,6 +2,8 @@
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.ClientAPI.Basket;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
+using ORM_Components.DTO.ClientAPI.FrozenAll;
+using ORM_Components.DTO.ClientAPI.RequestsAll;
 
 namespace ClientAPI.Interfaces
 {
@@ -21,6 +23,40 @@ namespace ClientAPI.Interfaces
 
         public Task DeleteClientWithAdmin(Guid id);
 
+        public Task DeleteAllBasketWrites(Guid userGUID);
 
+        public Task DeleteOneBasketWrite(Guid userGUID, Guid basketId);
+
+        public Task<Guid> CreateRequestRestaurantFromUser(Guid userGUID, RestaurantAddRequest dtoObj);
+
+        public Task<Guid> CreateRequestCourierFromUser(Guid userGUID, string? car_number, string description);
+
+        public Task AcceptRequestRestaurantFromAdmin(Guid requestId);
+
+        public Task AcceptRequestCourierFromAdmin(Guid requestId);
+
+        public Task RejectRequestRestaurantFromAdmin(Guid requestId);
+
+        public Task RejectRequestCourierFromAdmin(Guid requestId);
+
+        public RequestsGetAll GetAllRequestsForAdmin();
+
+        public RequestInfo_Couriers? GetOnlyMeRequestCourier(Guid user_id);
+
+        public List<RequestInfo_Restaurants> GetOnlyMeRequestsRestaurant(Guid user_id);
+
+        public Task<Guid> FreezeRestaurantWork(Guid restaurantId);
+
+        public Task FreezeCourierWork(Guid userGUID);
+
+        public Task<Guid> UnfreezeRestaurantWork(Guid restaurantId);
+
+        public Task UnfreezeCourierWork(Guid userGUID);
+
+        public FrozenGetAll GetAllFrozenEntities();
+
+        public string GetTelegramChatIdFromRequestId(Guid requestId);
+
+        public string GetTelegramChatId(Guid userGUID);
     }
 }

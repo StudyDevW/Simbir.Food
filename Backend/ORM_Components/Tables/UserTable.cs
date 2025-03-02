@@ -24,6 +24,8 @@ namespace ORM_Components.Tables
 
         public string? username { get; set; }
 
+        public long money_value { get; set; }
+
         public string[] roles { get; set; }
     }
 }

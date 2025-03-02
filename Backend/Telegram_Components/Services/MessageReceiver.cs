@@ -58,6 +58,11 @@ namespace Telegram_Components.Services
                 }
             }
 
+            //if (query.Data.Equals("AcceptButtonQuery"))
+            //{
+            //    await _botClient.DeleteMessage(query.From.Id, query.Message.Id);
+            //}
+
             if (query.Data.Equals("testQuery"))
             {
                 await _botClient.DeleteMessage(query.From.Id, query.Message.Id);

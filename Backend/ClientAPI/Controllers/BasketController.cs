@@ -7,7 +7,6 @@ using ORM_Components.DTO.ClientAPI;
 namespace ClientAPI.Controllers
 {
     [Route("api/Basket/")]
-    
     [ApiController]
     public class BasketController : ControllerBase
     {
@@ -17,12 +16,12 @@ namespace ClientAPI.Controllers
 
         public BasketController(IClientService clientService, IJwtService jwt, ICacheService cache, IConfiguration configuration)
         {
-            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("clients-controller-logger");
+            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("basket-controller-logger");
             _clientService = clientService;
             _jwt = jwt;
         }
 
-        [Authorize(AuthenticationSchemes = "Asymmetric")]
+
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] Basket_Add dtoObj)
         {
@@ -44,7 +43,7 @@ namespace ClientAPI.Controllers
         //    return Ok();
         //}
 
-        [HttpGet("All")]
+        [HttpGet]
         public async Task<IActionResult> GetAllItemsRestaurant()
         {
             try
@@ -64,18 +63,32 @@ namespace ClientAPI.Controllers
             return BadRequest();
         }
 
-        [HttpDelete("{backetId}")] //id записи корзины
-        public async Task<IActionResult> DeleteItem(Guid backetId)
+        [HttpDelete("{id}")] //id записи корзины
+        public async Task<IActionResult> DeleteItem(Guid id)
         {
-
-            return Ok();
+            try
+            {
+                await _clientService.DeleteOneBasketItem(Request.Headers["Authorization"], id);
+                return Ok("item_deleted");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpDelete] //Вся корзина по пользователю
         public async Task<IActionResult> DeleteItems()
         {
-
-            return Ok();
+            try
+            {
+                await _clientService.DeleteAllBasket(Request.Headers["Authorization"]);
+                return Ok("items_deleted");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

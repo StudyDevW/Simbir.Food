@@ -22,6 +22,33 @@ namespace ORM_Components.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ORM_Components.Tables.BankCardTable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("card_number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("cvv")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("money_value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("name_card")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("bankCardTable");
+                });
+
             modelBuilder.Entity("ORM_Components.Tables.BasketTable", b =>
                 {
                     b.Property<Guid>("Id")
@@ -39,6 +66,31 @@ namespace ORM_Components.Migrations
                     b.ToTable("basketTable");
                 });
 
+            modelBuilder.Entity("ORM_Components.Tables.CardUsersTable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("card_number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("cvv")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("money_value")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("user_id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("cardUsersTable");
+                });
+
             modelBuilder.Entity("ORM_Components.Tables.CourierTable", b =>
                 {
                     b.Property<Guid>("Id")
@@ -48,9 +100,8 @@ namespace ORM_Components.Migrations
                     b.Property<string>("car_number")
                         .HasColumnType("text");
 
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("status")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("userId")
                         .HasColumnType("uuid");
@@ -112,6 +163,57 @@ namespace ORM_Components.Migrations
                     b.ToTable("orderTable");
                 });
 
+            modelBuilder.Entity("ORM_Components.Tables.PayTable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("card_number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("order_id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("pay_status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("payTable");
+                });
+
+            modelBuilder.Entity("ORM_Components.Tables.RequestTable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("courier_id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("restaurant_id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("time_add")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("user_id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("requestTable");
+                });
+
             modelBuilder.Entity("ORM_Components.Tables.RestaurantFoodItemsTable", b =>
                 {
                     b.Property<Guid>("Id")
@@ -145,7 +247,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5c34d1fa-46fc-4f5f-9ee2-94221e9f01df"),
+                            Id = new Guid("cbabff20-406c-4449-aa55-4b677f8b9242"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
@@ -155,7 +257,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("fef39909-1e0a-4360-95cc-e92fcf0324ce"),
+                            Id = new Guid("c91c9870-6c16-457e-a068-80b670acf4cb"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
@@ -199,9 +301,8 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("status")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("user_id")
                         .HasColumnType("uuid");
@@ -221,12 +322,12 @@ namespace ORM_Components.Migrations
                             open_time = "10:00",
                             phone_number = "+78005555535",
                             restaurantName = "Тестовый ресторан",
-                            status = "approved",
+                            status = 1,
                             user_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47")
                         },
                         new
                         {
-                            Id = new Guid("8108d64a-17b8-49a1-8ec5-3f9483735760"),
+                            Id = new Guid("7f07efc0-2d96-4763-8069-b31b0d3b0b43"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",
@@ -234,7 +335,7 @@ namespace ORM_Components.Migrations
                             open_time = "10:00",
                             phone_number = "+78004444434",
                             restaurantName = "Тестовый ресторан 2",
-                            status = "approved",
+                            status = 1,
                             user_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47")
                         });
                 });
@@ -287,6 +388,9 @@ namespace ORM_Components.Migrations
                     b.Property<string>("last_name")
                         .HasColumnType("text");
 
+                    b.Property<long>("money_value")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("photo_url")
                         .HasColumnType("text");
 
@@ -314,6 +418,7 @@ namespace ORM_Components.Migrations
                             address = "улица Шолмова, 7",
                             first_name = "Антон (Study)",
                             last_name = "",
+                            money_value = 5000L,
                             photo_url = "https://t.me/i/userpic/320/YC895p02kbd-O-aU-F49vK8j1qFbmbObwS_DaaPkKdg.svg",
                             roles = new[] { "Client", "Admin", "Courier" },
                             telegram_chat_id = 1006365928L,

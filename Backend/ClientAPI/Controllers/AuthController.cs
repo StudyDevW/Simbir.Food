@@ -24,7 +24,7 @@ namespace ClientAPI.Controllers
             _jwt = jwt;
         }
 
-        [HttpPost("UserAuth")]
+        [HttpPatch("UserAuth")]
         public async Task<IActionResult> UserTelegramAuth([FromBody] AuthAddUser dtoObj)
         {
             try
@@ -58,28 +58,6 @@ namespace ClientAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
-
-        //[HttpPost("SignIn")]
-        //public IActionResult UserSignIn([FromBody] AuthSignIn dtoObj)
-        //{
-        //    try
-        //    {
-        //        var loginInfo = _clientService.LoginClient(dtoObj);
-
-        //        if (loginInfo != null)
-        //        {
-        //            return Ok(loginInfo);
-        //        }
-        //        else
-        //        {
-        //            return NotFound();
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
 
         [HttpGet("Validate")]
         public async Task<IActionResult> ValidateToken([Required][FromHeader(Name = "accessToken")] string? token)
