@@ -1,22 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using CourierAPI.Controllers.CustomAttributes;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
-using ORM_Components.Tables;
-using RestaurantAPI.Model.GetRastaurant;
 using RestaurantAPI.Model.Interface;
-using StackExchange.Redis;
-using System.Net;
 
 namespace RestaurantAPI.Model.Controllers
 {
-    [Authorize(AuthenticationSchemes = "Asymmetric")]
-    [Route("api/Restaurant/")]
     [ApiController]
+    [ValidateJwt]
+    [Route("api/Restaurant/")]
     public class RestaurantController : ControllerBase
     {
         private readonly DataContext _dbcontext;
@@ -61,9 +55,9 @@ namespace RestaurantAPI.Model.Controllers
         }
 
         [HttpPost("CreateRestaurant")]
-        public async Task<ActionResult> CreateRestaurant([FromBody] RestaurantCreate_DTO restaurantCreate_DTO)
+        public async Task<ActionResult> CreateRestaurant(Guid restaurantId)
         {
-            await _restaurantService.CreateRestaurant(restaurantCreate_DTO);
+            await _restaurantService.CreateRestaurant(restaurantId);
             return NoContent();
         }
         [HttpPut("{restaurantId}/UpdateRestaurant")]
