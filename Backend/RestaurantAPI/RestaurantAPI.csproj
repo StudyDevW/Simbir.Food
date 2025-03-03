@@ -22,7 +22,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.0.2" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.5" />
-		<PackageReference Include="RabbitMQ.Client" Version="7.1.0" />
+		<PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
 		<PackageReference Include="StackExchange.Redis" Version="2.8.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.7.3" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.7.3" />
@@ -39,7 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CourierAPI\CourierAPI.csproj" />
     <ProjectReference Include="..\Middleware_Components\Middleware_Components.csproj" />
     <ProjectReference Include="..\ORM_Components\ORM_Components.csproj" />
 	<ProjectReference Include="..\Telegram_Components\Telegram_Components.csproj" />

@@ -1,4 +1,4 @@
-﻿using CourierAPI.Controllers.CustomAttributes;
+﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +11,8 @@ using RestaurantAPI.Model.Interface;
 
 namespace RestaurantAPI.Model.Controllers
 {
-    [ValidateJwt]
     [Route("api/Photos")]
+    //[ValidateJwt]
     [ApiController]
     public class PhotoController : ControllerBase
     {

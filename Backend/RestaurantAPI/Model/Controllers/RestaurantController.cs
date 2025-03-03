@@ -1,4 +1,4 @@
-﻿using CourierAPI.Controllers.CustomAttributes;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
 using ORM_Components;
@@ -9,7 +9,7 @@ using RestaurantAPI.Model.Interface;
 namespace RestaurantAPI.Model.Controllers
 {
     [ApiController]
-    [ValidateJwt]
+    //[ValidateJwt]
     [Route("api/Restaurant/")]
     public class RestaurantController : ControllerBase
     {

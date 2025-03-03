@@ -67,9 +67,12 @@ namespace RestaurantAPI.Services
         }
         private async Task NotifyOrderFinishedCourier(Order_DTO order)
         {
-            var courierChatId = GetCourierChatIdForOrder(order.courier_id);
-            var message = $"Теперь вам доступен новый заказ для приготовления и доставки";
-            await _messageSender.Send(courierChatId.ToString(), message);
+            //if (order.courier_id == null)
+            //    throw new Exception("");
+
+            //var courierChatId = await GetCourierChatIdForOrder(order.courier_id);
+            //var message = $"Теперь вам доступен новый заказ для приготовления и доставки";
+            //await _messageSender.Send(courierChatId.ToString(), message);
         }
         private async Task NotifyOrderCanceled(Order_DTO order)
         {
@@ -225,13 +228,13 @@ namespace RestaurantAPI.Services
                 .Where(item => item.order_id == order.id)
                 .ToListAsync();
 
-            var items = string.Join(", ", orderItems.Select(item => $"{item.quantity}x {item.Id}"));
+            //var items = string.Join(", ", orderItems.Select(item => $"{item.quantity}x {item.Id}"));
 
             return $"Заказ ID: {order.id}\n" +
                    $"Ресторан: {restaurant.restaurantName}\n" +
                    $"Клиент: {GetClientName(order.client_id)}\n" + 
                    $"Адрес: {GetClientAddress(order.client_id)}\n" +
-                   $"Товары: {items}\n" +
+                   //$"Товары: {items}\n" +
                    $"Итого: {order.total_price} руб.\n" +
                    $"Дата заказа: {order.order_date.ToString("g")}";
         }

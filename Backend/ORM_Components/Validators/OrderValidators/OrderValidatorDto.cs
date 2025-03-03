@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
 
 namespace ORM_Components.Validators.OrderValidators
