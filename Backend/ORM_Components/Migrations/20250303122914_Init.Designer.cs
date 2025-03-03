@@ -12,7 +12,7 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250303113049_Init")]
+    [Migration("20250303122914_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -156,7 +156,7 @@ namespace ORM_Components.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("orderHistory");
+                    b.ToTable("OrderStatusHistoryTable");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.OrderTable", b =>
@@ -272,7 +272,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c0d6cf45-f6c9-460f-9023-b2aa533453d7"),
+                            Id = new Guid("a3a1ebb7-8123-4e6f-a8c6-3a703a8b494b"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
@@ -282,7 +282,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("d32dbf53-af51-4bf4-b751-0b6f9b2ae02d"),
+                            Id = new Guid("602dda9f-6205-4526-806a-43ead573165f"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
@@ -352,7 +352,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("330fbf17-55f3-44cb-8114-75f05f02431b"),
+                            Id = new Guid("304830ef-79d7-4d8a-9015-4c87e42490cd"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",
