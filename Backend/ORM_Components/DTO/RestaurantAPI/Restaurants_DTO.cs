@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ORM_Components.Tables.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,25 +7,31 @@ using System.Threading.Tasks;
 
 namespace ORM_Components.DTO.RestaurantAPI
 {
-    public class Restaurants_DTO
-    {
-        public Guid id { get; set; }
+    public record Restaurants_DTO(
+         Guid Id, Guid userId,
+         string restaurantName, string address,
+         string phone_number, RestaurantStatus status,
+         string description, string imagePath,
+         string open_time, string close_time)
+    { }
 
-        public Guid user_id { get; set; }
+    public record RestaurantCreate_DTO(
+        Guid userId, string restaurantName,
+        string address, string phone_number,
+        string description, string imagePath,
+        string open_time, string close_time)
+    { }
 
-        public string restaurantName { get; set; }
+    public record RestaurantUpdate_DTO(
+        string? restaurantName, string? address,
+        string? phone_number, RestaurantStatus? status,
+        string? description, string? imagePath,
+        string? open_time, string? close_time)
+    { }
 
-        public string? imagePath { get; set; }
+    public record RestaurantMark_DTO(
+        Guid Id, string restaurantName,
+        float averageMark)
+    { }
 
-        public string description { get; set; }
-
-        public string phone_number { get; set; }
-
-        public string address { get; set; }
-
-        public string status { get; set; }
-        public DateTime open_time { get; set; }
-        public DateTime close_time { get; set; }
-
-    }
 }

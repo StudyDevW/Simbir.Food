@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.HttpOverrides;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -13,9 +13,7 @@ using ClientAPI.Interfaces;
 using ClientAPI.Services;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Middleware_Components.Broker;
-using System.Text.Json;
 
 namespace ClientAPI
 {
@@ -27,7 +25,7 @@ namespace ClientAPI
 
             builder.Services.AddControllers();
 
-         
+            //Переменные окружения
             builder.Configuration.AddDotNetEnv(".env", LoadOptions.TraversePath());
 
             var securityScheme = new OpenApiSecurityScheme()
@@ -71,8 +69,8 @@ namespace ClientAPI
 
                 var basePath = AppContext.BaseDirectory;
 
-                // var xmlPath = Path.Combine(basePath, "apidocs.xml");
-                // o.IncludeXmlComments(xmlPath);
+                var xmlPath = Path.Combine(basePath, "apidocs.xml");
+                o.IncludeXmlComments(xmlPath);
             });
 
             builder.Services.AddAuthentication(o =>
@@ -122,24 +120,25 @@ namespace ClientAPI
 
             builder.Services.AddScoped<IClientService, ClientService>();
 
-            builder.Services.AddSingleton<IMessageSender>(
-                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
-            );
-
             builder.Services.AddScoped<ISessionService, SessionService>();
 
             builder.Services.AddScoped<IJwtService, JwtSDK>();
 
             builder.Services.AddScoped<ICacheService, CacheSDK>();
 
+            builder.Services.AddSingleton<IMessageSender>(
+                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
+            );
+
             builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
 
             builder.Services.AddHostedService<RabbitMQListenerService>();
 
+            //Политика Cors для фронта
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
-                    builder => builder.WithOrigins("http://localhost:4001", "http://localhost")
+                    builder => builder.WithOrigins("http://localhost:4001", "http://localhost", "https://impressively-confident-puffin.cloudpub.ru")
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });

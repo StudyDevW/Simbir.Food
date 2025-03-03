@@ -24,13 +24,10 @@ namespace CourierAPI.Service
         private readonly IValidator<CourierDtoForCreate> _courierCreateValidator;
         private readonly IValidator<CourierDtoForUpdate> _courierUpdateValidator;
 
-        public CourierService(DataContext dataContext, IMessageSender tgmessage, 
+        public CourierService(DataContext dataContext, IMessageSender tgmessage,
             IRabbitMQService rabbitMQService,
-            IValidator<CourierDtoForCreate> _courierCreateValidator, IValidator<CourierDtoForUpdate> _courierUpdateValidator) 
+            IValidator<CourierDtoForCreate> _courierCreateValidator, IValidator<CourierDtoForUpdate> _courierUpdateValidator)
         {
-            this._courierCreateValidator = _courierCreateValidator;
-            this._courierUpdateValidator = _courierUpdateValidator;
-
             _dataContext = dataContext;
             _tgmessage = tgmessage;
             _rabbitMQService = rabbitMQService;
@@ -54,7 +51,7 @@ namespace CourierAPI.Service
             bool isCourierExist = await _dataContext.courierTable
                 .AnyAsync(x => x.Id == orderLinkCourierDto.courierId);
 
-            if (!isCourierExist) 
+            if (!isCourierExist)
                 throw new Exception("Курьер не найден.");
 
             order.courier_id = orderLinkCourierDto.courierId;
@@ -100,7 +97,7 @@ namespace CourierAPI.Service
         {
             var order = await _dataContext.orderTable
                 .FirstOrDefaultAsync(x => x.Id == orderId)
-                ?? throw new Exception("Заказ не найден.");             
+                ?? throw new Exception("Заказ не найден.");
 
             if (order.status != expectedStatus)
                 throw new Exception("Статус не соответствует ожидаемому.");
@@ -121,7 +118,7 @@ namespace CourierAPI.Service
             var user = await _dataContext.userTable
                 .FirstOrDefaultAsync(x => x.Id == order.client_id);
 
-            await _tgmessage.Send(user!.chatId,
+            await _tgmessage.Send(user!.telegram_chat_id.ToString(),
                     $"Статус заказа был изменён с {expectedStatus} на {newStatus}");
 
             _logger.LogInformation($"Статус заказа с ID: {orderId} был изменён с {expectedStatus} на {newStatus}.");

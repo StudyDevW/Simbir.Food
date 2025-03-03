@@ -24,19 +24,24 @@ namespace ClientAPI.Controllers
             _jwt = jwt;
         }
 
-        [HttpPost("SignUp")]
-        public async Task<IActionResult> UserSignUp([FromBody] AuthSignUp dtoObj)
+
+        /// <summary>
+        /// Вход в приложение
+        /// </summary>
+        /// <returns></returns>
+        [HttpPatch("UserAuth")]
+        public async Task<IActionResult> UserTelegramAuth([FromBody] AuthAddUser dtoObj)
         {
             try
             {
-                var registerInfo = await _clientService.RegisterUser(dtoObj);
+                var authInfo = await _clientService.UserAuth(dtoObj);
 
-                if (registerInfo != null)
+                if (authInfo != null)
                 {
-                    return Ok(registerInfo);
+                    return Ok(authInfo);
                 }
 
-                return BadRequest("error_register");
+                return BadRequest();
             }
             catch (Exception e)
             {
@@ -44,21 +49,18 @@ namespace ClientAPI.Controllers
             }
         }
 
-        [HttpPost("SignIn")]
-        public IActionResult UserSignIn([FromBody] AuthSignIn dtoObj)
+        /// <summary>
+        /// Создание заявки на регистрацию
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("UserRegister")]
+        public async Task<IActionResult> UserTelegramRegister([FromBody] AuthAddUser dtoObj)
         {
             try
             {
-                var loginInfo = _clientService.LoginClient(dtoObj);
+                var regInfo = await _clientService.UserRegister(dtoObj);
 
-                if (loginInfo != null)
-                {
-                    return Ok(loginInfo);
-                }
-                else
-                {
-                    return NotFound();
-                }
+                return Ok(regInfo);
             }
             catch (Exception e)
             {
@@ -66,6 +68,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Проверка токена
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Validate")]
         public async Task<IActionResult> ValidateToken([Required][FromHeader(Name = "accessToken")] string? token)
         {
@@ -90,6 +96,10 @@ namespace ClientAPI.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Выход из приложения
+        /// </summary>
+        /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpPut("SignOut")]
         public async Task<IActionResult> UserSignOut()
@@ -104,6 +114,10 @@ namespace ClientAPI.Controllers
             return Unauthorized();
         }
 
+        /// <summary>
+        /// Обновление токенов
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("Refresh")]
         public async Task<IActionResult> UserRefreshTokens([FromBody] Auth_RefreshTokens dtoObj)
         {

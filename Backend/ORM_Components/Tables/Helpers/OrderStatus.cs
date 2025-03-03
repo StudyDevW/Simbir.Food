@@ -8,7 +8,7 @@ namespace ORM_Components.Tables.Helpers
 {
     public enum OrderStatus
     {
-        WaitingForPay,
+        AfterPay,
         Accepted,
         Denied,
         Ready,

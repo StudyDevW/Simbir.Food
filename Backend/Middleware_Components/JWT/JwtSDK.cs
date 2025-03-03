@@ -125,21 +125,17 @@ namespace Middleware_Components.JWT
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unexpected_alg" } };
                 }
 
-                string login = "";
-                string chatId = "";
+                string device = "";
                 Guid userGUID = Guid.Empty;
                 List<string> userRoles = new List<string>();
 
                 foreach (var claim in validation.Claims)
                 {
-                    if (claim.Type == "Login")
-                        login = claim.Value;
-
                     if (claim.Type == "Id")
                         userGUID = Guid.Parse(claim.Value);
 
-                    if (claim.Type == "ChatId")
-                        chatId = claim.Value;
+                    if (claim.Type == "Device")
+                        device = claim.Value;
 
                     if (claim.Type == "Roles")
                         userRoles = JsonSerializer.Deserialize<List<string>>(claim.Value);
@@ -169,9 +165,8 @@ namespace Middleware_Components.JWT
                 Token_ValidSuccess valid_success = new Token_ValidSuccess
                 {
                     Id = userGUID,
-                    login = login,
                     userRoles = userRoles,
-                    telegramChatId = chatId,
+                    deviceInfo = device,
                     bearerWithoutPrefix = bearer_key_without_prefix
                 };
 
@@ -199,21 +194,18 @@ namespace Middleware_Components.JWT
                     return new Token_ValidProperties() { token_error = new Token_ValidError { errorLog = "unexpected_alg" } };
                 }
 
-                string login = "";
-                string chatId = "";
+               
+                string device = "";
                 Guid userGUID = Guid.Empty;
                 List<string> userRoles = new List<string>();
 
                 foreach (var claim in validation.Claims)
                 {
-                    if (claim.Type == "Login")
-                        login = claim.Value;
-
-                    if (claim.Type == "ChatId")
-                        chatId = claim.Value;
-
                     if (claim.Type == "Id")
                         userGUID = Guid.Parse(claim.Value);
+
+                    if (claim.Type == "Device")
+                        device = claim.Value;
 
                     if (claim.Type == "Roles")
                         userRoles = JsonSerializer.Deserialize<List<string>>(claim.Value);
@@ -238,9 +230,8 @@ namespace Middleware_Components.JWT
                 Token_ValidSuccess valid_success = new Token_ValidSuccess
                 {
                     Id = userGUID,
-                    login = login,
                     userRoles = userRoles,
-                    telegramChatId = chatId,
+                    deviceInfo = device,
                     bearerWithoutPrefix = bearerKey
                 };
 
@@ -256,7 +247,7 @@ namespace Middleware_Components.JWT
             if (dtoObj == null)
                 return string.Empty;
 
-            if (dtoObj.login == null)
+            if (dtoObj.device == null)
                 return string.Empty;
 
             var rsaprivateKey = _configuration["RSA_PRIVATE_KEY"];
@@ -280,8 +271,7 @@ namespace Middleware_Components.JWT
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", dtoObj.Id.ToString()),
-                    new Claim("Login", dtoObj.login),
-                    new Claim("ChatId", dtoObj.telegramChatId),
+                    new Claim("Device", dtoObj.device),
                     new Claim("Roles", serializer_roles),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
@@ -303,7 +293,7 @@ namespace Middleware_Components.JWT
             if (dtoObj == null)
                 return string.Empty;
 
-            if (dtoObj.login == null)
+            if (dtoObj.device == null)
                 return string.Empty;
 
             var rsaprivateKey = _configuration["RSA_PRIVATE_KEY"];
@@ -327,8 +317,7 @@ namespace Middleware_Components.JWT
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", dtoObj.Id.ToString()),
-                    new Claim("Login", dtoObj.login),
-                    new Claim("ChatId", dtoObj.telegramChatId),
+                    new Claim("Device", dtoObj.device),
                     new Claim("Roles", serializer_roles),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
