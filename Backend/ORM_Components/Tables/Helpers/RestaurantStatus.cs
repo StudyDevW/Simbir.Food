@@ -1,8 +1,9 @@
 ﻿namespace ORM_Components.Tables.Helpers
 {
-    public enum  RestaurantStatus
+    public enum RestaurantStatus
     {
         Unverified,
-        Verified
+        Verified,
+        Frozen
     }
 }

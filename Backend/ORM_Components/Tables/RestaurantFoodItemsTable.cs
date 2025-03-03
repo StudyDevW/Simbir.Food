@@ -14,7 +14,7 @@ namespace ORM_Components.Tables
 
         public string name { get; set; }
 
-        public int price { get; set; }
+        public long price { get; set; }
 
         public string image { get; set; }
 

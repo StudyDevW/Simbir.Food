@@ -150,6 +150,7 @@ services:
         loki-max-backoff: 1000ms
         loki-timeout: 1s
     environment:
+      DATABASE_CONNECT: ${DATABASE_CONNECT}
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
     ports:

@@ -3,6 +3,8 @@
     public enum CourierStatus
     {
         IsInactive,
-        IsActive
+        IsActive,
+        Unverified,
+        Frozen
     }
 }

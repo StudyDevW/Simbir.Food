@@ -21,6 +21,10 @@ namespace ClientAPI.Controllers
             _session = session;
         }
 
+        /// <summary>
+        /// Получить спискок всех своих сессий 
+        /// </summary>
+        /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpGet]
         public async Task<IActionResult> CheckSessions()
@@ -41,6 +45,10 @@ namespace ClientAPI.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Очистить список своих сессий
+        /// </summary>
+        /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpDelete]
         public async Task<IActionResult> ClearSessions()

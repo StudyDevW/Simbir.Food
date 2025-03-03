@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import '../../styles/AppStyle.sass'
 import WebApp from '@twa-dev/sdk';
-
+import { StorageSetItem, StorageDeleteItem } from '../../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const OnBoardingPageFirst: React.FC = () => {
@@ -405,6 +405,11 @@ const OnBoardingMain: React.FC = () => {
 
   const [leftSwapped, setLeftSwapped] = useState<boolean>(false);
 
+  const OnBoardingSkip = () => {
+     WebApp.CloudStorage.setItem('onboarding-storage', "skipped");
+     navigate("/login");
+  }
+
   useEffect(() => {
     WebApp.setHeaderColor('#004681');
 
@@ -416,6 +421,8 @@ const OnBoardingMain: React.FC = () => {
       setIsMobile(true);
     else 
       setIsMobile(false);
+
+    StorageDeleteItem("RegisterCallback");
 
   }, []);
 
@@ -509,7 +516,8 @@ const OnBoardingMain: React.FC = () => {
 
                   <div className="app_onboarding_carusel_area" style={ isMobile ? {bottom: '45px'} : {}}>
 
-                    <div className="app_onboarding_carusel_left">Пропустить</div>
+                    <div className="app_onboarding_carusel_left"
+                    onClick={OnBoardingSkip}>Пропустить</div>
 
                     <div className="app_onboarding_carusel_center">
                       <div className={PageFillUp(1)} onClick={() => setCurrentPage(1)}></div>
@@ -522,7 +530,7 @@ const OnBoardingMain: React.FC = () => {
                     
                   </div>
 
-                  {(isMobile) && <div className="app_mobile_footer">@SimbirFoodbot</div>}
+                  {(isMobile) && <div className="app_mobile_footer">Симбир Еда</div>}
             
               </div>
                 

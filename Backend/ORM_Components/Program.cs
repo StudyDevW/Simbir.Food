@@ -40,6 +40,7 @@ namespace ORM_Components
 
             builder.Services.AddSingleton<ICacheService, CacheSDK>();
 
+
             var app = builder.Build();
 
             using (var serviceScope = app.Services.CreateScope())

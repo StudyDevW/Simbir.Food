@@ -24,6 +24,7 @@ body
     width: 100%
     max-width: 1000px
     height: 100%
+    overflow: hidden
 
 .app_background_area
     display: flex
@@ -108,6 +109,19 @@ body
     100%
         transform: translateY(0%)
 
+@keyframes app_content_open_maps
+    0%
+        height: 20%
+    100%
+        height: 100%
+
+@keyframes app_content_open_maps_mobile
+    0%
+        height: 20%
+    100%
+        height: calc(100% - 100px)
+
+
 .app_maincontent
     display: flex
     flex-direction: column
@@ -117,6 +131,302 @@ body
     height: 100%
     background-color: white
     border-radius: 30px 30px 0px 0px
+    overflow-y: scroll
+
+
+.app_maincontent.maps
+    position: fixed
+    bottom: 0
+    max-width: 1000px
+    width: 100%
+    height: 20%
+    animation: app_content_open 1.0s forwards
+    overflow-y: hidden
+    
+.app_maincontent.maps.clicked
+    animation: app_content_open_maps 0.6s forwards
+    z-index: 6
+    overflow-y: scroll
+
+.app_maincontent.maps.clicked.mobile
+    animation: app_content_open_maps_mobile 0.6s forwards
+    z-index: 6
+
+.app_maincontent_reg_text
+    position: absolute
+    width: 100%
+    height: 100%
+    text-align: center
+    align-content: center
+    font-family: MUSEOSANS
+    font-size: 18px
+    color: black
+
+
+.app_maincontent_searchbar
+    flex: none
+    font-family: MUSEOSANS
+    font-size: 20px
+    position: absolute
+    padding: 0px 40px
+    width: calc(100% - 20px * 2 - 40px)
+    height: 35px
+    background-color: #D9D9D9
+    border-radius: 10px
+    border: none
+    outline: none
+    
+
+.app_maincontent_searchbar_icon
+    width: 40px
+    height: 100%
+    background-image: url(./images/loupe.png)
+    background-size: 23px
+    background-position: center
+    background-repeat: no-repeat
+    z-index: 5
+
+.app_maincontent_searchbar_text
+    font-family: MUSEOSANS
+    white-space: pre
+    margin-left: 0px
+    font-size: 18px
+
+.app_maincontent_address_button_area
+    position: relative
+    display: flex
+    flex-direction: row
+    width: calc(100% - 20px * 2)
+    margin-left: 20px
+    margin-top: 10px
+    height: 45px
+
+.app_maincontent_address_button_complete
+    position: relative
+    font-family: MUSEOSANS
+    text-align: center
+    align-content: center
+    width: calc(100% - 60px)
+    height: 100%
+    background-color: black
+    color: white
+    border-radius: 10px
+
+.app_maincontent_address_button_complete.change
+    margin-left: 10px
+    width: 50px
+    background-image: url(./images/pencil.png)
+    background-size: 30px
+    background-position: center
+    background-repeat: no-repeat
+
+@keyframes profile_open_background
+    0%
+        backdrop-filter: blur(0px)
+        background-color: rgb(0, 0, 0, 0.0)
+    100%
+        backdrop-filter: blur(2px)
+        background-color: rgb(0, 0, 0, 0.2)
+
+@keyframes profile_open_foreground
+    0%
+        transform: translateX(300px)
+    100%
+        transform: translateX(0px)
+
+@keyframes profile_close_background
+    0%
+        backdrop-filter: blur(2px)
+        background-color: rgb(0, 0, 0, 0.2)
+    100%
+        backdrop-filter: blur(0px)
+
+@keyframes profile_close_foreground
+    0%
+        transform: translateX(0px)
+    100%
+        transform: translateX(300px)
+
+
+.app_profile_area
+    position: absolute
+    width: 100%
+    height: 100vh
+    z-index: 1
+    animation: profile_open_background 1s forwards
+
+.app_profile_area.closed 
+    animation: profile_close_background 0.6s forwards
+
+.app_profile_area_panel
+    position: absolute
+    display: flex
+    flex-direction: column
+    right: 0
+    width: 300px
+    max-width: calc(1000px - 300px)
+    height: 100vh
+    background-color: #EAEAEA
+    border-top: 1px solid white
+    border-right: 1px solid white
+    animation: profile_open_foreground 0.5s forwards
+    z-index: 50
+    overflow: scroll
+    -webkit-overflow-scrolling: auto
+
+.app_profile_area_panel.closed
+    animation: profile_close_foreground 0.5s forwards
+
+.app_profile_info_area
+    flex: none
+    align-items: center
+    position: relative
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    margin-top: 10px
+    margin-left: 10px
+    width: calc(100% - 10px * 2)
+    height: 80px
+    background-color: white
+    border-radius: 10px
+    
+.app_profile_info_avatar
+    margin-left: 10px
+    position: relative
+    width: 60px
+    height: 60px
+    border-radius: 50px
+    background-color: white
+    background-position: center
+    background-size: contain
+    background-repeat: no-repeat
+
+.app_profile_info_name_area
+    align-content: center
+    flex: none
+    position: relative
+    width: 200px
+    height: calc(80%)
+
+
+.app_profile_info_name
+    margin-top: 3px
+    margin-left: 10px
+    font-family: MUSEOSANS
+    font-size: 17px
+
+.app_profile_info_name.small
+    font-size: 13px
+    color: rgb(34, 34, 34)
+    margin-top: 0px
+
+.app_profile_info_role
+    flex: none
+    position: relative
+    color: white
+    margin-top: 7px
+    margin-left: 10px
+    height: 20px
+
+.app_profile_info_role.marginedout
+    margin-top: 3px
+
+.app_profile_elements_address
+    font-family: MUSEOSANS
+    flex: none
+    font-size: 15px
+    align-content: center
+    padding-left: 10px
+    position: relative
+    margin-top: 10px
+    margin-left: 10px
+    width: calc(100% - 10px * 2 - 10px)
+    height: 35px
+    background-color: white
+    border-radius: 8px
+    user-select: none
+
+.app_profile_elements
+    display: flex
+    flex-direction: row
+    align-items: center
+    position: relative
+    margin-top: 10px
+    margin-left: 10px
+    width: calc(100% - 10px * 2)
+    height: 35px
+    background-color: white
+    border-radius: 8px
+    user-select: none
+
+.app_profile_elements_icon
+    width: 35px
+    height: 35px
+    margin-left: 0px
+    background-position: center
+    background-size: 26px
+    background-repeat: no-repeat
+
+.app_profile_elements_name
+    flex: none
+    flex-direction: column
+    margin-left: 2px
+    font-family: MUSEOSANS
+    font-size: 15px
+    height: 100%
+    align-content: center
+    justify-content: center
+
+.app_profile_elements_desc
+    flex: none
+    flex-direction: column
+    position: absolute
+    right: 0
+    margin-right: 10px
+    font-family: MUSEOSANS
+    font-size: 12px
+    color: rgb(85, 85, 85)
+    height: 100%
+    align-content: center
+    justify-content: center
+
+.app_profile_elements_separator
+    margin-top: 15px
+    margin-left: 10px
+    font-family: MUSEOSANS
+    font-size: 15px
+
+.app_profile_elements_desc.mobile
+    margin-top: 3px
+
+.app_profile_elements_name.mobile
+    margin-top: 3px
+
+.app_profile_info_role_text
+    position: absolute
+    font-family: MUSEOSANS
+    font-size: 15px
+    padding: 2px 5px 2px 5px
+    background-color: black
+    border-radius: 5px
+
+.app_profile_info_role_text.small
+    font-size: 13px
+
+
+.app_maincontent_searchbar_decor
+    display: flex
+    flex: none
+    flex-direction: row
+    align-items: center
+    position: relative
+    margin-top: 60px
+    margin-left: 20px
+    width: calc(100% - 20px * 2)
+    height: 35px
+    background-color: #D9D9D9
+    border-radius: 10px
 
 .app_maincontent_title
     font-family: MUSEOSANS
@@ -136,16 +446,18 @@ body
 .app_delivery_header_profile
     position: absolute
     right: 0
-    margin-right: 15px
-    width: 50px
-    height: 50px
+    margin-top: 5px
+    margin-right: 20px
+    width: 40px
+    height: 40px
+    border-radius: 20px
     background-image: url(./images/avatar.png)
     background-position: center
-    background-size: 36px
+    background-size: contain
     background-repeat: no-repeat
 
 .app_mobile_footer 
-    position: absolute
+    position: fixed
     bottom: 0px
     text-align: center
     align-content: center
@@ -155,3 +467,20 @@ body
     width: 100%
     height: 45px
     background-color: #004681
+    z-index: 7
+
+.app_suggestion_button
+    flex: none
+    position: relative
+    align-content: center
+    font-family: MUSEOSANS
+    font-size: 15px
+    color: black
+    margin-left: 20px
+    margin-top: 5px
+    margin-bottom: 5px
+    width: calc(100% - 20px * 2 - 15px)
+    height: 50px
+    padding-left: 15px
+    background-color: rgb(240, 240, 240)
+    border-radius: 10px

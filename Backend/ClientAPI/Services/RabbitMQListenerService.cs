@@ -1,40 +1,85 @@
 ﻿using ClientAPI.Interfaces;
 using Middleware_Components.Broker;
-using ORM_Components.DTO.CourierAPI;
+using ORM_Components.DTO.PaymentAPI;
+using Telegram.Bot.Types;
+using Telegram_Components.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace ClientAPI.Services
 {
     public class RabbitMQListenerService : BackgroundService
     {
-        private readonly RabbitMQService _rabbitMQService;
-        private readonly IDatabaseService _dataService;
+        private readonly IRabbitMQService _rabbitMQService;
+        private readonly IMessageSender _tgmessage;
+        private readonly IDatabaseService _database;
 
-        public RabbitMQListenerService(RabbitMQService rabbitMQService, IDatabaseService dataService)
+        public RabbitMQListenerService(IDatabaseService database, IMessageSender tgmessage, IRabbitMQService rabbitMQService)
         {
             _rabbitMQService = rabbitMQService;
-            _dataService = dataService;
+            _tgmessage = tgmessage;
+            _database = database;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Task.Run(() =>
             {
-                _rabbitMQService.StartListening<OrderIdsDto>("order_review_queue", orderIdsDto =>
+                _rabbitMQService.StartListening<Payment_Success_Queue>("payment_to_client", async dtoClaimed =>
                 {
-                    //TODO Антон твоя часть
+                    await InsertMoneyForUser(dtoClaimed.user_id, dtoClaimed.money_value);
                 });
-                _rabbitMQService.StartListening<CourierDto>("test_courier_client", courierDto =>
+
+                _rabbitMQService.StartListening<Payment_Success_Queue>("payment_to_client_access_moneyback", async dtoClaimedsec =>
                 {
-                    //Пример 
-                    Console.WriteLine($"-----Получено сообщение из CourierAPI-----\n" +
-                        $"Id: {courierDto.Id};\n" +
-                        $"UserId: {courierDto.userId};\n" +
-                        $"Car_number: {courierDto.car_number};\n" +
-                        $"Status: {courierDto.status}");
+                    await DecreaseMoney(dtoClaimedsec.user_id, dtoClaimedsec.money_value);
                 });
+
+                _rabbitMQService.StartListening<Payment_Success_Queue>("payment_to_client_error", async dtoClaimedsec =>
+                {
+                    await InsertMoneyForUserWithError(dtoClaimedsec.user_id, dtoClaimedsec.money_value);
+                });
+
             }, stoppingToken);
 
+
+
             return Task.CompletedTask;
+        }
+
+        protected async Task InsertMoneyForUser(Guid userGUID, long money_value)
+        {
+            var chatId = _database.GetTelegramChatId(userGUID);
+
+            await _database.InsertMoney(userGUID, money_value);
+
+            var moneyValue = _database.GetUserBalance(userGUID);
+
+            await _tgmessage.SendHtml(chatId, $"Счет успешно пополнен\nВаш баланс: <tg-spoiler>{moneyValue}</tg-spoiler> руб");
+        }
+
+        protected async Task DecreaseMoney(Guid userGUID, long money_value)
+        {
+            var chatId = _database.GetTelegramChatId(userGUID);
+
+            await _database.DecreaseMoney(userGUID, money_value);
+
+            var moneyValue = _database.GetUserBalance(userGUID);
+
+
+            await _tgmessage.SendHtml(chatId, $"С вашего баланса списаны <tg-spoiler>{money_value}</tg-spoiler> руб\nОстаток баланса: <tg-spoiler>{moneyValue}</tg-spoiler> руб");
+
+        }
+
+        protected async Task InsertMoneyForUserWithError(Guid userGUID, long money_value)
+        {
+            var chatId = _database.GetTelegramChatId(userGUID);
+
+            await _database.InsertMoney(userGUID, money_value);
+
+            var moneyValue = _database.GetUserBalance(userGUID);
+
+            await _tgmessage.SendHtml(chatId, $"Неправильно была указана карта");
+
         }
     }
 }
