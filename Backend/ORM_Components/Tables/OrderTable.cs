@@ -4,21 +4,19 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ORM_Components.Tables.Helpers;
 
 namespace ORM_Components.Tables
 {
-    public class OrderTable
+    public class OrderTable : IId
     {
-        [Key]
-        public int id { get; set; }
+        public Guid client_id { get; set; }
 
-        public int client_id { get; set; }
+        public Guid restaurant_id { get; set; }
 
-        public int restaurant_id { get; set; }
+        public Guid? courier_id { get; set; }
 
-        public int? courier_id { get; set; }
-
-        public string status { get; set; }
+        public OrderStatus status { get; set; }
 
         public long total_price { get; set; }
 

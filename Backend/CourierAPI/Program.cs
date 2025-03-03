@@ -1,5 +1,5 @@
-using CourierAPI.Contracts;
-using CourierAPI.Service;
+//using CourierAPI.Contracts;
+//using CourierAPI.Service;
 using DotNetEnv;
 using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -127,7 +127,7 @@ namespace CourierAPI
 
             var mapsterConfig = new OrderConfig();
             builder.Services.AddScoped<OrderConfig>();
-            builder.Services.AddScoped<ICourierService, CourierService>();
+            //builder.Services.AddScoped<ICourierService, CourierService>();
 
             var app = builder.Build();
 

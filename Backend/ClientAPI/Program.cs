@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.HttpOverrides;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -13,7 +13,6 @@ using ClientAPI.Interfaces;
 using ClientAPI.Services;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Middleware_Components.Broker;
 
 namespace ClientAPI

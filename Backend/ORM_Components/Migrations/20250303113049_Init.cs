@@ -226,8 +226,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "calories", "image", "name", "price", "restaurant_id", "weight" },
                 values: new object[,]
                 {
-                    { new Guid("8afbef81-b8ac-4824-bc75-10a8b048c1e6"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
-                    { new Guid("e05f8055-17c7-48c3-af6b-61590251b6df"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
+                    { new Guid("c0d6cf45-f6c9-460f-9023-b2aa533453d7"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
+                    { new Guid("d32dbf53-af51-4bf4-b751-0b6f9b2ae02d"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
                 });
 
             migrationBuilder.InsertData(
@@ -235,7 +235,7 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "address", "close_time", "description", "imagePath", "open_time", "phone_number", "restaurantName", "status", "user_id" },
                 values: new object[,]
                 {
-                    { new Guid("3d64bfbf-afd0-404f-9e1e-12bca7821af2"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
+                    { new Guid("330fbf17-55f3-44cb-8114-75f05f02431b"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
                     { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "NONE", "10:00", "+78005555535", "Тестовый ресторан", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
                 });
 

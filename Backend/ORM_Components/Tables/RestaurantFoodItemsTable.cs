@@ -4,15 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ORM_Components.Tables.Helpers;
 
 namespace ORM_Components.Tables
 {
-    public class RestaurantFoodItemsTable
+    public class RestaurantFoodItemsTable : IId
     {
-        [Key]
-        public int id { get; set; }
-
-        public int restaurant_id { get; set; }
+        public Guid restaurant_id { get; set; }
 
         public string name { get; set; }
 

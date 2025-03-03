@@ -1,33 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-	  <TargetFramework>net6.0</TargetFramework>
-	  <Nullable>enable</Nullable>
-	  <ImplicitUsings>enable</ImplicitUsings>
-	  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	  <UserSecretsId>82e25277-1d62-4fbe-8052-20f1819ca01e</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<UserSecretsId>82e25277-1d62-4fbe-8052-20f1819ca01e</UserSecretsId>
+	</PropertyGroup>
 
 
-  <ItemGroup>
-	  
-	   <PackageReference Include="DotNetEnv" Version="3.1.1" />
-	   <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
-			<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
-				<PrivateAssets>all</PrivateAssets>
-				<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			</PackageReference>
-			<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.5">
-				<PrivateAssets>all</PrivateAssets>
-				<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	   </PackageReference>
-			<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
-  	   <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.5" />
-  </ItemGroup>
+	<ItemGroup>
+
+		<PackageReference Include="DotNetEnv" Version="3.1.1" />
+
+		<PackageReference Include="FluentValidation" Version="11.11.0" />
+
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+		<PackageReference Include="Mapster" Version="7.4.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.5" />
+		<PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <ProjectReference Include="..\Middleware_Components\Middleware_Components.csproj" />
-  </ItemGroup>
-	  
+	<ItemGroup>
+		<ProjectReference Include="..\Middleware_Components\Middleware_Components.csproj" />
+	</ItemGroup>
+
 </Project>

@@ -4,21 +4,19 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ORM_Components.Tables.Helpers;
 
 namespace ORM_Components.Tables
 {
-    public class ReviewTable
+    public class ReviewTable : IId
     {
-        [Key]
-        public int id { get; set; }
+        public Guid order_id { get; set; }
 
-        public int order_id { get; set; }
+        public Guid client_id { get; set; }
 
-        public int client_id { get; set; }
+        public Guid? courier_id { get; set; }
 
-        public int? courier_id { get; set; }
-
-        public int? restaurant_id { get; set; }
+        public Guid? restaurant_id { get; set; }
 
         public int rating { get; set; }
 
