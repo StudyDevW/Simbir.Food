@@ -14,6 +14,7 @@ using ClientAPI.Services;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Middleware_Components.Broker;
 
 namespace ClientAPI
 {
@@ -69,8 +70,8 @@ namespace ClientAPI
 
                 var basePath = AppContext.BaseDirectory;
 
-                // var xmlPath = Path.Combine(basePath, "apidocs.xml");
-                // o.IncludeXmlComments(xmlPath);
+                var xmlPath = Path.Combine(basePath, "apidocs.xml");
+                o.IncludeXmlComments(xmlPath);
             });
 
             builder.Services.AddAuthentication(o =>
@@ -113,16 +114,12 @@ namespace ClientAPI
                 var connectString = builder.Configuration["DATABASE_CONNECT"];
 
                 if (connectString != null)
-                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ClientAPI"));
+                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ORM_Components"));
             });
 
             builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 
             builder.Services.AddScoped<IClientService, ClientService>();
-
-            builder.Services.AddSingleton<IMessageSender>(
-                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
-            );
 
             builder.Services.AddScoped<ISessionService, SessionService>();
 
@@ -130,6 +127,15 @@ namespace ClientAPI
 
             builder.Services.AddScoped<ICacheService, CacheSDK>();
 
+            builder.Services.AddSingleton<IMessageSender>(
+                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
+            );
+
+            builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+
+            builder.Services.AddHostedService<RabbitMQListenerService>();
+
+            //Политика Cors для фронта
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",

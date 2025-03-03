@@ -16,7 +16,7 @@ namespace ORM_Components.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     card_number = table.Column<string>(type: "text", nullable: false),
                     cvv = table.Column<string>(type: "text", nullable: false),
-                    money_value = table.Column<string>(type: "text", nullable: false),
+                    money_value = table.Column<long>(type: "bigint", nullable: false),
                     name_card = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -67,14 +67,26 @@ namespace ORM_Components.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "orderHistory",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    order_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    status_datetime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_orderHistory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "orderItemsTable",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    restaraunt_food_item = table.Column<int>(type: "integer", nullable: false),
-                    price = table.Column<int>(type: "integer", nullable: false),
-                    quantity = table.Column<int>(type: "integer", nullable: false)
+                    restaraunt_food_item = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -90,7 +102,7 @@ namespace ORM_Components.Migrations
                     restaurant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     courier_id = table.Column<Guid>(type: "uuid", nullable: true),
                     status = table.Column<int>(type: "integer", nullable: false),
-                    total_price = table.Column<int>(type: "integer", nullable: false),
+                    total_price = table.Column<long>(type: "bigint", nullable: false),
                     order_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -103,7 +115,7 @@ namespace ORM_Components.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    order_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     pay_status = table.Column<int>(type: "integer", nullable: false),
                     date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     card_number = table.Column<string>(type: "text", nullable: false)
@@ -136,7 +148,7 @@ namespace ORM_Components.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     restaurant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
-                    price = table.Column<int>(type: "integer", nullable: false),
+                    price = table.Column<long>(type: "bigint", nullable: false),
                     image = table.Column<string>(type: "text", nullable: false),
                     weight = table.Column<int>(type: "integer", nullable: false),
                     calories = table.Column<int>(type: "integer", nullable: false)
@@ -205,12 +217,17 @@ namespace ORM_Components.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "bankCardTable",
+                columns: new[] { "Id", "card_number", "cvv", "money_value", "name_card" },
+                values: new object[] { new Guid("e11ba92a-649b-4ea7-8881-c4d7840be3a0"), "0000 1234 0000 4321", "123", 1000000L, "Virtual Card" });
+
+            migrationBuilder.InsertData(
                 table: "restaurantFoodItemsTable",
                 columns: new[] { "Id", "calories", "image", "name", "price", "restaurant_id", "weight" },
                 values: new object[,]
                 {
-                    { new Guid("c91c9870-6c16-457e-a068-80b670acf4cb"), 1000, "NONE", "Тестовое блюдо 2", 1200, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
-                    { new Guid("cbabff20-406c-4449-aa55-4b677f8b9242"), 2000, "NONE", "Тестовое блюдо", 1000, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
+                    { new Guid("8afbef81-b8ac-4824-bc75-10a8b048c1e6"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
+                    { new Guid("e05f8055-17c7-48c3-af6b-61590251b6df"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
                 });
 
             migrationBuilder.InsertData(
@@ -218,8 +235,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "address", "close_time", "description", "imagePath", "open_time", "phone_number", "restaurantName", "status", "user_id" },
                 values: new object[,]
                 {
-                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "NONE", "10:00", "+78005555535", "Тестовый ресторан", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
-                    { new Guid("7f07efc0-2d96-4763-8069-b31b0d3b0b43"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
+                    { new Guid("3d64bfbf-afd0-404f-9e1e-12bca7821af2"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
+                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "NONE", "10:00", "+78005555535", "Тестовый ресторан", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
                 });
 
             migrationBuilder.InsertData(
@@ -241,6 +258,9 @@ namespace ORM_Components.Migrations
 
             migrationBuilder.DropTable(
                 name: "courierTable");
+
+            migrationBuilder.DropTable(
+                name: "orderHistory");
 
             migrationBuilder.DropTable(
                 name: "orderItemsTable");

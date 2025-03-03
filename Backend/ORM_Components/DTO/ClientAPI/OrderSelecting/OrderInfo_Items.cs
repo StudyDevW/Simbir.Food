@@ -1,6 +1,6 @@
-﻿namespace ORM_Components.DTO.ClientAPI.Basket
+﻿namespace ORM_Components.DTO.ClientAPI.OrderSelecting
 {
-    public class Basket_GetAll_Item
+    public class OrderInfo_Items
     {
         public Guid restaurant_id { get; set; }
 

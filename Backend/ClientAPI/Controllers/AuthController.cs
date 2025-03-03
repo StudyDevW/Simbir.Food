@@ -24,6 +24,11 @@ namespace ClientAPI.Controllers
             _jwt = jwt;
         }
 
+
+        /// <summary>
+        /// Вход в приложение
+        /// </summary>
+        /// <returns></returns>
         [HttpPatch("UserAuth")]
         public async Task<IActionResult> UserTelegramAuth([FromBody] AuthAddUser dtoObj)
         {
@@ -44,6 +49,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Создание заявки на регистрацию
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("UserRegister")]
         public async Task<IActionResult> UserTelegramRegister([FromBody] AuthAddUser dtoObj)
         {
@@ -59,6 +68,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Проверка токена
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Validate")]
         public async Task<IActionResult> ValidateToken([Required][FromHeader(Name = "accessToken")] string? token)
         {
@@ -83,6 +96,10 @@ namespace ClientAPI.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Выход из приложения
+        /// </summary>
+        /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpPut("SignOut")]
         public async Task<IActionResult> UserSignOut()
@@ -97,6 +114,10 @@ namespace ClientAPI.Controllers
             return Unauthorized();
         }
 
+        /// <summary>
+        /// Обновление токенов
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("Refresh")]
         public async Task<IActionResult> UserRefreshTokens([FromBody] Auth_RefreshTokens dtoObj)
         {

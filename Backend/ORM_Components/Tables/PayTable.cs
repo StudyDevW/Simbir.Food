@@ -4,7 +4,7 @@ namespace ORM_Components.Tables
 {
     public class PayTable : IId
     {
-        public Guid order_id { get; set; }
+        public Guid user_id { get; set; }
 
         public PayStatus pay_status { get; set; }
 

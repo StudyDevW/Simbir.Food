@@ -21,6 +21,10 @@ namespace ClientAPI.Controllers
             _jwt = jwt;
         }
 
+        /// <summary>
+        /// Прекратить работу выбранного ресторана
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("Restaurant/{id}")]
         public async Task<IActionResult> DowngradeRestaurant(Guid id, Downgrade dtoObj)
         {
@@ -36,6 +40,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Прекратить работу выбранного курьера
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("Courier/{id}")]
         public async Task<IActionResult> DowngradeCourier(Guid id, Downgrade dtoObj)
         {
@@ -50,6 +58,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Возобновить работу выбранного ресторана
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("Restaurant/{id}")]
         public async Task<IActionResult> UpgradeRestaurant(Guid id)
         {
@@ -64,6 +76,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Возобновить работу выбранного курьера
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("Courier/{id}")]
         public async Task<IActionResult> UpgradeCourier(Guid id)
         {
@@ -78,6 +94,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Получить все что приостановленно
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAllFrozenEntities()
         {

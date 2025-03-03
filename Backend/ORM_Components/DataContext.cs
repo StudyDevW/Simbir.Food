@@ -31,6 +31,8 @@ namespace ORM_Components
 
         public DbSet<OrderTable> orderTable { get; set; }
 
+        public DbSet<OrderStatusHistoryTable> orderHistory { get; set; }
+
         public DbSet<RestaurantTable> restaurantTable { get; set; }
 
         public DbSet<RestaurantFoodItemsTable> restaurantFoodItemsTable { get; set; }
@@ -123,7 +125,17 @@ namespace ORM_Components
                 }
             );
 
-      
+            //Виртуальная карта
+            modelBuilder.Entity<BankCardTable>().HasData(
+                new BankCardTable()
+                {
+                    Id = Guid.Parse("e11ba92a-649b-4ea7-8881-c4d7840be3a0"),
+                    card_number = "0000 1234 0000 4321",
+                    cvv = "123",
+                    money_value = 1000000,
+                    name_card = "Virtual Card"
+                }
+            );
 
             base.OnModelCreating(modelBuilder);
         }

@@ -1,4 +1,5 @@
 ﻿using ClientAPI.Interfaces;
+using Middleware_Components.Broker;
 using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
@@ -6,7 +7,9 @@ using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.ClientAPI.Basket;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
+using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
+using ORM_Components.DTO.PaymentAPI;
 using Telegram_Components.Interfaces;
 
 namespace ClientAPI.Services
@@ -19,6 +22,7 @@ namespace ClientAPI.Services
         private readonly ICacheService _cache;
         private readonly ILogger _logger;
         private readonly IMessageSender _tgmessage;
+        private readonly IRabbitMQService _rabbitMQService;
 
         enum StepsAuth
         {
@@ -26,7 +30,7 @@ namespace ClientAPI.Services
             StepUpdated
         }
 
-        public ClientService(IMessageSender tgmessage, ISessionService session, IDatabaseService database, IJwtService jwt, ICacheService cache)
+        public ClientService(IRabbitMQService rabbitMQService, IMessageSender tgmessage, ISessionService session, IDatabaseService database, IJwtService jwt, ICacheService cache)
         {
 
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("client-service-logger");
@@ -34,6 +38,7 @@ namespace ClientAPI.Services
             _jwt = jwt;
             _cache = cache;
             _session = session;
+            _rabbitMQService = rabbitMQService;
             _tgmessage = tgmessage;
         }
 
@@ -793,6 +798,128 @@ namespace ClientAPI.Services
             }
 
             return null;
+        }
+
+        public async Task CreateOrder(string bearer_key)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                var order = await _database.CreateOrder(validation.token_success.Id);
+
+                var moneyValue = _database.GetUserBalance(validation.token_success.Id);
+
+                var chatId = _database.GetTelegramChatId(validation.token_success.Id);
+
+                //Отправка в ресторан
+                _rabbitMQService.SendMessage<Order_DTO>("client_to_restaurant", order);
+
+                //Сообщение пользователю
+                await _tgmessage.SendHtml(chatId, $"Заказ {order.id} оплачен\nОстаток баланса: <tg-spoiler>{moneyValue}</tg-spoiler> руб");
+            }
+        }
+
+        public async Task<OrderInfo?> GetOrderFromId(string bearer_key, Guid orderId)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                var order = _database.GetOrderInfoFromId(orderId);
+
+                return order;
+            }
+
+            return null;
+        }
+
+        public async Task<List<OrderInfo>?> GetAllOrders(string bearer_key)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                var order = _database.GetAllOrders(validation.token_success.Id);
+
+                return order;
+            }
+
+            return null;
+        }
+
+        public async Task<List<OrderInfo_History>?> GetAllHistoryOrder(string bearer_key, Guid orderId)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                if (validation.token_success.userRoles.Contains("Admin"))
+                {
+                    var order = _database.GetHistoryStatusOrder(orderId);
+
+                    return order;
+                }
+                else
+                {
+                    throw new Exception("role_invalid");
+                }
+
+             
+            }
+
+            return null;
+        }
+
+        public async Task MoneyOut(string bearer_key, PaymentOut dtoObj)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                _logger.LogWarning($"Было запрошено ({dtoObj.money_value} руб)");
+
+                if (_database.ExistMoney(validation.token_success.Id, dtoObj.money_value))
+                {
+                    var chatId = _database.GetTelegramChatId(validation.token_success.Id);
+
+                    //await _database.DecreaseMoney(validation.token_success.Id, dtoObj.money_value);
+
+                    var moneyValue = _database.GetUserBalance(validation.token_success.Id);
+
+                    await _tgmessage.SendHtml(chatId, $"Запрос на вывод с баланса: <tg-spoiler>{dtoObj.money_value}</tg-spoiler> руб");
+
+                    _rabbitMQService.SendMessage("client_to_payment", new Payment_Out_Queue()
+                    {
+                        card_number = dtoObj.card_number,
+                        money_value = dtoObj.money_value,
+                        user_id = validation.token_success.Id
+                    });
+
+                    _logger.LogWarning($"Было отправлено ({dtoObj.money_value} руб)");
+
+                }
+            }
         }
     }
 }

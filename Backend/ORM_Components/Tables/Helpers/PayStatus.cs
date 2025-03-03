@@ -4,6 +4,7 @@
     {
         Success,
         MoneyNotExist,
-        CardUnverified
+        CardUnverified,
+        MoneyBack
     }
 }

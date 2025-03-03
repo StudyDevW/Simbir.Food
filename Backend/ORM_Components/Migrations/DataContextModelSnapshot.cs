@@ -36,9 +36,8 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("money_value")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<long>("money_value")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("name_card")
                         .IsRequired()
@@ -47,6 +46,16 @@ namespace ORM_Components.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("bankCardTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e11ba92a-649b-4ea7-8881-c4d7840be3a0"),
+                            card_number = "0000 1234 0000 4321",
+                            cvv = "123",
+                            money_value = 1000000L,
+                            name_card = "Virtual Card"
+                        });
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.BasketTable", b =>
@@ -120,18 +129,32 @@ namespace ORM_Components.Migrations
                     b.Property<Guid>("order_id")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("price")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("restaraunt_food_item")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("restaraunt_food_item")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.ToTable("orderItemsTable");
+                });
+
+            modelBuilder.Entity("ORM_Components.Tables.OrderStatusHistoryTable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("order_id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("status_datetime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("orderHistory");
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.OrderTable", b =>
@@ -155,8 +178,8 @@ namespace ORM_Components.Migrations
                     b.Property<int>("status")
                         .HasColumnType("integer");
 
-                    b.Property<int>("total_price")
-                        .HasColumnType("integer");
+                    b.Property<long>("total_price")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -176,11 +199,11 @@ namespace ORM_Components.Migrations
                     b.Property<DateTime>("date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("order_id")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("pay_status")
                         .HasColumnType("integer");
+
+                    b.Property<Guid>("user_id")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -231,8 +254,8 @@ namespace ORM_Components.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("price")
-                        .HasColumnType("integer");
+                    b.Property<long>("price")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("restaurant_id")
                         .HasColumnType("uuid");
@@ -247,21 +270,21 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("cbabff20-406c-4449-aa55-4b677f8b9242"),
+                            Id = new Guid("8afbef81-b8ac-4824-bc75-10a8b048c1e6"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
-                            price = 1000,
+                            price = 1000L,
                             restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
                             weight = 100
                         },
                         new
                         {
-                            Id = new Guid("c91c9870-6c16-457e-a068-80b670acf4cb"),
+                            Id = new Guid("e05f8055-17c7-48c3-af6b-61590251b6df"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
-                            price = 1200,
+                            price = 1200L,
                             restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
                             weight = 100
                         });
@@ -327,7 +350,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7f07efc0-2d96-4763-8069-b31b0d3b0b43"),
+                            Id = new Guid("3d64bfbf-afd0-404f-9e1e-12bca7821af2"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",

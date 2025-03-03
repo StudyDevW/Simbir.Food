@@ -3,10 +3,13 @@ using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Middleware_Components.Broker;
 using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
+using PaymentAPI.Interfaces;
+using PaymentAPI.Services;
 using System.Security.Cryptography;
 
 namespace PaymentAPI
@@ -63,8 +66,8 @@ namespace PaymentAPI
 
                 var basePath = AppContext.BaseDirectory;
 
-                // var xmlPath = Path.Combine(basePath, "apidocs.xml");
-                // o.IncludeXmlComments(xmlPath);
+                var xmlPath = Path.Combine(basePath, "apidocs.xml");
+                o.IncludeXmlComments(xmlPath);
             });
 
             builder.Services.AddAuthentication(o =>
@@ -107,19 +110,24 @@ namespace PaymentAPI
                 var connectString = builder.Configuration["DATABASE_CONNECT"];
 
                 if (connectString != null)
-                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("PaymentAPI"));
+                    options.UseNpgsql(connectString, b => b.MigrationsAssembly("ORM_Components"));
             });
 
-            //builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
 
-            builder.Services.AddSingleton<IJwtService, JwtSDK>();
+            builder.Services.AddScoped<IJwtService, JwtSDK>();
 
-            builder.Services.AddSingleton<ICacheService, CacheSDK>();
+            builder.Services.AddScoped<ICacheService, CacheSDK>();
 
+            builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+
+            builder.Services.AddHostedService<RabbitMQListenerService>();
+
+            //Политика Cors для фронта
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
-                    builder => builder.WithOrigins("http://localhost:4001", "http://localhost")
+                    builder => builder.WithOrigins("http://localhost:4001", "http://localhost", "https://impressively-confident-puffin.cloudpub.ru")
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });

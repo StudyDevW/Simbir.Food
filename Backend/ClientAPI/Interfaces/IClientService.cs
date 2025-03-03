@@ -3,7 +3,9 @@ using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.ClientAPI.Basket;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
+using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
+using ORM_Components.DTO.PaymentAPI;
 
 namespace ClientAPI.Interfaces
 {
@@ -62,5 +64,15 @@ namespace ClientAPI.Interfaces
         public Task UnfreezeCourierWithAdmin(string bearer_key, Guid userGUID);
 
         public Task<FrozenGetAll?> GetAllFrozenEntities(string bearer_key);
+
+        public Task CreateOrder(string bearer_key);
+
+        public Task<OrderInfo?> GetOrderFromId(string bearer_key, Guid orderId);
+
+        public Task<List<OrderInfo>?> GetAllOrders(string bearer_key);
+
+        public Task<List<OrderInfo_History>?> GetAllHistoryOrder(string bearer_key, Guid orderId);
+
+        public Task MoneyOut(string bearer_key, PaymentOut dtoObj);
     }
 }

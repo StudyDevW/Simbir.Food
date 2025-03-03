@@ -11,6 +11,8 @@ using Telegram.Bot.Types;
 using ORM_Components.Tables.Helpers;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
+using ORM_Components.DTO.ClientAPI.OrderSelecting;
+using Microsoft.Extensions.Logging;
 
 namespace ClientAPI.Services
 {
@@ -347,7 +349,7 @@ namespace ClientAPI.Services
 
             Basket_GetAll_Info basketInfo = new Basket_GetAll_Info();
 
-            int priceFinal = 0;
+            long priceFinal = 0;
             int countFinal = 0;
 
             var basketItemDbObj = _dbcontext.basketTable.Where(c => c.user_id == userGUID).ToListAsync();
@@ -923,6 +925,299 @@ namespace ClientAPI.Services
 
         }
 
+        private (long price, Guid restaurantId) GetPriceAndRestaurantIdFromBasket(List<BasketTable> selectedBasketItems)
+        {
+            long priceFinal = 0;
+            Guid restaurantId = Guid.Empty;
+
+            foreach (var basketItemDb in selectedBasketItems)
+            {
+                var selectedFoodItem = _dbcontext.restaurantFoodItemsTable.Where(c => c.Id == basketItemDb.food_item_id).FirstOrDefault();
+
+                if (selectedFoodItem != null)
+                {
+                    if (restaurantId == Guid.Empty)
+                        restaurantId = selectedFoodItem.restaurant_id;
+
+                    priceFinal += selectedFoodItem.price;
+                }
+            }
+
+            return (priceFinal, restaurantId);
+        }
+
+        private async Task BasketItemsToOrder(List<BasketTable> selectedBasketItems, Guid orderId)
+        {
+            foreach (var basketItemDb in selectedBasketItems)
+            {
+                var selectedFoodItem = _dbcontext.restaurantFoodItemsTable.Where(c => c.Id == basketItemDb.food_item_id).FirstOrDefault();
+
+                if (selectedFoodItem != null)
+                {
+                    OrderItemsTable orderItem = new OrderItemsTable()
+                    {
+                        order_id = orderId,
+                        restaraunt_food_item = selectedFoodItem.Id
+                    };
+
+                    _dbcontext.orderItemsTable.Add(orderItem);
+                    await _dbcontext.SaveChangesAsync();
+                }
+            }
+        }
+
+        private async Task<bool> BalanceOperated(Guid userGUID, long price_requested)
+        {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
+
+            if (selectedUser.money_value >= price_requested)
+            {
+                selectedUser.money_value -= price_requested;
+                await _dbcontext.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<Order_DTO> CreateOrder(Guid userGUID)
+        {
+            var selectedBasketItems = _dbcontext.basketTable.Where(c => c.user_id == userGUID).ToList();
+
+            if (selectedBasketItems.Count == 0)
+                throw new Exception("basket_was_empty");
+
+            var tupleBasket = GetPriceAndRestaurantIdFromBasket(selectedBasketItems);
+
+            //Проверка, хватает ли денег на балансе или нет. Если хватает то списываем
+            if (!(await BalanceOperated(userGUID, tupleBasket.price)))
+                throw new Exception("no_money_for_pay");
+
+            OrderTable orderRelease = new OrderTable()
+            {
+                client_id = userGUID,
+                courier_id = null,
+                restaurant_id = tupleBasket.restaurantId,
+                order_date = DateTime.UtcNow,
+                total_price = tupleBasket.price,
+                status = OrderStatus.AfterPay
+            };
+
+            //Создание заказа
+            _dbcontext.orderTable.Add(orderRelease);
+            await _dbcontext.SaveChangesAsync();
+
+            //Все айтемы из корзины в заказ
+            await BasketItemsToOrder(selectedBasketItems, orderRelease.Id);
+
+            //Очищаем корзину, ведь мы уже заказали
+            await DeleteFullBasket(userGUID);
+
+            OrderStatusHistoryTable orderStatusHistory = new OrderStatusHistoryTable()
+            {
+                order_id = orderRelease.Id,
+                status = OrderStatus.AfterPay,
+                status_datetime = DateTime.UtcNow
+            };
+            
+            //Записываем в историю что заказ был оплачен
+            _dbcontext.orderHistory.Add(orderStatusHistory);
+            await _dbcontext.SaveChangesAsync();
+
+            return new Order_DTO()
+            {
+                id = orderRelease.Id,
+                client_id = orderRelease.client_id,
+                courier_id = orderRelease.courier_id,
+                order_date = orderRelease.order_date,
+                restaurant_id = orderRelease.restaurant_id,
+                status = orderRelease.status,
+                total_price = orderRelease.total_price
+            };
+        }
+
+        public OrderInfo GetOrderInfoFromId(Guid orderId)
+        {
+            OrderInfo_Courier? orderCourier = null;
+
+            List<OrderInfo_Items> orderFoodItems = new List<OrderInfo_Items>();
+
+            var selectedOrder = _dbcontext.orderTable.Where(c => c.Id == orderId).FirstOrDefault();
+
+            if (selectedOrder == null)
+                throw new Exception("order_not_found");
+
+
+            var selectedRestaurant = _dbcontext.restaurantTable
+                .Where(c => c.Id == selectedOrder.restaurant_id).FirstOrDefault();
+
+            if (selectedRestaurant == null)
+                throw new Exception("restaurant_not_found");
+
+            OrderInfo_Restaurant orderRestaurant = new OrderInfo_Restaurant()
+            {
+                restaurant_id = selectedRestaurant.Id,
+                address = selectedRestaurant.address,
+                imagePath = selectedRestaurant.imagePath,
+                phone_number = selectedRestaurant.phone_number,
+                restaurantName = selectedRestaurant.restaurantName
+            };
+
+            var selectedItems = _dbcontext.orderItemsTable.Where(c => c.order_id == orderId).ToList();
+
+            foreach (var foodItem in selectedItems) {
+                var itemFromRestaurant = _dbcontext.restaurantFoodItemsTable
+                    .Where(c => c.Id == foodItem.restaraunt_food_item).FirstOrDefault();
+
+                if (itemFromRestaurant != null)
+                {
+                    OrderInfo_Items orderItem = new OrderInfo_Items()
+                    {
+                        restaurant_id = itemFromRestaurant.restaurant_id,
+                        name = itemFromRestaurant.name,
+                        calories = itemFromRestaurant.calories,
+                        image = itemFromRestaurant.image,
+                        price = itemFromRestaurant.price,
+                        weight = itemFromRestaurant.weight
+                    };
+
+                    orderFoodItems.Add(orderItem);
+                }
+            }
+
+
+            var selectedCourier = _dbcontext.courierTable
+                .Where(c => c.Id == selectedOrder.courier_id).FirstOrDefault();
+
+            if (selectedCourier != null)
+            {
+                var selectedCourierUser = _dbcontext.userTable
+                    .Where(c => c.Id == selectedCourier.userId).FirstOrDefault();
+
+                if (selectedCourierUser == null)
+                    throw new Exception("user_not_found");
+
+                orderCourier = new OrderInfo_Courier()
+                {
+                    courier_id = selectedCourier.Id,
+                    user_id = selectedCourierUser.Id,
+                    car_number = selectedCourier.car_number,
+                    address = selectedCourierUser.address,
+                    chat_id = selectedCourierUser.telegram_chat_id,
+                    first_name = selectedCourierUser.first_name,
+                    last_name = selectedCourierUser.last_name,
+                    photo_url = selectedCourierUser.photo_url,
+                    username = selectedCourierUser.username
+                };
+
+            }
+
+            var selectedHistoryOrder = _dbcontext.orderHistory.Where(c => c.order_id == selectedOrder.Id).OrderBy(x => x.status_datetime).FirstOrDefault();
+
+            var status_order_now = "Заказ оплачен, ожидаем ресторан";
+
+            if (selectedHistoryOrder == null)
+                throw new Exception("order_status_history_not_found");
+            
+            if (selectedHistoryOrder.status == OrderStatus.AfterPay)
+                status_order_now = "Заказ оплачен, ожидаем ресторан";
+
+            if (selectedHistoryOrder.status == OrderStatus.Accepted)
+                status_order_now = "Заказ принят и готовится";
+
+            if (selectedHistoryOrder.status == OrderStatus.Ready)
+                status_order_now = "Заказ готов, поиск курьера";
+
+            if (selectedHistoryOrder.status == OrderStatus.WaitingForDelivery)
+                status_order_now = "Курьер найден, осуществляется доставка";
+
+            if (selectedHistoryOrder.status == OrderStatus.CourierOnPlace)
+                status_order_now = "Курьер на месте";
+
+            if (selectedHistoryOrder.status == OrderStatus.Delivered)
+                status_order_now = "Заказ доставлен и получен";
+        
+
+            OrderInfo orderFinal = new OrderInfo()
+            {
+                courier_info = orderCourier,
+                order_date = selectedOrder.order_date,
+                order_id = selectedOrder.Id,
+                price_order = selectedOrder.total_price,
+                restaurant_info = orderRestaurant,
+                status_order = status_order_now,
+                last_status_change = selectedHistoryOrder.status_datetime,
+                food_items = orderFoodItems
+            };
+
+            return orderFinal;
+        }
+
+        public List<OrderInfo> GetAllOrders(Guid userGUID)
+        {
+            List<OrderInfo> orderInfos = new List<OrderInfo>();
+
+            var selectedOrders = _dbcontext.orderTable.Where(c => c.client_id == userGUID).ToList();
+
+            if (selectedOrders.Count == 0)
+                throw new Exception("orders_not_found");
+
+            foreach (var order in selectedOrders)
+            {
+                var orderInfo = GetOrderInfoFromId(order.Id);
+
+                orderInfos.Add(orderInfo);
+            }
+
+            return orderInfos;
+        }
+
+        public List<OrderInfo_History> GetHistoryStatusOrder(Guid orderId)
+        {
+            List<OrderInfo_History> ordersHistory = new List<OrderInfo_History>();
+
+            var selectedHistoryOrders = _dbcontext.orderHistory.Where(c => c.order_id == orderId).OrderBy(x => x.status_datetime).ToList();
+
+            foreach (var historyOrder in selectedHistoryOrders)
+            {
+                var status_order_now = "Заказ оплачен, ожидаем ресторан";
+
+                if (historyOrder == null)
+                    throw new Exception("order_status_history_not_found");
+
+                if (historyOrder.status == OrderStatus.AfterPay)
+                    status_order_now = "Заказ оплачен, ожидаем ресторан";
+
+                if (historyOrder.status == OrderStatus.Accepted)
+                    status_order_now = "Заказ принят и готовится";
+
+                if (historyOrder.status == OrderStatus.Ready)
+                    status_order_now = "Заказ готов, поиск курьера";
+
+                if (historyOrder.status == OrderStatus.WaitingForDelivery)
+                    status_order_now = "Курьер найден, осуществляется доставка";
+
+                if (historyOrder.status == OrderStatus.CourierOnPlace)
+                    status_order_now = "Курьер на месте";
+
+                if (historyOrder.status == OrderStatus.Delivered)
+                    status_order_now = "Заказ доставлен и получен";
+
+                OrderInfo_History orderHistory = new OrderInfo_History()
+                {
+                    orderId = orderId,
+                    status = status_order_now,
+                    change_time = historyOrder.status_datetime
+                };
+
+                ordersHistory.Add(orderHistory);
+            }
+
+            return ordersHistory;
+        }
 
         public string GetTelegramChatIdFromRequestId(Guid requestId)
         {
@@ -939,6 +1234,44 @@ namespace ClientAPI.Services
             return string.Empty;
         }
 
+        public async Task InsertMoney(Guid userGUID, long money_value)
+        {
+            _logger.LogError(money_value.ToString());
+
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedUser != null)
+            {
+                selectedUser.money_value += money_value;
+                await _dbcontext.SaveChangesAsync();
+            }
+        }
+
+        public bool ExistMoney(Guid userGUID, long money_value)
+        {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+           
+
+
+            if (selectedUser != null)
+            {
+                if (selectedUser.money_value >= money_value)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public async Task DecreaseMoney(Guid userGUID, long money_value) {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedUser != null)
+            {
+                selectedUser.money_value -= money_value;
+                await _dbcontext.SaveChangesAsync();
+            }
+        }
+
         public string GetTelegramChatId(Guid userGUID)
         {
        
@@ -950,5 +1283,14 @@ namespace ClientAPI.Services
             return string.Empty;
         }
 
+        public long GetUserBalance(Guid userGUID)
+        {
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedUser != null)
+                return selectedUser.money_value;
+
+            return (long)0;
+        }
     }
 }

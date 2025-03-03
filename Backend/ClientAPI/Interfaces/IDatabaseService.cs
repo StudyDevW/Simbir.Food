@@ -3,6 +3,7 @@ using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.ClientAPI.Basket;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
+using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
 
 namespace ClientAPI.Interfaces
@@ -55,8 +56,24 @@ namespace ClientAPI.Interfaces
 
         public FrozenGetAll GetAllFrozenEntities();
 
+        public Task<Order_DTO> CreateOrder(Guid userGUID);
+
+        public OrderInfo GetOrderInfoFromId(Guid orderId);
+
+        public List<OrderInfo> GetAllOrders(Guid userGUID);
+
+        public List<OrderInfo_History> GetHistoryStatusOrder(Guid orderId);
+
+        public Task InsertMoney(Guid userGUID, long money_value);
+
+        public bool ExistMoney(Guid userGUID, long money_value);
+
+        public Task DecreaseMoney(Guid userGUID, long money_value);
+
         public string GetTelegramChatIdFromRequestId(Guid requestId);
 
         public string GetTelegramChatId(Guid userGUID);
+
+        public long GetUserBalance(Guid userGUID);
     }
 }

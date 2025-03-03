@@ -21,7 +21,10 @@ namespace ClientAPI.Controllers
             _jwt = jwt;
         }
 
-
+        /// <summary>
+        /// Добавление товара в корзину
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] Basket_Add dtoObj)
         {
@@ -43,6 +46,10 @@ namespace ClientAPI.Controllers
         //    return Ok();
         //}
 
+        /// <summary>
+        /// Получить все товары из корзины
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAllItemsRestaurant()
         {
@@ -63,6 +70,10 @@ namespace ClientAPI.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Удалить один элемент из корзины
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete("{id}")] //id записи корзины
         public async Task<IActionResult> DeleteItem(Guid id)
         {
@@ -77,6 +88,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Удалить корзину целиком
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete] //Вся корзина по пользователю
         public async Task<IActionResult> DeleteItems()
         {

@@ -8,7 +8,7 @@ namespace ORM_Components.Tables
 
         public string cvv { get; set; }
 
-        public string money_value { get; set; }
+        public long money_value { get; set; }
 
         public string name_card { get; set; }
     }

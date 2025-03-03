@@ -20,7 +20,7 @@ namespace ORM_Components.Tables
 
         public string status { get; set; }
 
-        public int total_price { get; set; }
+        public long total_price { get; set; }
 
         public DateTime order_date { get; set; }
     }

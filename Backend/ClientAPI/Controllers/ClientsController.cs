@@ -22,6 +22,10 @@ namespace ClientAPI.Controllers
             _jwt = jwt;
         }
 
+        /// <summary>
+        /// Получить информацию о себе
+        /// </summary>
+        /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpGet("Me")]
         public async Task<IActionResult> GetProfileOfUser()
@@ -66,6 +70,10 @@ namespace ClientAPI.Controllers
         //    }
         //}
 
+        /// <summary>
+        /// Получить информацию о всех пользователях
+        /// </summary>
+        /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpGet]
         public async Task<IActionResult> GetAllProfileUsers([FromQuery] int from, [FromQuery] int count)
@@ -81,6 +89,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Получить информацию об определенном пользователе
+        /// </summary>
+        /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProfileUserWithAdmin(Guid id)
@@ -96,21 +108,25 @@ namespace ClientAPI.Controllers
             }
         }
 
-            //[Authorize(AuthenticationSchemes = "Asymmetric")]
-            //[HttpPost]
-            //public async Task<IActionResult> CreateUserWithAdmin([FromBody] ClientAdd_Admin dtoObj)
-            //{
-            //    try
-            //    {
-            //        await _clientService.CreateClientWithAdmin(Request.Headers["Authorization"], dtoObj);
-            //        return Ok("account_created");
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        return BadRequest(ex.Message);
-            //    }
-            //}
+        //[Authorize(AuthenticationSchemes = "Asymmetric")]
+        //[HttpPost]
+        //public async Task<IActionResult> CreateUserWithAdmin([FromBody] ClientAdd_Admin dtoObj)
+        //{
+        //    try
+        //    {
+        //        await _clientService.CreateClientWithAdmin(Request.Headers["Authorization"], dtoObj);
+        //        return Ok("account_created");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
+        /// <summary>
+        /// Удалить определенного пользователя
+        /// </summary>
+        /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Asymmetric")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserWithAdmin(Guid id)

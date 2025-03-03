@@ -6,6 +6,7 @@ using ORM_Components.DTO.ClientAPI;
 
 namespace ClientAPI.Controllers
 {
+   
     [Route("api/RequestRoles/")]
     [ApiController]
     public class RequestRolesController : ControllerBase
@@ -21,6 +22,11 @@ namespace ClientAPI.Controllers
             _jwt = jwt;
         }
 
+
+        /// <summary>
+        /// Подать заявку о создании ресторана
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("Restaurant")]
         public async Task<IActionResult> CreateRestaurantRequest([FromBody] RestaurantAddRequest dtoObj)
         {
@@ -36,7 +42,10 @@ namespace ClientAPI.Controllers
 
         }
 
-
+        /// <summary>
+        /// Подать заявку о трудоустройстве курьером
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("Courier")]
         public async Task<IActionResult> CreateCourierRequest([FromBody] CourierAddRequest dtoObj)
         {
@@ -51,7 +60,10 @@ namespace ClientAPI.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Принять заявку о создании ресторана
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("Restaurant/Accept")]
         public async Task<IActionResult> AcceptRestaurantRequest([FromBody] RequestAcceptReject dtoObj) //Только администратору
         {
@@ -66,6 +78,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Отклонить заявку о создании ресторана
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("Restaurant/Reject")]
         public async Task<IActionResult> RejectRestaurantRequest([FromBody] RequestAcceptReject dtoObj) //Только администратору
         {
@@ -80,6 +96,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Принять заявку и взять курьера на работу
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("Courier/Accept")]
         public async Task<IActionResult> AcceptCourierRequest([FromBody] RequestAcceptReject dtoObj) //Только администратору
         {
@@ -94,6 +114,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Отклонить заявку о работе курьером
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("Courier/Reject")]
         public async Task<IActionResult> RejectCourierRequest([FromBody] RequestAcceptReject dtoObj) //Только администратору
         {
@@ -108,6 +132,10 @@ namespace ClientAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Вывести все заявки, всех пользователей
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAllRequestsForAdmin() //Только администратору
         {
@@ -126,7 +154,10 @@ namespace ClientAPI.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Получить все свои заявки на создание ресторана
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Restaurant")]
         public async Task<IActionResult> GetAllRestaurantRequestForUser()
         {
@@ -145,9 +176,12 @@ namespace ClientAPI.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Получить свою созданную заявку на работу курьером
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Courier")]
-        public async Task<IActionResult> GetAllCourierRequestForUser()
+        public async Task<IActionResult> GetCourierRequestForUser()
         {
             try
             {
