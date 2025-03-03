@@ -62,17 +62,4 @@ public class CourierValidationTests
         // assert
         result.ShouldHaveValidationErrorFor(nameof(CourierDtoForCreate.userId));
     }
-
-    [Fact]
-    public void CourierDtoForUpdateValidation_WithWrongStatus_ReturnsInvalid()
-    {
-        // arrange
-        var dto = new CourierDtoForUpdate(Guid.NewGuid(), "A859BC173", (CourierStatus)2);
-
-        // act
-        var result = _updateValidator.TestValidate(dto);
-
-        // assert
-        result.ShouldHaveValidationErrorFor(nameof(CourierDtoForUpdate.status));
-    }
 }

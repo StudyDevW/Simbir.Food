@@ -6,28 +6,23 @@ namespace TestsBaseLib.Base;
 
 public static class Generator
 {
-    public static UserTable GenerateUser(string login, string passwordHash, string[] roles)
+    public static UserTable GenerateUser(string roles = "Client")
     {
         var faker = new Faker<UserTable>();
         faker.RuleFor(x => x.Id, f => Guid.NewGuid())
-            .RuleFor(x => x.login, f => login)
-            .RuleFor(x => x.password, _ => passwordHash)
-            .RuleFor(x => x.name, f => f.Name.FirstName())
-            .RuleFor(x => x.email, (f, x) => f.Internet.Email(x.name))
-            .RuleFor(x => x.phone_number, f => f.Phone.PhoneNumber())
+            .RuleFor(x => x.username, f => f.Random.Word())
+            .RuleFor(x => x.first_name, f => f.Name.FirstName())
+            .RuleFor(x => x.last_name, f => f.Name.FirstName())
             .RuleFor(x => x.address, f => f.Address.City())
-            .RuleFor(x => x.roles, _ => roles)
-            .RuleFor(x => x.chatId, f => f.Random.String2(8, "1234567890"));
+            .RuleFor(x => x.roles, _ => roles.Split(" "))
+            .RuleFor(x => x.money_value, _ => 0)
+            .RuleFor(x => x.telegram_id, f => f.Random.Long(0, long.MaxValue))
+            .RuleFor(x => x.telegram_chat_id, f => f.Random.Long(0, long.MaxValue));
 
         return faker.Generate();
     }
 
-    public static UserTable GenerateUser(string role = "Client")
-    {
-        return GenerateUser(Guid.NewGuid().ToString(), "pass1", new string[] { role });
-    }
-
-    public static RestaurantTable GenerateRestaurant(Guid user_id)
+    public static RestaurantTable GenerateRestaurant(Guid user_id, RestaurantStatus status)
     {
         var faker = new Faker<RestaurantTable>();
         faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
@@ -37,9 +32,9 @@ public static class Generator
             .RuleFor(x => x.restaurantName, f => f.Random.Word())
             .RuleFor(x => x.description, f => f.Random.Words(10))
             .RuleFor(x => x.address, f => f.Address.City())
-            .RuleFor(x => x.close_time, f => f.Date.Between(new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc), DateTime.UtcNow))
-            .RuleFor(x => x.open_time, (f, x) => f.Date.Between(DateTime.UtcNow, x.close_time))
-            .RuleFor(x => x.status, f => f.Random.Word());
+            .RuleFor(x => x.close_time, f => f.Date.BetweenTimeOnly(TimeOnly.Parse("7:00"), TimeOnly.Parse("24:00")).ToShortTimeString())
+            .RuleFor(x => x.open_time, (f, x) => f.Date.BetweenTimeOnly(TimeOnly.Parse(x.close_time), TimeOnly.Parse(x.close_time).AddHours(-12)).ToShortTimeString())
+            .RuleFor(x => x.status, _ => status);
 
         return faker.Generate();
     }

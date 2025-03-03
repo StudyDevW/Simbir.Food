@@ -103,9 +103,7 @@ public class IntegrationTest
         var check = new Auth_CheckSuccess
         {
             Id = user.Id,
-            login = user.login,
-            roles = user.roles.ToList(),
-            telegramChatId = "958235235"
+            telegram_chat_id = 9572385
         };
 
         using (var _multiplexer = GetConnectionMultiplexer())

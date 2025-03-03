@@ -7,6 +7,7 @@ using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
 using Moq.Language.Flow;
 using Microsoft.AspNetCore.Mvc;
+using ORM_Components.DTO.ClientAPI;
 
 namespace TestsBaseLib.Base;
 
@@ -25,7 +26,6 @@ public static class UnitTestsExtensions
                 token_success = new Token_ValidSuccess
                 {
                     Id = Guid.NewGuid(),
-                    telegramChatId = chatId,
                     userRoles = roles.Split(" ").ToList(),
                 }
             });
@@ -53,19 +53,16 @@ public static class UnitTestsExtensions
     /// </summary>
     public static Restaurants_DTO ToDto(this RestaurantTable table)
     {
-        return new Restaurants_DTO
-        {
-            address = table.address,
-            close_time = table.close_time,
-            description = table.description,
-            id = table.Id,
-            imagePath = table.imagePath,
-            open_time = table.open_time,
-            phone_number = table.phone_number,
-            restaurantName = table.restaurantName,
-            status = table.status,
-            user_id = table.user_id,
-        };
+        return new Restaurants_DTO(table.Id,
+                                   table.user_id,
+                                   table.restaurantName,
+                                   table.address,
+                                   table.phone_number,
+                                   table.status,
+                                   table.description,
+                                   table.imagePath,
+                                   table.open_time,
+                                   table.close_time);
     }
 
     /// <summary>
@@ -78,7 +75,7 @@ public static class UnitTestsExtensions
             calories = table.calories,
             image = table.image,
             name = table.name,
-            price = table.price,
+            //price = table.price,
             restaurant_id = table.restaurant_id,
             weight = table.weight
         };

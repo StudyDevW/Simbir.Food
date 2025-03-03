@@ -28,6 +28,9 @@ namespace CourierAPI.Service
             IRabbitMQService rabbitMQService,
             IValidator<CourierDtoForCreate> _courierCreateValidator, IValidator<CourierDtoForUpdate> _courierUpdateValidator)
         {
+            this._courierCreateValidator = _courierCreateValidator;
+            this._courierUpdateValidator = _courierUpdateValidator;
+
             _dataContext = dataContext;
             _tgmessage = tgmessage;
             _rabbitMQService = rabbitMQService;

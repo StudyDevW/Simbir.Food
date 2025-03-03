@@ -130,51 +130,51 @@
 //                return NotFound("Заказ не найден.");
 //            }
 
-        [HttpGet]
-        [Route("GetOrder/{id}")]
-        public async Task<IActionResult> GetOrderById(Guid id)
-        {
-            var order = await _dbcontext.orderTable.FindAsync(id);
-            if (order == null)
-            {
-                return NotFound("Заказ не найден.");
-            }
+        //[HttpGet]
+        //[Route("GetOrder/{id}")]
+        //public async Task<IActionResult> GetOrderById(Guid id)
+        //{
+        //    var order = await _dbcontext.orderTable.FindAsync(id);
+        //    if (order == null)
+        //    {
+        //        return NotFound("Заказ не найден.");
+        //    }
 
-            return Ok(order);
-        }
-        [HttpPut]
-        [Route("UpdateOrder/{id}")]
-        public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] Order_DTO order_DTO)
-        {
-            if (order_DTO == null)
-            {
-                return BadRequest("Данные заказа не могут быть пустыми");
-            }
-            if (order_DTO.restaurant_id == Guid.Empty)
-            {
-                return BadRequest("Ресторан Id не может быть пустым");
-            }
-            if (order_DTO.client_id == Guid.Empty)
-            {
-                return BadRequest("Клиент Id не может быть пустым");
-            }
-            if (order_DTO.courier_id == Guid.Empty)
-            {
-                return BadRequest("Курьер Id не может быть пустым");
-            }
-            if (order_DTO.status == null)
-            {
-                return BadRequest("Статус заказа не может быть пустым");
-            }
-            if (order_DTO.total_price == null && order_DTO.total_price <= 0)
-            {
-                return BadRequest("Цена заказа не может быть пустой или быть 0");
-            }
-            var order = await _dbcontext.orderTable.FindAsync(id);
-            if (order == null)
-            {
-                return NotFound("Заказ не найден.");
-            }
+        //    return Ok(order);
+        //}
+        //[HttpPut]
+        //[Route("UpdateOrder/{id}")]
+        //public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] Order_DTO order_DTO)
+        //{
+        //    if (order_DTO == null)
+        //    {
+        //        return BadRequest("Данные заказа не могут быть пустыми");
+        //    }
+        //    if (order_DTO.restaurant_id == Guid.Empty)
+        //    {
+        //        return BadRequest("Ресторан Id не может быть пустым");
+        //    }
+        //    if (order_DTO.client_id == Guid.Empty)
+        //    {
+        //        return BadRequest("Клиент Id не может быть пустым");
+        //    }
+        //    if (order_DTO.courier_id == Guid.Empty)
+        //    {
+        //        return BadRequest("Курьер Id не может быть пустым");
+        //    }
+        //    if (order_DTO.status == null)
+        //    {
+        //        return BadRequest("Статус заказа не может быть пустым");
+        //    }
+        //    if (order_DTO.total_price == null && order_DTO.total_price <= 0)
+        //    {
+        //        return BadRequest("Цена заказа не может быть пустой или быть 0");
+        //    }
+        //    var order = await _dbcontext.orderTable.FindAsync(id);
+        //    if (order == null)
+        //    {
+        //        return NotFound("Заказ не найден.");
+        //    }
 
 //            order.status = order_DTO.status;
 //            order.total_price = order_DTO.total_price;

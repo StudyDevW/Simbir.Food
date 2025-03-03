@@ -21,9 +21,9 @@ public class JwtSDKTests
         var dto = new Auth_CheckSuccess
         {
             Id = Guid.NewGuid(),
-            login = "test1",
             roles = new List<string> { "Client", "Admin" },
-            telegramChatId = "1249052252"
+            telegram_chat_id = 125125664,
+            device = "Windows 10 Desktop"
         };
 
         // act
@@ -57,9 +57,8 @@ public class JwtSDKTests
         var dto = new Auth_CheckSuccess
         {
             Id = Guid.NewGuid(),
-            login = "test1",
             roles = new List<string> { "Client", "Admin" },
-            telegramChatId = "1249052252"
+            telegram_chat_id = 62362376
         };
 
         // act
