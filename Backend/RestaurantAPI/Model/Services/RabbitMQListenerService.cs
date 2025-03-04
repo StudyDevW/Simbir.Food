@@ -78,7 +78,7 @@ namespace RestaurantAPI.Services
             await _messageSender.Send(userChatId.ToString(), message);
         }
 
-        private long GetUserChatId(Guid clientId)
+        private long GetUserChatId(Guid? clientId)
         {
             var finded = _dbcontext.userTable.Where(c => c.Id == clientId).FirstOrDefault();
             return finded.telegram_chat_id;
@@ -236,13 +236,13 @@ namespace RestaurantAPI.Services
                    $"Дата заказа: {order.order_date.ToString("g")}";
         }
 
-        private string GetClientName(Guid clientId)
+        private string GetClientName(Guid? clientId)
         {
             var client = _dbcontext.userTable.Find(clientId);
             return client?.username ?? "Неизвестный клиент";
         }
 
-        private string GetClientAddress(Guid clientId)
+        private string GetClientAddress(Guid? clientId)
         {
             var client = _dbcontext.userTable.Find(clientId);
             return client?.address ?? "Адрес не указан";
