@@ -26,6 +26,8 @@ namespace ORM_Components.Tables
 
         public long money_value { get; set; }
 
+        public string? email { get; set; } = string.Empty;
+
         public string[] roles { get; set; }
     }
 }
