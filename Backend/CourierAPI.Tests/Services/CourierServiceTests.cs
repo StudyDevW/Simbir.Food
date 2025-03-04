@@ -108,7 +108,7 @@ public class CourierServiceTests
     public async Task TakeOrder_WithStatusReady_SetOrderStatusToWaitingForDelivery()
     {
         // arrange
-        var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
+        var owner = Generator.GenerateUser();
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.Ready);
 
         var history = new List<OrderStatusHistoryTable>();
@@ -168,7 +168,7 @@ public class CourierServiceTests
     public async Task CourierOnPlace_WithStatusWaitingForDelivery_SetOrderStatusToCourierOnPlace()
     {
         // arrange
-        var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
+        var owner = Generator.GenerateUser();
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.WaitingForDelivery);
 
         var history = new List<OrderStatusHistoryTable>();
@@ -192,7 +192,7 @@ public class CourierServiceTests
     public async Task OrderDelivered_WithStatusCourierOnPlace_SetOrderStatusToDelivered()
     {
         // arrange
-        var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
+        var owner = Generator.GenerateUser();
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace, Guid.NewGuid());
 
         var history = new List<OrderStatusHistoryTable>();
@@ -216,7 +216,7 @@ public class CourierServiceTests
     public async Task OrderDelivered_WithOrderHasNoCourier_ThrowsException()
     {
         // arrange
-        var owner = Generator.GenerateUser("log1", "pas1", new string[] { "Client" });
+        var owner = Generator.GenerateUser();
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace);
 
         var history = new List<OrderStatusHistoryTable>();

@@ -66,6 +66,22 @@ public static class UnitTestsExtensions
     }
 
     /// <summary>
+    /// Адаптация RestaurantTable в RestaurantAddRequest
+    /// </summary>
+    public static RestaurantAddRequest ToRequestDto(this RestaurantTable table, string request_description) =>
+        new RestaurantAddRequest
+        {
+            address = table.address,
+            close_time = table.close_time,
+            description = table.description,
+            imagePath = table.imagePath,
+            open_time = table.open_time,
+            phone_number = table.phone_number,
+            restaurantName = table.restaurantName,
+            request_description = request_description
+        };
+
+    /// <summary>
     /// Адаптация RestaurantFoodItemsTable в RestaurantFoodItems_DTO
     /// </summary>
     public static RestaurantFoodItems_DTO ToDto(this RestaurantFoodItemsTable table)

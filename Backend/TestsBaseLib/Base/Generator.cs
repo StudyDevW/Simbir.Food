@@ -1,12 +1,13 @@
 ﻿using Bogus;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
+using System.Linq.Expressions;
 
 namespace TestsBaseLib.Base;
 
 public static class Generator
 {
-    public static UserTable GenerateUser(string roles = "Client")
+    private static Faker<UserTable> _GetUserFaker(string roles)
     {
         var faker = new Faker<UserTable>();
         faker.RuleFor(x => x.Id, f => Guid.NewGuid())
@@ -19,10 +20,19 @@ public static class Generator
             .RuleFor(x => x.telegram_id, f => f.Random.Long(0, long.MaxValue))
             .RuleFor(x => x.telegram_chat_id, f => f.Random.Long(0, long.MaxValue));
 
-        return faker.Generate();
+        return faker;
     }
 
-    public static RestaurantTable GenerateRestaurant(Guid user_id, RestaurantStatus status)
+    public static UserTable GenerateUser(string roles = "Client") =>
+        _GetUserFaker(roles).Generate();
+
+    public static UserTable GenerateUserWithName(string first_name, string roles = "Client") =>
+        _GetUserFaker(roles).RuleFor(x => x.first_name, _ => first_name).Generate();
+
+    public static List<UserTable> GenerateUsers(int count, string roles = "Client") =>
+        _GetUserFaker(roles).Generate(count);
+
+    private static Faker<RestaurantTable> _GetRestaurantFaker(Guid user_id, RestaurantStatus status)
     {
         var faker = new Faker<RestaurantTable>();
         faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
@@ -32,12 +42,50 @@ public static class Generator
             .RuleFor(x => x.restaurantName, f => f.Random.Word())
             .RuleFor(x => x.description, f => f.Random.Words(10))
             .RuleFor(x => x.address, f => f.Address.City())
-            .RuleFor(x => x.close_time, f => f.Date.BetweenTimeOnly(TimeOnly.Parse("7:00"), TimeOnly.Parse("24:00")).ToShortTimeString())
+            .RuleFor(x => x.close_time, f => f.Date.BetweenTimeOnly(TimeOnly.Parse("7:00"), TimeOnly.Parse("23:59")).ToShortTimeString())
             .RuleFor(x => x.open_time, (f, x) => f.Date.BetweenTimeOnly(TimeOnly.Parse(x.close_time), TimeOnly.Parse(x.close_time).AddHours(-12)).ToShortTimeString())
             .RuleFor(x => x.status, _ => status);
+        
+        return faker;
+    }
+    public static RestaurantTable GenerateRestaurant(Guid user_id, RestaurantStatus status) =>
+        _GetRestaurantFaker(user_id, status).Generate();
+
+    public static List<RestaurantTable> GenerateRestaurants(Guid user_id, int count) =>
+        _GetRestaurantFaker(user_id, RestaurantStatus.Unverified).Generate(count);
+
+    public static RequestTable GenRestaurantRequest(Guid user_id, Guid rest_id)
+    {
+        var faker = new Faker<RequestTable>();
+        faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
+            .RuleFor(x => x.user_id, _ => user_id)
+            .RuleFor(x => x.description, f => f.Random.Word())
+            .RuleFor(x => x.restaurant_id, _ => rest_id)
+            .RuleFor(x => x.time_add, f => f.Date.Between(DateTime.UtcNow.AddDays(-5), DateTime.UtcNow.AddDays(5)));
 
         return faker.Generate();
     }
+
+    public static RequestTable GenCourierRequest(Guid user_id, Guid courier_id)
+    {
+        var faker = new Faker<RequestTable>();
+        faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
+            .RuleFor(x => x.user_id, _ => user_id)
+            .RuleFor(x => x.description, f => f.Random.Word())
+            .RuleFor(x => x.courier_id, _ => courier_id)
+            .RuleFor(x => x.time_add, f => f.Date.Between(DateTime.UtcNow.AddDays(-5), DateTime.UtcNow.AddDays(5)));
+
+        return faker.Generate();
+    }
+
+    public static BasketTable GenBasket(Guid user_id, Guid food_id) => new BasketTable
+    {
+        Id = Guid.NewGuid(),
+        user_id = user_id,
+        food_item_id = food_id
+    };
+
+    public static BasketTable GenBasket(Guid user_id) => GenBasket(user_id, Guid.NewGuid());
 
     public static RestaurantFoodItemsTable GenerateFoodItem(Guid restaurant_id)
     {

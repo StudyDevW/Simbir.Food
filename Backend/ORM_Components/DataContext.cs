@@ -35,9 +35,9 @@ namespace ORM_Components
 
         public virtual DbSet<OrderTable> orderTable { get; set; }
 
-        public DbSet<OrderStatusHistoryTable> orderHistory { get; set; }
+        public virtual DbSet<OrderStatusHistoryTable> orderHistory { get; set; }
 
-        public DbSet<RestaurantTable> restaurantTable { get; set; }
+        public virtual DbSet<RestaurantTable> restaurantTable { get; set; }
 
         public virtual DbSet<RestaurantFoodItemsTable> restaurantFoodItemsTable { get; set; }
 
@@ -45,15 +45,15 @@ namespace ORM_Components
 
         public virtual DbSet<ReviewTable> reviewTable { get; set; }
 
-        public DbSet<BasketTable> basketTable { get; set; }
+        public virtual DbSet<BasketTable> basketTable { get; set; }
 
-        public DbSet<CardUsersTable> cardUsersTable { get; set; } 
+        public virtual DbSet<CardUsersTable> cardUsersTable { get; set; } 
 
-        public DbSet<BankCardTable> bankCardTable { get; set; }
+        public virtual DbSet<BankCardTable> bankCardTable { get; set; }
 
-        public DbSet<PayTable> payTable { get; set; }
+        public virtual DbSet<PayTable> payTable { get; set; }
 
-        public DbSet<RequestTable> requestTable { get; set; }
+        public virtual DbSet<RequestTable> requestTable { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

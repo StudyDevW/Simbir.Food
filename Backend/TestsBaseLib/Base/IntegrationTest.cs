@@ -76,12 +76,9 @@ public class IntegrationTest
     /// !!! Только для интеграционных тестов !!!
     /// Добавляет нового пользователя в БД
     /// </summary>
-    protected async Task<UserTable> AddUserToDb(string login, string password, string role = "Client")
+    protected async Task<UserTable> AddUserToDb(string role = "Client")
     {
-        var hasher = new PasswordHasher<PasswordAppUser>();
-
-        var hash = hasher.HashPassword(new PasswordAppUser { login = login }, password);
-        var user = Generator.GenerateUser(login, hash, new string[] { role });
+        var user = Generator.GenerateUser(role);
 
         using (var _context = GetDbContext())
         {
@@ -96,14 +93,14 @@ public class IntegrationTest
     /// !!! Только для интеграционных тестов !!!
     /// Добавляет нового пользователя в БД и авторизует его, добавляя токены в кэш Redis
     /// </summary>
-    protected async Task<(UserTable user, Auth_PairTokens tokens)> AuthNewUser(string login, string password, string role = "Client")
+    protected async Task<(UserTable user, Auth_PairTokens tokens)> AuthNewUser(string role = "Client")
     {
-        var user = await AddUserToDb(login, password, role);
+        var user = await AddUserToDb(role);
 
         var check = new Auth_CheckSuccess
         {
             Id = user.Id,
-            telegram_chat_id = 9572385
+            telegram_chat_id = user.telegram_chat_id
         };
 
         using (var _multiplexer = GetConnectionMultiplexer())
