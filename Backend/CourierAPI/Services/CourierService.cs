@@ -34,10 +34,24 @@ namespace CourierAPI.Service
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("CourierAPI | database-sdk-logger");
         }
 
-        public async Task<List<OrderForCourierDto>> GetOrders()
+        public async Task<List<OrderForCourierDto>> GetOrders(Guid courierId)
         {
-            return await _dataContext.orderTable
-                .Where(x => x.status == OrderStatus.Ready)
+            var restaurantId = await _dataContext.orderTable
+                .Where(x => x.courier_id == courierId && x.status == OrderStatus.WaitingForDelivery)
+                .OrderByDescending(x => x.order_date)
+                .Select(x => x.restaurant_id)
+                .FirstOrDefaultAsync();
+
+            var query = _dataContext.orderTable
+                .Where(x => x.status == OrderStatus.Ready);
+
+            if (restaurantId != Guid.Empty)
+            {
+                query = query
+                    .Where(x => x.restaurant_id == restaurantId);
+            }
+
+            return await query
                 .Select(x => new OrderForCourierDto(x.Id, x.client_id, x.status, x.order_date))
                 .ToListAsync();
         }
@@ -54,10 +68,24 @@ namespace CourierAPI.Service
             if (!isCourierExist)
                 throw new Exception("Курьер не найден.");
 
+            await CheckQuantityOfOrdersForCourier(orderLinkCourierDto.courierId);
+
             order.courier_id = orderLinkCourierDto.courierId;
             await _dataContext.SaveChangesAsync();
 
             _logger.LogInformation($"Курьер с ID: {order.courier_id} был назначен на заказ: {order.Id}.");
+        }
+
+        private async Task CheckQuantityOfOrdersForCourier(Guid courierId)
+        {
+            var ordersCount = await _dataContext.orderTable
+                .Where(x => x.status == OrderStatus.WaitingForDelivery && x.courier_id == courierId)
+                .CountAsync();
+
+            if (ordersCount >= 3)
+            {
+                throw new Exception("У вас достигнут лимит единовременных заказов: 3");
+            }
         }
 
         public async Task TakeOrder(Guid orderId)

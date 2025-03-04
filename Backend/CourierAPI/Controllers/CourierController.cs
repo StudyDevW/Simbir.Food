@@ -19,16 +19,10 @@ namespace CourierAPI.Controllers
             _courierService = courierService;
         }
 
-        [HttpGet("ordersForCourier")]
-        public async Task<ActionResult<List<OrderForCourierDto>>> GetOrderList()
+        [HttpGet("{courierId}/ordersForCourier")]
+        public async Task<ActionResult<List<OrderForCourierDto>>> GetOrderList(Guid courierId)
         {
-            return await _courierService.GetOrders();
-        }
-
-        [HttpGet("ordersForCourierTest")]
-        public async Task<ActionResult<List<OrderForCourierDto>>> GetOrderListTest()
-        {
-            return await _courierService.GetOrders();
+            return await _courierService.GetOrders(courierId);
         }
 
         [HttpPost("{orderId}/accept")]

@@ -5,7 +5,7 @@ namespace CourierAPI.Contracts
 {
     public interface ICourierService
     {
-        Task<List<OrderForCourierDto>> GetOrders();
+        Task<List<OrderForCourierDto>> GetOrders(Guid courierId);
         Task AcceptOrder(OrderLinkCourierDto orderLinkCourierDto);
         Task TakeOrder(Guid orderId);
         Task CourierOnPlace(Guid orderId);
