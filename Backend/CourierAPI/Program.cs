@@ -2,6 +2,8 @@ using CourierAPI.Contracts;
 using CourierAPI.Service;
 using DotNetEnv;
 using DotNetEnv.Configuration;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -11,6 +13,7 @@ using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.MapsterConfigs;
+using ORM_Components.Validators.CourierValidators;
 using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
@@ -133,11 +136,13 @@ namespace CourierAPI
                  new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
              );
 
-            builder.Services.AddSingleton<RabbitMQService>();
-
+            var mapsterConfig = new OrderConfig();
             builder.Services.AddScoped<OrderConfig>();
 
             builder.Services.AddScoped<ICourierService, CourierService>();
+
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddValidatorsFromAssemblyContaining<CourierValidatorDtoForCreate>();
 
 
             var app = builder.Build();
