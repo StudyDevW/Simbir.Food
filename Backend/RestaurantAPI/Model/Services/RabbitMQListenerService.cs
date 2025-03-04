@@ -78,7 +78,7 @@ namespace RestaurantAPI.Services
         //    await _messageSender.Send(userChatId.ToString(), message);
         //}
 
-        private long GetUserChatId(Guid clientId)
+        private long GetUserChatId(Guid? clientId)
         {
             var finded = _dbcontext.userTable.Where(c => c.Id == clientId).FirstOrDefault();
             return finded!.telegram_chat_id;
