@@ -104,13 +104,13 @@ namespace CourierAPI.Service
 
             order.status = newStatus;
 
-            _dataContext.orderStatusHistoryTables.Add(
+            _dataContext.orderHistory.Add(
                 new OrderStatusHistoryTable
                 {
                     Id = Guid.NewGuid(),
                     order_id = orderId,
                     status = newStatus,
-                    status_datetime = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Local)
+                    status_datetime = DateTime.UtcNow
                 });
 
             await _dataContext.SaveChangesAsync();

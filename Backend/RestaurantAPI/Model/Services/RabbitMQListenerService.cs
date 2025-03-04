@@ -16,11 +16,11 @@ namespace RestaurantAPI.Services
 {
     public class RabbitMQListenerService : BackgroundService
     {
-        private readonly RabbitMQService _rabbitMQService;
+        private readonly IRabbitMQService _rabbitMQService;
         private readonly IMessageSender _messageSender;
         private readonly DataContext _dbcontext;
 
-        public RabbitMQListenerService(RabbitMQService rabbitMQService, IMessageSender messageSender, DataContext dbcontext)
+        public RabbitMQListenerService(IRabbitMQService rabbitMQService, IMessageSender messageSender, DataContext dbcontext)
         {
             _rabbitMQService = rabbitMQService;
             _messageSender = messageSender;
@@ -67,21 +67,21 @@ namespace RestaurantAPI.Services
         }
         private async Task NotifyOrderFinishedCourier(Order_DTO order)
         {
-            var courierChatId = GetCourierChatIdForOrder(order.courier_id);
+            var courierChatId = await GetCourierChatIdForOrder(order.courier_id);
             var message = $"Теперь вам доступен новый заказ для приготовления и доставки";
             await _messageSender.Send(courierChatId.ToString(), message);
         }
-        private async Task NotifyOrderCanceled(Order_DTO order)
-        {
-            var userChatId = GetUserChatId(order.client_id);
-            var message = $"Ваш заказ с ID: {order.id} был отменен.";
-            await _messageSender.Send(userChatId.ToString(), message);
-        }
+        //private async Task NotifyOrderCanceled(Order_DTO order)
+        //{
+        //    var userChatId = GetUserChatId(order.client_id);
+        //    var message = $"Ваш заказ с ID: {order.id} был отменен.";
+        //    await _messageSender.Send(userChatId.ToString(), message);
+        //}
 
-        private long GetUserChatId(Guid? clientId)
+        private long GetUserChatId(Guid clientId)
         {
             var finded = _dbcontext.userTable.Where(c => c.Id == clientId).FirstOrDefault();
-            return finded.telegram_chat_id;
+            return finded!.telegram_chat_id;
         }
  
         private async Task AcceptingAnOrder(Order_DTO order)
@@ -96,32 +96,30 @@ namespace RestaurantAPI.Services
             orderAccepting.status = OrderStatus.Accepted; 
             await _dbcontext.SaveChangesAsync();
 
-            var userChatId = GetUserChatId(order.client_id);
+            //var userChatId = GetUserChatId(order.client_id);
             await NotifyOrderStarted(order);
             await SendingOrderInformationCourier(order);
         }
 
-        private async Task OrderRejections(Order_DTO order)
-        {
-            //Поиск в бд
-            var orderRejections = await _dbcontext.orderTable.FindAsync(order.id);
+        //private async Task OrderRejections(Order_DTO order)
+        //{
+        //    var orderRejections = await _dbcontext.orderTable.FindAsync(order.id);
 
-            if (orderRejections == null)
-            {
-                // Если заказ не найден, можно выбросить исключение или логировать ошибку
-                throw new Exception($"Заказ с идентификатором: {order.id} не существует.");
-            }
+        //    if (orderRejections == null)
+        //    {
+        //        throw new Exception($"Заказ с идентификатором: {order.id} не существует.");
+        //    }
 
-            orderRejections.status = OrderStatus.Denied;
+        //    orderRejections.status = OrderStatus.Denied;
 
-            await _dbcontext.SaveChangesAsync();
+        //    await _dbcontext.SaveChangesAsync();
 
-            var userChatId = GetUserChatId(order.client_id);
-            var messageToClient = $"Ваш заказ с ID: {order.id} был отклонён.";
-            await _messageSender.Send(userChatId.ToString(), messageToClient);
+        //    var userChatId = GetUserChatId(order.client_id);
+        //    var messageToClient = $"Ваш заказ с ID: {order.id} был отклонён.";
+        //    await _messageSender.Send(userChatId.ToString(), messageToClient);
 
-            await SendingOrderInformationCourier(order);
-        }
+        //    await SendingOrderInformationCourier(order);
+        //}
 
         private async Task OrderFinished(Order_DTO order)
         {
@@ -160,7 +158,7 @@ namespace RestaurantAPI.Services
             await _messageSender.Send(userChatId.ToString(), messageToClient);
         }
         
-        private async Task<long?> GetCourierChatIdForOrder(Guid orderId)
+        private async Task<long?> GetCourierChatIdForOrder(Guid? orderId)
         {
             var order = await _dbcontext.orderTable.FindAsync(orderId);
 
@@ -196,23 +194,6 @@ namespace RestaurantAPI.Services
             
         }
 
-        private async Task SendMessageForEveryActiveCourier()
-        {
-            var activeCouriersWithChatIds = await _dbcontext.courierTable
-            .Where(x => x.status == CourierStatus.IsActive)
-            .Join(
-                _dbcontext.userTable,
-                courier => courier.userId,
-                user => user.Id,
-                (courier, user) => user.telegram_chat_id
-            )
-            .ToListAsync();
-
-            foreach (var chatId in activeCouriersWithChatIds)
-            {
-                await _messageSender.Send(chatId.ToString(), "Доступен новый заказ к доставке!");
-            }
-        }
         private async Task<string> GenerateOrderDetailsMessage(Order_DTO order)
         {
             var restaurant = await _dbcontext.restaurantTable.FindAsync(order.restaurant_id);
@@ -225,7 +206,7 @@ namespace RestaurantAPI.Services
                 .Where(item => item.order_id == order.id)
                 .ToListAsync();
 
-            var items = string.Join(", ", orderItems.Select(item => $"{item.quantity}x {item.Id}"));
+            var items = string.Join(", ", orderItems.Select(item => $"{item.Id}"));
 
             return $"Заказ ID: {order.id}\n" +
                    $"Ресторан: {restaurant.restaurantName}\n" +

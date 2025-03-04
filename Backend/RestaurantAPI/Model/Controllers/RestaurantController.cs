@@ -1,16 +1,15 @@
-﻿using CourierAPI.Controllers.CustomAttributes;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
+using RestaurantAPI.Model.Controllers.CustomAttributes;
 using RestaurantAPI.Model.Interface;
 
 namespace RestaurantAPI.Model.Controllers
 {
-    [ApiController]
-    [ValidateJwt]
     [Route("api/Restaurant/")]
+    [ApiController]
     public class RestaurantController : ControllerBase
     {
         private readonly DataContext _dbcontext;
@@ -81,10 +80,11 @@ namespace RestaurantAPI.Model.Controllers
             return NoContent();
         }
         [HttpPost("{orderId}/SetReadyStatusForOrder")]
-        public async Task<ActionResult> SetReadyStatusForOrder(Guid orderId)
+        public async Task<IActionResult> SetReadyStatusForOrder(Guid orderId)
         {
             await _restaurantService.SetReadyStatusForOrder(orderId);
-            return NoContent();
+            return Ok();
+
         }
     }
 }

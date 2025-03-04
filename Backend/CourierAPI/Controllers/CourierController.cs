@@ -92,11 +92,5 @@ namespace CourierAPI.Controllers
             return NoContent();
         }
 
-        [HttpPost("TestMethod")]
-        public async Task<IActionResult> TestMethod()
-        {
-            await _courierService.TestMethod();
-            return NoContent();
-        }
     }
 }

@@ -1,11 +1,11 @@
-﻿using CourierAPI.Controllers.CustomAttributes;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
+using RestaurantAPI.Model.Controllers.CustomAttributes;
 using RestaurantAPI.Model.Interface;
 
 

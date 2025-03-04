@@ -67,6 +67,20 @@ namespace ORM_Components.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "orderHistory",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    order_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    status_datetime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_orderHistory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "orderItemsTable",
                 columns: table => new
                 {
@@ -77,20 +91,6 @@ namespace ORM_Components.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_orderItemsTable", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrderStatusHistoryTable",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    order_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    status = table.Column<int>(type: "integer", nullable: false),
-                    status_datetime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderStatusHistoryTable", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -226,8 +226,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "calories", "image", "name", "price", "restaurant_id", "weight" },
                 values: new object[,]
                 {
-                    { new Guid("602dda9f-6205-4526-806a-43ead573165f"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
-                    { new Guid("a3a1ebb7-8123-4e6f-a8c6-3a703a8b494b"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
+                    { new Guid("2fd96345-1feb-47b9-9db1-cd253c43334f"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
+                    { new Guid("977a4622-7940-4269-8b72-c02892702b3f"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
                 });
 
             migrationBuilder.InsertData(
@@ -235,8 +235,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "address", "close_time", "description", "imagePath", "open_time", "phone_number", "restaurantName", "status", "user_id" },
                 values: new object[,]
                 {
-                    { new Guid("304830ef-79d7-4d8a-9015-4c87e42490cd"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
-                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "NONE", "10:00", "+78005555535", "Тестовый ресторан", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
+                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "NONE", "10:00", "+78005555535", "Тестовый ресторан", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
+                    { new Guid("fda6f2af-8dc4-4db3-95d5-8bf47130c92b"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
                 });
 
             migrationBuilder.InsertData(
@@ -260,10 +260,10 @@ namespace ORM_Components.Migrations
                 name: "courierTable");
 
             migrationBuilder.DropTable(
-                name: "orderItemsTable");
+                name: "orderHistory");
 
             migrationBuilder.DropTable(
-                name: "OrderStatusHistoryTable");
+                name: "orderItemsTable");
 
             migrationBuilder.DropTable(
                 name: "orderTable");
