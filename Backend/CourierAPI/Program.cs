@@ -12,7 +12,9 @@ using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
+using ORM_Components.Interfaces;
 using ORM_Components.MapsterConfigs;
+using ORM_Components.Services;
 using ORM_Components.Validators.CourierValidators;
 using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
@@ -141,6 +143,8 @@ namespace CourierAPI
             builder.Services.AddScoped<OrderConfig>();
 
             builder.Services.AddScoped<ICourierService, CourierService>();
+
+            builder.Services.AddSingleton<IMailSender, MailSender>();
 
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<CourierValidatorDtoForCreate>();

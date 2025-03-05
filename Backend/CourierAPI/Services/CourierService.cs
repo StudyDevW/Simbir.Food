@@ -12,6 +12,8 @@ using System.Linq;
 using Middleware_Components.Broker;
 using ORM_Components.DTO.RestaurantAPI;
 using FluentValidation;
+using ORM_Components.Interfaces;
+using ORM_Components.DTO.MailDtos;
 
 namespace CourierAPI.Service
 {
@@ -21,16 +23,21 @@ namespace CourierAPI.Service
         private readonly DataContext _dataContext;
         private readonly IMessageSender _tgmessage;
         private readonly IRabbitMQService _rabbitMQService;
+        private readonly IMailSender _mailSender;
         private readonly IValidator<CourierDtoForCreate> _courierCreateValidator;
         private readonly IValidator<CourierDtoForUpdate> _courierUpdateValidator;
 
+
         public CourierService(DataContext dataContext, IMessageSender tgmessage,
-            IRabbitMQService rabbitMQService,
-            IValidator<CourierDtoForCreate> _courierCreateValidator, IValidator<CourierDtoForUpdate> _courierUpdateValidator)
+            IRabbitMQService rabbitMQService, IMailSender mailSender,
+            IValidator<CourierDtoForCreate> courierCreateValidator, IValidator<CourierDtoForUpdate> courierUpdateValidator)
         {
             _dataContext = dataContext;
             _tgmessage = tgmessage;
             _rabbitMQService = rabbitMQService;
+            _mailSender = mailSender;
+            _courierCreateValidator = courierCreateValidator;
+            _courierUpdateValidator = courierUpdateValidator;
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("CourierAPI | database-sdk-logger");
         }
 
@@ -119,6 +126,14 @@ namespace CourierAPI.Service
                 order.courier_id!.Value
             );
             _rabbitMQService.SendMessage("order_review_queue", orderDto);
+
+            var user = await _dataContext.userTable
+                .FirstOrDefaultAsync(x => x.Id == order.client_id);
+
+            if (user != null && user.email != null)
+            {
+                _rabbitMQService.SendMessage("mailsender", new EmailDto(orderId, user.email));
+            }
         }
 
         private async Task UpdateOrderStatus(Guid orderId, OrderStatus expectedStatus, OrderStatus newStatus)
