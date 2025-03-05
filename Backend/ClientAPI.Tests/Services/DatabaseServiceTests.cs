@@ -19,16 +19,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace ClientAPI.Tests.Services;
 
-public class DatabaseServiceTests
+public class DatabaseServiceTests : UnitTest
 {
     private readonly DatabaseService _sut;
-    private readonly Mock<DataContext> _context;
 
     private readonly List<UserTable> _users;
 
     public DatabaseServiceTests()
     {
-        _context = new Mock<DataContext>();
         _users = new List<UserTable>();
 
         _users = itemsSetup(
@@ -58,43 +56,6 @@ public class DatabaseServiceTests
         result.check_success.Should().NotBeNull();
         result.check_success.Id.Should().Be(user.Id);
         result.check_error.Should().BeNull();
-    }
-
-    public static Expression<T> Combine<T>(
-    Expression<T> firstExpression,
-    Expression<T> secondExpression)
-    {
-        var invokedExpression = Expression.Invoke(
-            secondExpression,
-            firstExpression.Parameters);
-
-        var combinedExpression = Expression.AndAlso(firstExpression.Body, invokedExpression);
-
-        return Expression.Lambda<T>(combinedExpression, firstExpression.Parameters);
-    }
-
-    private List<T> itemsSetup<T>(
-        Expression<Func<DataContext, DbSet<T>>> act,
-        Expression<Func<DataContext, EntityEntry<T>>>? remove = null,
-        Expression<Func<DataContext, EntityEntry<T>>>? add = null,
-        Expression<Func<DataContext, ValueTask<T?>>>? find = null
-        )
-        where T : IId
-    {
-        var items = new List<T>();
-
-        _context.Setup(act).ReturnsDbSet(items);
-
-        if (add != null)
-            _context.Setup(add).Callback<T>(x => items.Add(x));
-
-        if (remove != null)
-            _context.Setup(remove).Callback<T>(x => items.Remove(x));
-
-        if (find != null)
-            _context.Setup(find).ReturnsFindAsync(items);
-
-        return items;
     }
 
     [Fact]

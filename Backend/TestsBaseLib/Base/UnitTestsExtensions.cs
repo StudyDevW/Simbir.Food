@@ -91,7 +91,7 @@ public static class UnitTestsExtensions
             calories = table.calories,
             image = table.image,
             name = table.name,
-            //price = table.price,
+            price = (int)table.price,
             restaurant_id = table.restaurant_id,
             weight = table.weight
         };

@@ -1,7 +1,5 @@
-﻿using Bogus;
-using ClientAPI.Interfaces;
+﻿using ClientAPI.Interfaces;
 using ClientAPI.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Middleware_Components.Cache;
@@ -9,15 +7,12 @@ using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.JWT;
 using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
-using Moq;
 using ORM_Components;
-using ORM_Components.DTO.ClientAPI;
 using ORM_Components.Tables;
 using StackExchange.Redis;
 using System.Text.Json;
 
 namespace TestsBaseLib.Base;
-
 public class IntegrationTest
 {
     protected IConfiguration Configuration { get; set; }

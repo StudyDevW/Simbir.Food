@@ -114,9 +114,9 @@ public class CourierServiceTests
         var history = new List<OrderStatusHistoryTable>();
 
         _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-        _context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        _context.Setup(x => x.orderHistory).ReturnsDbSet(history);
         _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-        _context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+        _context.Setup(x => x.orderHistory.Add(It.IsAny<OrderStatusHistoryTable>()))
             .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
         
@@ -174,9 +174,9 @@ public class CourierServiceTests
         var history = new List<OrderStatusHistoryTable>();
 
         _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-        _context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        _context.Setup(x => x.orderHistory).ReturnsDbSet(history);
         _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-        _context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+        _context.Setup(x => x.orderHistory.Add(It.IsAny<OrderStatusHistoryTable>()))
             .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
         // act
@@ -198,9 +198,9 @@ public class CourierServiceTests
         var history = new List<OrderStatusHistoryTable>();
 
         _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-        _context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        _context.Setup(x => x.orderHistory).ReturnsDbSet(history);
         _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-        _context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+        _context.Setup(x => x.orderHistory.Add(It.IsAny<OrderStatusHistoryTable>()))
             .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
         // act
@@ -222,9 +222,9 @@ public class CourierServiceTests
         var history = new List<OrderStatusHistoryTable>();
 
         _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-        _context.Setup(x => x.orderStatusHistoryTables).ReturnsDbSet(history);
+        _context.Setup(x => x.orderHistory).ReturnsDbSet(history);
         _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-        _context.Setup(x => x.orderStatusHistoryTables.Add(It.IsAny<OrderStatusHistoryTable>()))
+        _context.Setup(x => x.orderHistory.Add(It.IsAny<OrderStatusHistoryTable>()))
             .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
         // act
