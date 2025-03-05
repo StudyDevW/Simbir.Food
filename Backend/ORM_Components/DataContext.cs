@@ -41,9 +41,7 @@ namespace ORM_Components
 
         public virtual DbSet<RestaurantFoodItemsTable> restaurantFoodItemsTable { get; set; }
 
-        public virtual DbSet<OrderStatusHistoryTable> orderStatusHistoryTables { get; set; }
-
-        public virtual DbSet<ReviewTable> reviewTable { get; set; }
+        public DbSet<ReviewTable> reviewTable { get; set; }
 
         public virtual DbSet<BasketTable> basketTable { get; set; }
 

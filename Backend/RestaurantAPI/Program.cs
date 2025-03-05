@@ -10,6 +10,7 @@ using Middleware_Components.Services;
 using ORM_Components;
 using RestaurantAPI.Model.Interface;
 using RestaurantAPI.Model.Services;
+using RestaurantAPI.Services;
 using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
@@ -118,14 +119,19 @@ namespace RestaurantAPI
             //builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
             builder.Services.AddSingleton<IMessageSender>(
                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
-           );
-            builder.Services.AddSingleton<IJwtService, JwtSDK>();
+            );
 
-            builder.Services.AddSingleton<RabbitMQService>();
+            builder.Services.AddScoped<IJwtService, JwtSDK>();
 
-            builder.Services.AddSingleton<ICacheService, CacheSDK>();
+            builder.Services.AddScoped<IRabbitMQService, RabbitMQService>();
 
-            builder.Services.AddSingleton<IPhotoServices, PhotoServices>();
+            builder.Services.AddScoped<ICacheService, CacheSDK>();
+
+            builder.Services.AddScoped<IPhotoServices, PhotoServices>();
+
+            builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();
+
+            builder.Services.AddHostedService<RabbitMQListenerService>();
 
             builder.Services.AddCors(options =>
             {

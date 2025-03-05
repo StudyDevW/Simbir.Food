@@ -24,7 +24,7 @@ namespace RestaurantAPI.Model.Services
             _hostingEnvironment = hostingEnvironment;
             _photoServices = photoServices;
         }
-        public async Task<IPhotoServices> AddPhotos([FromForm] Photos_DTO photo_DTO)
+        public async Task AddPhotos([FromForm] Photos_DTO photo_DTO)
         {       
             if (photo_DTO.File == null || photo_DTO.File.Length == 0)
             {
@@ -48,22 +48,20 @@ namespace RestaurantAPI.Model.Services
             throw new Exception("Файл был успешно загружен  .");
 
         }
-        public async Task<IPhotoServices> RemovePhoto(int id)
+        public async Task RemovePhoto(int id)
         {
             var restaurantItem = await _dbContext.restaurantTable.FindAsync(id);
 
             if (restaurantItem == null)
             {
                 throw new Exception("Фото не найдено.");
-                return null;
             }
 
             _dbContext.restaurantTable.Remove(restaurantItem);
             await _dbContext.SaveChangesAsync();
 
-            throw new Exception("Фото успешно удалено.");
         }
-        public async Task<IPhotoServices> RemoveAllPhotos()
+        public async Task RemoveAllPhotos()
         {
             var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
 
@@ -74,8 +72,6 @@ namespace RestaurantAPI.Model.Services
 
             _dbContext.restaurantTable.RemoveRange(restaurantItems);
             await _dbContext.SaveChangesAsync();
-
-            throw new Exception("Все фотографии успешно удалены.");
         }
 
         public async Task<List<RestaurantTable>> GetPhotos()

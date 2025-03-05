@@ -91,5 +91,6 @@ namespace CourierAPI.Controllers
             await _courierService.DeleteAsync(courierId);
             return NoContent();
         }
+
     }
 }
