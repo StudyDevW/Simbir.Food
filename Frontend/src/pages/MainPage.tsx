@@ -7,33 +7,7 @@ import { handleGetInfoMe } from '../api-integrations/ClientInfoAPI.ts';
 import { handleUserAuth } from '../api-integrations/AuthAPI.ts';
 import { telegramUser } from '../telegram-integrations/InitData.ts';
 import ProfilePage from './ProfilePage.tsx';
-
-
-interface GetMeInfo {
-  Id: string,
-  telegram_id: number,
-  first_name: string,
-  last_name: string | null,
-  username: string | null,
-  photo_url: string | null,
-  chat_id: number,
-  address: string | null,
-  restaurant_own: string[] | null,
-  roles: string[]
-}
-
-interface AuthComponent {
-  id: number,
-  first_name: string,
-  last_name: string | null,
-  username: string | null,
-  is_bot: boolean,
-  photo_url: string | null,
-  chat_id: number,
-  address: string,
-  device: string,
-  roles: string[]
-}
+import { AuthComponent, GetMeInfo } from '../api-integrations/Interfaces/API_Interfaces.ts';
 
 var userData = new telegramUser(
   WebApp.initDataUnsafe.user, 
@@ -168,6 +142,7 @@ const MainPage: React.FC = () => {
                 {userInfo === null && LoadingDraw()}
 
                 {userInfo !== null && <>
+
                   <div className="app_maincontent">
                     <div className="app_maincontent_title">Рестораны</div>
                   </div>

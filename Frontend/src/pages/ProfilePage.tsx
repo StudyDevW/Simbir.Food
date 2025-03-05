@@ -1,24 +1,7 @@
 import WebApp from "@twa-dev/sdk";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, data } from 'react-router-dom';
-
-interface GetMeInfo {
-    Id: string,
-    telegram_id: number,
-    first_name: string,
-    last_name: string | null,
-    username: string | null,
-    photo_url: string | null,
-    chat_id: number,
-    address: string | null,
-    restaurant_own: string[] | null,
-    roles: string[]
-}
-
-interface MenuElements {
-    name_menu: string,
-    icon_url: string
-}
+import { GetMeInfo } from "../api-integrations/Interfaces/API_Interfaces";
 
 const ElementMenu: React.FC<{name_element: string, icon_url: string, description?: string, is_mobile: boolean}> = ({name_element, icon_url, description, is_mobile}) => {
     return (<>
@@ -151,9 +134,14 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
                         </div>
 
-                        <div className="app_profile_elements_address"
-                        onClick={()=>navigate("/address_select", { state: { address_default: info.address } })}>
-                            {`Сменить адрес`}
+                        <div className="app_profile_elements_address">
+                            <div className="app_maincontent_balance_image">
+
+                            </div>
+
+                            <div className="app_maincontent_balance_title">
+                                {`Баланс ${info.money_value} руб.`}
+                            </div>
                         </div>
 
                         <div className="app_profile_elements_separator">{`Основное`}</div>

@@ -8,9 +8,12 @@ namespace RestaurantAPI.Model.Interface
    
     public interface IPhotoServices
     {
-        Task AddPhotos([FromForm] Photos_DTO photo_DTO);
-        Task RemovePhoto(int id);
-        Task RemoveAllPhotos();
+        Task AddPhotoRestaurant(PhotoDTO_Restaurant photo_DTO);
+        Task AddPhotoRestaurantFoodItem(PhotoDTO_FoodItem photo_DTO);
+
+        Task RemovePhotoFromRestaurant(Guid restaurantId);
+        Task RemovePhotoFromFoodItem(Guid fooditemId);
+
         Task<List<RestaurantTable>> GetPhotos();
         Task<List<RestaurantTable>> GetAllPhotos(Guid restaurantId);
     }
