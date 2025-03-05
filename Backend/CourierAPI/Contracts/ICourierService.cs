@@ -16,5 +16,7 @@ namespace CourierAPI.Contracts
         Task CreateAsync(CourierDtoForCreate courierDtoForCreate);
         Task UpdateAsync(CourierDtoForUpdate courierDtoForUpdate);
         Task DeleteAsync(Guid courierId);
+
+        Task TestMethod();
     }
 }
