@@ -91,7 +91,7 @@ namespace CourierAPI.Service
 
             if (ordersCount >= 3)
             {
-                throw new Exception("У вас достигнут лимит единовременных заказов: 3");
+                throw new Exception($"Курьер {courierId}, достиг лимита единовременных заказов: 3");
             }
         }
 
@@ -113,7 +113,7 @@ namespace CourierAPI.Service
                 .FirstOrDefaultAsync(x => x.Id == orderId)
                 ?? throw new Exception("Заказ не найден.");
 
-            if (order.courier_id == Guid.Empty)
+            if (order.courier_id == null || order.courier_id == Guid.Empty)
             {
                 throw new Exception("Курьер не назначен на заказ.");
             }
@@ -161,11 +161,31 @@ namespace CourierAPI.Service
             var user = await _dataContext.userTable
                 .FirstOrDefaultAsync(x => x.Id == order.client_id);
 
-            await _tgmessage.Send(user!.telegram_chat_id.ToString(),
-                    $"Статус заказа был изменён с {expectedStatus} на {newStatus}");
+            switch(newStatus)
+            {
+                case OrderStatus.WaitingForDelivery:
+                    await SendTgMessageForClient(user!.telegram_chat_id.ToString(),
+                        $"Ваш заказ с номером {order.Id} принят в доставку. Курьер уже в пути!");
+                    break;
+
+                case OrderStatus.CourierOnPlace:
+                    await SendTgMessageForClient(user!.telegram_chat_id.ToString(),
+                        $"Ваш заказ с номером {order.Id} доставлен к месту назначения.");
+                    break;
+
+                case OrderStatus.Delivered:
+                    await SendTgMessageForClient(user!.telegram_chat_id.ToString(),
+                        $"Ваш заказ с номером {order.Id} успешно доставлен. Приятного аппетита!");
+                    break;
+            }
 
             _logger.LogInformation($"Статус заказа с ID: {orderId} был изменён с {expectedStatus} на {newStatus}.");
 
+        }
+
+        private async Task SendTgMessageForClient(string chatId, string message)
+        {
+            await _tgmessage.Send(chatId, message);
         }
 
         public async Task CreateAsync(CourierDtoForCreate courierDtoForCreate)
