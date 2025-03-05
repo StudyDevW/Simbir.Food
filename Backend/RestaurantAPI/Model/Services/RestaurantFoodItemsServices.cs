@@ -85,19 +85,23 @@ namespace RestaurantAPI.Model.Services
             return "Блюдо успешно удалено.";
         }
 
-        public async Task<string> DeleteAllRestaurantFoodItems()
+        public async Task<string> DeleteAllRestaurantFoodItems(Guid restaurantId)
         {
-            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable.ToListAsync();
+            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable
+                .Where(item => item.restaurant_id == restaurantId)
+                .ToListAsync();
+
             if (!restaurantFoodItems.Any())
             {
-                throw new Exception("Нет доступных блюд для удаления.");
+                throw new Exception("Нет доступных блюд для удаления в указанном ресторане.");
             }
 
             _dbcontext.restaurantFoodItemsTable.RemoveRange(restaurantFoodItems);
             await _dbcontext.SaveChangesAsync();
 
-            return "Все блюда успешно удалены.";
+            return "Все блюда успешно удалены из указанного ресторана.";
         }
+
 
         public async Task<List<RestaurantFoodItemsTable>> GetRestaurantFoodItems(Guid restaurantId)
         {

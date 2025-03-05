@@ -67,7 +67,7 @@ namespace RestaurantAPI.Services
         }
         private async Task NotifyOrderFinishedCourier(Order_DTO order)
         {
-            var courierChatId = GetCourierChatIdForOrder(order.courier_id);
+            var courierChatId = await GetCourierChatIdForOrder(order.courier_id);
             var message = $"Теперь вам доступен новый заказ для приготовления и доставки";
             await _messageSender.Send(courierChatId.ToString(), message);
         }
@@ -160,7 +160,7 @@ namespace RestaurantAPI.Services
             await _messageSender.Send(userChatId.ToString(), messageToClient);
         }
         
-        private async Task<long?> GetCourierChatIdForOrder(Guid orderId)
+        private async Task<long?> GetCourierChatIdForOrder(Guid? orderId)
         {
             var order = await _dbcontext.orderTable.FindAsync(orderId);
 
