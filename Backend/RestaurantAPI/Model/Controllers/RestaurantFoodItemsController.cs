@@ -53,10 +53,10 @@ namespace RestaurantAPI.Model.Controllers
             return NoContent();
         }
         [HttpDelete]
-        [Route("DeleteAllRestaurantFoodItems")]
-        public async Task<IActionResult> DeleteAllRestaurantFoodItems()
+        [Route("DeleteAllRestaurantFoodItems/{restaurantId}")]
+        public async Task<IActionResult> DeleteAllRestaurantFoodItems(Guid restaurantId)
         {
-            await _restaurantFoodItemsServices.DeleteAllRestaurantFoodItems();
+            await _restaurantFoodItemsServices.DeleteAllRestaurantFoodItems(restaurantId);
             return NoContent();
         }
         [HttpGet]
