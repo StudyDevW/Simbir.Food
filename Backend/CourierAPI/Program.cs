@@ -2,8 +2,6 @@ using CourierAPI.Contracts;
 using CourierAPI.Service;
 using DotNetEnv;
 using DotNetEnv.Configuration;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;

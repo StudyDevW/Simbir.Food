@@ -6,7 +6,6 @@ using ORM_Components;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using RestaurantAPI.Model.Interface;
-using Telegram.Bot.Requests.Abstractions;
 
 namespace RestaurantAPI.Model.Services
 {
