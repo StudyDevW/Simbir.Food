@@ -9,5 +9,3 @@
 .vs
 
 .env
-/Backend/ORM_Components/Migrations/20250306002004_AddedEmailField.cs
-/Backend/ORM_Components/Migrations/20250306002004_AddedEmailField.Designer.cs

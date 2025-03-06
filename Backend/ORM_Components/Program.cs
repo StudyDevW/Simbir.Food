@@ -1,6 +1,7 @@
 ﻿using DotNetEnv;
 using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,9 +24,6 @@ namespace ORM_Components
         static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            builder.Logging.ClearProviders();
-            builder.Logging.AddConsole();
 
             builder.Configuration.AddDotNetEnv(".env", LoadOptions.TraversePath());
 

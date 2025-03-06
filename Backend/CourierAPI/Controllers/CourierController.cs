@@ -19,23 +19,16 @@ namespace CourierAPI.Controllers
             _courierService = courierService;
         }
 
-        [HttpGet("{courierId}/ordersForCourier")]
-        public async Task<ActionResult<List<OrderForCourierDto>>> GetOrderList(Guid courierId)
+        [HttpGet("ordersForCourier")]
+        public async Task<ActionResult<List<OrderForCourierDto>>> GetOrderList()
         {
-            return await _courierService.GetOrders(courierId);
+            return await _courierService.GetOrders();
         }
 
         [HttpPost("{orderId}/accept")]
-        public async Task<IActionResult> AcceptOrder([FromBody] OrderLinkCourierDto orderLinkCourierDto)
+        public async Task<IActionResult> AcceptOrder(Guid orderId)
         {
-            await _courierService.AcceptOrder(orderLinkCourierDto);
-            return NoContent();
-        }
-
-        [HttpPost("{orderId}/take")]
-        public async Task<IActionResult> TakeOrder(Guid orderId)
-        {
-            await _courierService.TakeOrder(orderId);
+            await _courierService.AcceptOrder(orderId);
             return NoContent();
         }
 
@@ -54,9 +47,9 @@ namespace CourierAPI.Controllers
         }
 
         [HttpGet("{courierId}/get")]
-        public async Task<ActionResult<CourierDto>> GetAsync(Guid courierId)
+        public async Task<ActionResult<CourierDto>> GetAsync()
         {
-            return await _courierService.GetAsync(courierId);
+            return await _courierService.GetAsync();
         }
 
         [HttpGet("getAll")]

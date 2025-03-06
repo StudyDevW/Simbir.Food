@@ -123,13 +123,13 @@ namespace RestaurantAPI
 
             builder.Services.AddScoped<IJwtService, JwtSDK>();
 
-            builder.Services.AddScoped<IRabbitMQService, RabbitMQService>();
-
             builder.Services.AddScoped<ICacheService, CacheSDK>();
 
             builder.Services.AddScoped<IPhotoServices, PhotoServices>();
 
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();
+
+            builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
 
             builder.Services.AddHostedService<RabbitMQListenerService>();
 

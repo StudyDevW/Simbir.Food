@@ -3,7 +3,6 @@ using Middleware_Components.Broker;
 using ORM_Components.DTO.PaymentAPI;
 using Telegram.Bot.Types;
 using Telegram_Components.Interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace ClientAPI.Services
 {

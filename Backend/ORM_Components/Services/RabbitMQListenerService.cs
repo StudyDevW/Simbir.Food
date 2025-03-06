@@ -3,6 +3,7 @@ using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.MailDtos;
 using ORM_Components.DTO.PaymentAPI;
 using ORM_Components.Interfaces;
+using System.Text.Json;
 
 namespace ORM_Components.Services
 {
@@ -21,9 +22,9 @@ namespace ORM_Components.Services
         {
             Task.Run(() =>
             {
-                _rabbitMQService.StartListening<EmailDto>("mailsender", async mailDto =>
-                {                    
-                    await _mailSender.SendEmailAsync(mailDto);   
+                _rabbitMQService.StartListening<EmailDto>("courier_to_orm", async mailDto =>
+                {
+                    await _mailSender.SendEmailAsync(mailDto);
                 });
 
 

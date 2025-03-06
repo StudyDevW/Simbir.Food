@@ -147,8 +147,10 @@ namespace CourierAPI
             builder.Services.AddSingleton<IMailSender, MailSender>();
 
             builder.Services.AddFluentValidationAutoValidation();
+
             builder.Services.AddValidatorsFromAssemblyContaining<CourierValidatorDtoForCreate>();
 
+            builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
 

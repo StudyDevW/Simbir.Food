@@ -14,6 +14,7 @@ using ORM_Components.DTO.RestaurantAPI;
 using FluentValidation;
 using ORM_Components.Interfaces;
 using ORM_Components.DTO.MailDtos;
+using System.Security.Claims;
 
 namespace CourierAPI.Service
 {
@@ -26,11 +27,12 @@ namespace CourierAPI.Service
         private readonly IMailSender _mailSender;
         private readonly IValidator<CourierDtoForCreate> _courierCreateValidator;
         private readonly IValidator<CourierDtoForUpdate> _courierUpdateValidator;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CourierService(DataContext dataContext, IMessageSender tgmessage,
             IRabbitMQService rabbitMQService, IMailSender mailSender,
-            IValidator<CourierDtoForCreate> courierCreateValidator, IValidator<CourierDtoForUpdate> courierUpdateValidator)
+            IValidator<CourierDtoForCreate> courierCreateValidator, IValidator<CourierDtoForUpdate> courierUpdateValidator,
+            IHttpContextAccessor httpContextAccessor)
         {
             _dataContext = dataContext;
             _tgmessage = tgmessage;
@@ -38,11 +40,31 @@ namespace CourierAPI.Service
             _mailSender = mailSender;
             _courierCreateValidator = courierCreateValidator;
             _courierUpdateValidator = courierUpdateValidator;
+            _httpContextAccessor = httpContextAccessor;
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("CourierAPI | database-sdk-logger");
         }
 
-        public async Task<List<OrderForCourierDto>> GetOrders(Guid courierId)
+        private async Task<Guid> GetCourierId()
         {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst("Id")?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("Пользователь не авторизован");
+            }
+
+            Guid guidUserId = Guid.Parse(userId);
+
+            return await _dataContext.courierTable
+                .Where(x => x.userId == guidUserId)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<OrderForCourierDto>> GetOrders()
+        {
+            Guid courierId = await GetCourierId();
+
             var restaurantId = await _dataContext.orderTable
                 .Where(x => x.courier_id == courierId && x.status == OrderStatus.WaitingForDelivery)
                 .OrderByDescending(x => x.order_date)
@@ -59,26 +81,30 @@ namespace CourierAPI.Service
             }
 
             return await query
-                .Select(x => new OrderForCourierDto(x.Id, x.client_id, x.status, x.order_date))
+                .Select(x => new OrderForCourierDto(x.Id, x.restaurant_id, x.status, x.order_date))
                 .ToListAsync();
         }
 
-        public async Task AcceptOrder(OrderLinkCourierDto orderLinkCourierDto)
+        public async Task AcceptOrder(Guid orderId)
         {
+            Guid courierId = await GetCourierId();
+
             var order = await _dataContext.orderTable.
-                FirstOrDefaultAsync(x => x.Id == orderLinkCourierDto.orderId)
+                FirstOrDefaultAsync(x => x.Id == orderId)
                 ?? throw new Exception("Заказ не найден.");
 
             bool isCourierExist = await _dataContext.courierTable
-                .AnyAsync(x => x.Id == orderLinkCourierDto.courierId);
+                .AnyAsync(x => x.Id == courierId);
 
             if (!isCourierExist)
                 throw new Exception("Курьер не найден.");
 
-            await CheckQuantityOfOrdersForCourier(orderLinkCourierDto.courierId);
+            await CheckQuantityOfOrdersForCourier(courierId);
 
-            order.courier_id = orderLinkCourierDto.courierId;
+            order.courier_id = courierId;
             await _dataContext.SaveChangesAsync();
+
+            await TakeOrder(order.Id);
 
             _logger.LogInformation($"Курьер с ID: {order.courier_id} был назначен на заказ: {order.Id}.");
         }
@@ -132,7 +158,8 @@ namespace CourierAPI.Service
 
             if (user != null && user.email != null)
             {
-                _rabbitMQService.SendMessage("mailsender", new EmailDto(orderId, user.email));
+                EmailDto emailDto = new EmailDto(orderId, user.email);
+                _rabbitMQService.SendMessage("courier_to_orm", emailDto);
             }
         }
 
@@ -205,8 +232,10 @@ namespace CourierAPI.Service
             _logger.LogInformation($"Новый курьер был создан. ID: {courier.Id}.");
         }
 
-        public async Task<CourierDto> GetAsync(Guid courierId)
+        public async Task<CourierDto> GetAsync()
         {
+            var courierId = await GetCourierId();
+
             return await _dataContext.courierTable
                 .Where(x => x.Id == courierId)
                 .Select(x => new CourierDto(x.Id, x.userId, x.car_number, x.status))
@@ -246,6 +275,5 @@ namespace CourierAPI.Service
 
             _logger.LogInformation($"Курьера с ID: {courier.Id} был удалён.");
         }
-
     }
 }

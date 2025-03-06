@@ -22,6 +22,8 @@ namespace ORM_Components.Services
 
         public async Task SendEmailAsync(EmailDto emailDto)
         {
+            _logger.LogInformation($"Отправляю сообщение на почту {emailDto.email}...");
+
             if (emailDto == null) { throw new Exception("В MailSender пришла пустая ДТОшка."); }
 
             var order = await _dataContext.orderTable
@@ -67,10 +69,15 @@ namespace ORM_Components.Services
             message.AppendLine($"Итоговая сумма заказа: {order.total_price}");
             message.AppendLine($"Дата создания заказ: {order.order_date}");
 
+            var htmlMessage = message.ToString()
+            .Replace(Environment.NewLine, "<br>")
+            .Replace("\n", "<br>")
+            .Replace("\r", "");
+
             var bodyBuilder = new BodyBuilder
             {
-                HtmlBody = message.ToString(),
-                TextBody = $"<pre>{message}</pre>"
+                HtmlBody = $"<html><head><meta charset='UTF-8'></head><body>{htmlMessage}</body></html>",
+                TextBody = message.ToString()
             };
 
             emailMessage.Body = bodyBuilder.ToMessageBody();

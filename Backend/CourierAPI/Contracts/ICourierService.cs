@@ -5,13 +5,12 @@ namespace CourierAPI.Contracts
 {
     public interface ICourierService
     {
-        Task<List<OrderForCourierDto>> GetOrders(Guid courierId);
-        Task AcceptOrder(OrderLinkCourierDto orderLinkCourierDto);
-        Task TakeOrder(Guid orderId);
+        Task<List<OrderForCourierDto>> GetOrders();
+        Task AcceptOrder(Guid orderId);
         Task CourierOnPlace(Guid orderId);
         Task OrderDelivered(Guid orderId);
 
-        Task<CourierDto> GetAsync(Guid courierId);
+        Task<CourierDto> GetAsync();
         Task<List<CourierDto>> GetAllAsync();
         Task CreateAsync(CourierDtoForCreate courierDtoForCreate);
         Task UpdateAsync(CourierDtoForUpdate courierDtoForUpdate);
