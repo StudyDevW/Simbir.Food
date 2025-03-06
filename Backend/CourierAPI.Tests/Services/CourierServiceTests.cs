@@ -1,56 +1,70 @@
 ﻿using CourierAPI.Service;
 using FluentAssertions;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Middleware_Components.Broker;
 using Moq;
 using Moq.EntityFrameworkCore;
 using ORM_Components;
 using ORM_Components.DTO.CourierAPI;
+using ORM_Components.Interfaces;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
 using ORM_Components.Validators.CourierValidators;
+using System.Security.Claims;
+using Telegram.Bot.Types;
 using Telegram_Components.Interfaces;
 using TestsBaseLib.Base;
 
 namespace CourierAPI.Tests.Services;
 
-public class CourierServiceTests
+public class CourierServiceTests : UnitTest
 {
     private readonly Mock<IRabbitMQService> _rabbit;
-    private readonly Mock<DataContext> _context;
     private readonly Mock<IMessageSender> _sender;
     private readonly CourierService _sut;
+    private readonly Mock<IHttpContextAccessor> _http;
 
     public CourierServiceTests()
     {
-        _context = new Mock<DataContext>();
         _sender = new Mock<IMessageSender>();
         _rabbit = new Mock<IRabbitMQService>();
+        var mail = new Mock<IMailSender>();
+        _http = new Mock<IHttpContextAccessor>();
 
-        _sut = new CourierService(_context.Object, _sender.Object, _rabbit.Object,
+        _sut = new CourierService(_context.Object, _sender.Object, _rabbit.Object, mail.Object,
             Mock.Of<IValidator<CourierDtoForCreate>>(),
-            Mock.Of<IValidator<CourierDtoForUpdate>>());
+            Mock.Of<IValidator<CourierDtoForUpdate>>(),
+            _http.Object);
+    }
+
+    private void setUser(Guid id)
+    {
+        _http.Setup(x => x.HttpContext.User.FindFirst("Id")).Returns(new Claim("UserId", id.ToString()));
     }
 
     [Fact]
     public async Task AcceptOrder_WithCorrectData_SetCourierOfAnOrder()
     {
         // arrange
-        var order = Generator.GenerateOrder(OrderStatus.Ready);
+        var client = Generator.GenerateUser();
+        var order = Generator.GenerateOrder(client.Id, Guid.NewGuid(), OrderStatus.Ready);
 
-        var courier = new CourierTable
-        {
-            Id = Guid.NewGuid(),
-        };
+        var user = Generator.GenerateUser();
+        var courier = Generator.GenerateCourier(user.Id);
 
-        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        var users = itemsSetup(x => x.userTable);
+        users.Add(user);
+        users.Add(client);
 
-        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+        itemsSetup(x => x.orderHistory);
+        itemsSetup(x => x.orderTable).Add(order);
+        itemsSetup(x => x.courierTable).Add(courier);
 
-        var dto = new OrderLinkCourierDto(order.Id, courier.Id);
+        setUser(user.Id);
 
         // act
-        await _sut.AcceptOrder(dto);
+        await _sut.AcceptOrder(order.Id);
 
         // asset
         order.courier_id.Should().Be(courier.Id);
@@ -60,21 +74,13 @@ public class CourierServiceTests
     public async Task AcceptOrder_WithWrongOrderId_ThrowsOrderException()
     {
         // arrange
-        var order = Generator.GenerateOrder(OrderStatus.Ready);
+        itemsSetup(x => x.orderTable);
+        itemsSetup(x => x.courierTable);
 
-        var courier = new CourierTable
-        {
-            Id = Guid.NewGuid(),
-        };
-
-        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-
-        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
-
-        var dto = new OrderLinkCourierDto(Guid.NewGuid(), courier.Id);
+        setUser(Guid.NewGuid());
 
         // act
-        Func<Task> act = async () => await _sut.AcceptOrder(dto);
+        Func<Task> act = async () => await _sut.AcceptOrder(Guid.NewGuid());
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Заказ не найден.");
@@ -84,21 +90,24 @@ public class CourierServiceTests
     public async Task AcceptOrder_WithWrongCourierId_ThrowsCourierException()
     {
         // arrange
-        var order = Generator.GenerateOrder(OrderStatus.Ready);
+        var client = Generator.GenerateUser();
+        var order = Generator.GenerateOrder(client.Id, Guid.NewGuid(), OrderStatus.Ready);
 
-        var courier = new CourierTable
-        {
-            Id = Guid.NewGuid(),
-        };
+        var user = Generator.GenerateUser();
+        var courier = Generator.GenerateCourier(user.Id);
 
-        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+        var users = itemsSetup(x => x.userTable);
+        users.Add(user);
+        users.Add(client);
 
-        _context.Setup(x => x.courierTable).ReturnsDbSet(new List<CourierTable> { courier });
+        itemsSetup(x => x.orderHistory);
+        itemsSetup(x => x.orderTable).Add(order);
+        itemsSetup(x => x.courierTable);
 
-        var dto = new OrderLinkCourierDto(order.Id, Guid.NewGuid());
+        setUser(user.Id);
 
         // act
-        Func<Task> act = async () => await _sut.AcceptOrder(dto);
+        Func<Task> act = async () => await _sut.AcceptOrder(order.Id);
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");

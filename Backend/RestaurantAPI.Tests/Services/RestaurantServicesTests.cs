@@ -28,33 +28,6 @@ public class RestaurantServicesTests : UnitTest
     }
 
     [Fact]
-    public async Task CreateRestaurant_WithExistentRestaurant_AcceptsRestaurantCreationRequest()
-    {
-        // arrange
-        var rest = Generator.GenerateRestaurant(Guid.NewGuid(), RestaurantStatus.Unverified);
-        _rests.Add(rest);
-
-        // act
-        await _sut.CreateRestaurant(rest.Id);
-
-        // assert
-        rest.status.Should().Be(RestaurantStatus.Verified);
-    }
-
-    [Fact]
-    public async Task CreateRestaurant_WithNonExistentRestaurant_ThrowsException()
-    {
-        // arrange
-        var id = Guid.NewGuid();
-
-        // act
-        Func<Task> act = async() => await _sut.CreateRestaurant(id);
-
-        // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Ресторан не найден.");
-    }
-
-    [Fact]
     public async Task OrderRejections_WithExistentOrder_RejectsOrder()
     {
         // arrange

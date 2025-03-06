@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CourierAPI\CourierAPI.csproj" />
+    <ProjectReference Include="..\ORM_Components\ORM_Components.csproj" />
     <ProjectReference Include="..\TestsBaseLib\TestsBaseLib.csproj" />
   </ItemGroup>
 

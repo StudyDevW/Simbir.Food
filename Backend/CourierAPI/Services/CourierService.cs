@@ -34,9 +34,6 @@ namespace CourierAPI.Service
             IValidator<CourierDtoForCreate> courierCreateValidator, IValidator<CourierDtoForUpdate> courierUpdateValidator,
             IHttpContextAccessor httpContextAccessor)
         {
-            this._courierCreateValidator = _courierCreateValidator;
-            this._courierUpdateValidator = _courierUpdateValidator;
-
             _dataContext = dataContext;
             _tgmessage = tgmessage;
             _rabbitMQService = rabbitMQService;
