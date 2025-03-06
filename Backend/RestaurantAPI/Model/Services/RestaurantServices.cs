@@ -36,6 +36,11 @@ namespace RestaurantAPI.Model.Services
                 throw new Exception($"Заказ с идентификатором: {order.id} не существует.");
             }
 
+            if (orderRejections.status == OrderStatus.Delivered)
+            {
+                throw new Exception($"Заказ с идентификатором: {order.id} уже доставлен. Его нельзя отклонить.");
+            }
+
             orderRejections.status = OrderStatus.Denied;
 
             await _dataContext.SaveChangesAsync();
@@ -93,20 +98,20 @@ namespace RestaurantAPI.Model.Services
         public async Task<List<RestaurantMark_DTO>> GetRestaurantMark()
         {
             var restaurantWithMarks = await _dataContext.restaurantTable
-            .GroupJoin(
-                _dataContext.reviewTable,
-                restaurant => restaurant.Id,
-                review => review.restaurant_id,
-                (restaurant, reviews) => new
+                .Select(restaurant => new
                 {
                     restaurant.Id,
                     restaurant.restaurantName,
-                    AverageMark = reviews.Any() ? reviews.Average(r => r.rating) : 0
+                    AverageMark = _dataContext.reviewTable
+                        .Where(r => r.restaurant_id == restaurant.Id)
+                        .Select(r => r.rating)
+                        .DefaultIfEmpty(0)
+                        .Average()
                 })
-            .ToListAsync();
+                .ToListAsync();
 
             return restaurantWithMarks.Select(r =>
-                new RestaurantMark_DTO(r.Id, r.restaurantName, (int)r.AverageMark)
+                new RestaurantMark_DTO(r.Id, r.restaurantName, (float)r.AverageMark)
             ).ToList();
         }
         public async Task SetReadyStatusForOrder(Guid orderId)

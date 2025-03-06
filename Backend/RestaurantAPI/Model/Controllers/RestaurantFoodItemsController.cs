@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CourierAPI.Controllers.CustomAttributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ using System.Net;
 namespace RestaurantAPI.Model.Controllers
 {
     [Authorize(AuthenticationSchemes = "Asymmetric")]
+    [ValidateJwt]
     [Route("api/RestaurantFoodItems/")]
     [ApiController]
     public class RestaurantFoodItemsController : ControllerBase
@@ -38,7 +40,7 @@ namespace RestaurantAPI.Model.Controllers
             try
             {
                 await _restaurantFoodItemsServices.AddRestaurantFoodItems(restaurantFoodItems_DTO);
-                return Ok("Ресторан загружен");
+                return Ok("Блюдо успешно добавлено.");
             }
             catch (Exception ex)
             {
