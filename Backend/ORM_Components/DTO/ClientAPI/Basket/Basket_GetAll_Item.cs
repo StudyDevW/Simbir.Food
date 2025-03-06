@@ -2,6 +2,8 @@
 {
     public class Basket_GetAll_Item
     {
+        public Guid id { get; set; }
+
         public Guid restaurant_id { get; set; }
 
         public string name { get; set; }

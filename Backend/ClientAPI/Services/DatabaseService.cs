@@ -362,6 +362,7 @@ namespace ClientAPI.Services
                 {
                     Basket_GetAll_Item basketItem = new Basket_GetAll_Item()
                     {
+                        id = basketItemDb.Id,
                         restaurant_id = selectedFoodItem.restaurant_id,
                         name = selectedFoodItem.name,
                         weight = selectedFoodItem.weight,

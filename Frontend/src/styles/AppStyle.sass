@@ -156,7 +156,6 @@ body
     height: calc(100% - 60px)
     background-color: white
     border-radius: 30px 30px 0px 0px
-    overflow-y: scroll
     bottom: 0
 
 
@@ -512,3 +511,68 @@ body
     background-color: rgb(240, 240, 240)
     border-radius: 10px
 
+.app_basket_title
+    margin-top: 20px
+    margin-left: 25px
+    position: relative
+    font-family: MUSEOSANS
+    font-size: 25px
+
+.app_maincontent_area
+    position: absolute
+    margin-top: 50px
+    width: 100%
+    height: calc(100% - 50px)
+    overflow-y: scroll
+
+
+.app_basket_item
+    display: flex
+    flex-direction: column
+    flex-wrap: wrap
+    position: relative
+    margin-left: 15px
+    width: calc(100% - 15px)
+    height: 70px
+    background-color: #EAEAEA
+    border-radius: 10px
+    margin-bottom: 10px
+
+.app_basket_item_title
+    position: relative
+    font-family: MUSEOSANS
+    font-size: 15px
+    padding-left: 10px
+    margin-top: 18px
+    width: calc(100% - 80px) 
+
+.app_basket_item_delete
+    position: absolute
+    margin-top: 5px
+    margin-right: 5px
+    right: 0
+    width: 60px
+    height: 60px
+    border-radius: 10px
+    background-color: white
+    background-image: url(./images/trash-bin.png)
+    background-position: center
+    background-size: 35px
+    background-repeat: no-repeat
+
+
+.app_basket_item_title.sm
+    margin-top: 2px
+
+.app_basket_item_image
+    position: relative
+    margin-top: 5px
+    margin-left: 5px
+    width: 60px
+    height: 60px
+    border-radius: 10px
+    background-color: white
+    background-image: url(./images/missing_image.png)
+    background-position: center
+    background-size: contain
+    background-repeat: no-repeat

@@ -28,3 +28,18 @@ export interface AuthComponent {
     roles: string[]
 }
 
+export interface GetBasketInfo {
+    basketInfo: {
+        count: number,
+        totalPrice: number
+    },
+    basketItem: {
+        id: string,
+        restaurant_id: string,
+        name: string,
+        price: number,
+        image: string,
+        weight: number,
+        calories: number
+    }[]
+}

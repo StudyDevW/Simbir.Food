@@ -131,6 +131,8 @@ namespace RestaurantAPI
 
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();
 
+            builder.Services.AddScoped<IRestaurantFoodItemsServices, RestaurantFoodItemsServices>();
+
             builder.Services.AddHostedService<RabbitMQListenerService>();
 
             builder.Services.AddCors(options =>

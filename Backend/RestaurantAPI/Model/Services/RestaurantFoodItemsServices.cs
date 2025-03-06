@@ -19,7 +19,7 @@ namespace RestaurantAPI.Model.Services
             _jwtServices = jwtServices;
         }
 
-        public async Task<string> AddRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO)
+        public async Task<string> AddRestaurantFoodItems( RestaurantFoodItems_DTO restaurantFoodItems_DTO)
         {
             if (restaurantFoodItems_DTO == null)
             {

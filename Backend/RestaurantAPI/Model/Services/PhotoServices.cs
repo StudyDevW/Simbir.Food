@@ -114,18 +114,18 @@ namespace RestaurantAPI.Model.Services
         //    await _dbContext.SaveChangesAsync();
         //}
 
-        public async Task<List<RestaurantTable>> GetPhotos()
-        {
-            var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
+        //public async Task<List<RestaurantTable>> GetPhotos()
+        //{
+        //    var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
             
-            return(restaurantItems);
-        }
+        //    return(restaurantItems);
+        //}
 
-        public async Task<List<RestaurantTable>> GetAllPhotos(Guid restaurantId)
-        {
+        //public async Task<List<RestaurantTable>> GetAllPhotos(Guid restaurantId)
+        //{
 
-            var restaurantAllItems = await _dbContext.restaurantTable.Where(c => c.user_id == restaurantId).ToListAsync();
-            return(restaurantAllItems);
-        }
+        //    var restaurantAllItems = await _dbContext.restaurantTable.Where(c => c.user_id == restaurantId).ToListAsync();
+        //    return(restaurantAllItems);
+        //}
     }
 }

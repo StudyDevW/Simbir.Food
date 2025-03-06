@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation, data } from 'react-router-dom';
 import { GetMeInfo } from "../api-integrations/Interfaces/API_Interfaces";
 
-const ElementMenu: React.FC<{name_element: string, icon_url: string, description?: string, is_mobile: boolean}> = ({name_element, icon_url, description, is_mobile}) => {
+const ElementMenu: React.FC<{name_element: string, icon_url: string, description?: string, is_mobile: boolean, onClickEx: () => void }> = ({name_element, icon_url, description, is_mobile, onClickEx}) => {
     return (<>
-        <div className="app_profile_elements">
+        <div className="app_profile_elements" onClick={onClickEx}>
             
             <div className="app_profile_elements_icon" style={{
                 backgroundImage: `url(${icon_url})`
@@ -140,7 +140,7 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                             </div>
 
                             <div className="app_maincontent_balance_title">
-                                {`Баланс ${info.money_value} руб.`}
+                                {`${info.money_value} руб.`}
                             </div>
                         </div>
 
@@ -150,8 +150,9 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                             is_mobile={isMobile} 
                             name_element="Корзина" 
                             description="0 товаров" 
-                            icon_url="./images/basket_icon.png"/>
-
+                            icon_url="./images/basket_icon.png"
+                            onClickEx={()=>navigate("/basket")}/>
+                        
 
                         <ElementMenu 
                             is_mobile={isMobile} 
