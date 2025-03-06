@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CourierAPI.Controllers.CustomAttributes
+namespace Middleware_Components.CustomAttributes
 {
     public class ValidateJwtAttribute : ActionFilterAttribute
     {
