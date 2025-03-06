@@ -97,22 +97,20 @@ namespace RestaurantAPI.Model.Services
         }
         public async Task<List<RestaurantMark_DTO>> GetRestaurantMark()
         {
-            var restaurantWithMarks = await _dataContext.restaurantTable
-                .Select(restaurant => new
-                {
+            var restaurantWithMarks = await (
+                from restaurant in _dataContext.restaurantTable
+                let avg = _dataContext.reviewTable
+                    .Where(r => r.restaurant_id == restaurant.Id)
+                    .Select(r => (float?)r.rating)
+                    .DefaultIfEmpty(0)
+                    .Average()
+                select new RestaurantMark_DTO(
                     restaurant.Id,
                     restaurant.restaurantName,
-                    AverageMark = _dataContext.reviewTable
-                        .Where(r => r.restaurant_id == restaurant.Id)
-                        .Select(r => r.rating)
-                        .DefaultIfEmpty(0)
-                        .Average()
-                })
-                .ToListAsync();
+                    (int)avg)
+            ).ToListAsync();
 
-            return restaurantWithMarks.Select(r =>
-                new RestaurantMark_DTO(r.Id, r.restaurantName, (float)r.AverageMark)
-            ).ToList();
+            return restaurantWithMarks;
         }
         public async Task SetReadyStatusForOrder(Guid orderId)
         {
