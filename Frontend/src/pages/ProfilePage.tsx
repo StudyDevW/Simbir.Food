@@ -1,28 +1,11 @@
 import WebApp from "@twa-dev/sdk";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, data } from 'react-router-dom';
+import { GetMeInfo } from "../api-integrations/Interfaces/API_Interfaces";
 
-interface GetMeInfo {
-    Id: string,
-    telegram_id: number,
-    first_name: string,
-    last_name: string | null,
-    username: string | null,
-    photo_url: string | null,
-    chat_id: number,
-    address: string | null,
-    restaurant_own: string[] | null,
-    roles: string[]
-}
-
-interface MenuElements {
-    name_menu: string,
-    icon_url: string
-}
-
-const ElementMenu: React.FC<{name_element: string, icon_url: string, description?: string, is_mobile: boolean}> = ({name_element, icon_url, description, is_mobile}) => {
+const ElementMenu: React.FC<{name_element: string, icon_url: string, description?: string, is_mobile: boolean, onClickEx: () => void }> = ({name_element, icon_url, description, is_mobile, onClickEx}) => {
     return (<>
-        <div className="app_profile_elements">
+        <div className="app_profile_elements" onClick={onClickEx}>
             
             <div className="app_profile_elements_icon" style={{
                 backgroundImage: `url(${icon_url})`
@@ -151,9 +134,14 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
                         </div>
 
-                        <div className="app_profile_elements_address"
-                        onClick={()=>navigate("/address_select", { state: { address_default: info.address } })}>
-                            {`Сменить адрес`}
+                        <div className="app_profile_elements_address">
+                            <div className="app_maincontent_balance_image">
+
+                            </div>
+
+                            <div className="app_maincontent_balance_title">
+                                {`${info.money_value} руб.`}
+                            </div>
                         </div>
 
                         <div className="app_profile_elements_separator">{`Основное`}</div>
@@ -162,8 +150,9 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                             is_mobile={isMobile} 
                             name_element="Корзина" 
                             description="0 товаров" 
-                            icon_url="./images/basket_icon.png"/>
-
+                            icon_url="./images/basket_icon.png"
+                            onClickEx={()=>navigate("/basket")}/>
+                        
 
                         <ElementMenu 
                             is_mobile={isMobile} 

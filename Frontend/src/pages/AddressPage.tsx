@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { handleUserAuth, handleUserRegister } from "../api-integrations/AuthAPI.ts";
 import { telegramUser } from '../telegram-integrations/InitData.ts';
 import { BackButton } from '@twa-dev/sdk/react';
+import { AuthComponent } from '../api-integrations/Interfaces/API_Interfaces.ts';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
@@ -31,20 +32,6 @@ const MapsSearchBarAnimation: React.FC<{text: string}> = ({ text }) => {
   
     return <div className="app_maincontent_searchbar_text">{displayedText}</div>;
 };
-
-
-interface AuthComponent {
-    id: number,
-    first_name: string,
-    last_name: string | null,
-    username: string | null,
-    is_bot: boolean,
-    photo_url: string | null,
-    chat_id: number,
-    address: string,
-    device: string,
-    roles: string[]
-}
 
 const AddressPage: React.FC = () => {
 

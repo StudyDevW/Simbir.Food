@@ -1,5 +1,4 @@
-﻿using CourierAPI.Controllers.CustomAttributes;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Middleware_Components.Services;
@@ -10,58 +9,75 @@ using RestaurantAPI.Model.Controllers.CustomAttributes;
 using RestaurantAPI.Model.Interface;
 
 
+
 namespace RestaurantAPI.Model.Controllers
 {
-    [CourierAPI.Controllers.CustomAttributes.ValidateJwt]
+    [ValidateJwt]
     [Route("api/Photos")]
     [ApiController]
     public class PhotoController : ControllerBase
     {
         private readonly IPhotoServices _photoServices;
-        private readonly DataContext _dbContext;
-        private readonly IWebHostEnvironment _hostingEnvironment;
-        private readonly IJwtService _jwtServices;
 
-        public PhotoController(DataContext dbContext, IWebHostEnvironment hostingEnvironment, IJwtService jwtServices, IPhotoServices photoServices)
+        public PhotoController(IPhotoServices photoServices)
         {
-            _jwtServices = jwtServices;
-            _dbContext = dbContext;
-            _hostingEnvironment = hostingEnvironment;
             _photoServices = photoServices;
         }
-        [HttpPost("AddPhoto")]
-        public async Task<ActionResult> AddPhoto([FromForm] Photos_DTO photo_DTO)
+
+        [HttpPost("AddPhotoRestaurant")]
+        public async Task<IActionResult> AddPhotoToRestaurant([FromForm] PhotoDTO_Restaurant photo_DTO)
         {
             try
             {
-                await _photoServices.AddPhotos(photo_DTO);
+                await _photoServices.AddPhotoRestaurant(photo_DTO);
                 return Ok("Фотография загружена");
             }
             catch (Exception ex) {
                 return BadRequest(ex.Message);
             }
         }
-        [HttpDelete("RemovePhoto/{id}")]
-        public async Task<ActionResult> RemovePhoto(int id)
+
+        [HttpPost("AddPhotoFoodItem")]
+        public async Task<IActionResult> AddPhotoToFoodItem([FromForm] PhotoDTO_FoodItem photo_DTO)
         {
-            await _photoServices.RemovePhoto(id);
-            return NoContent();
+            try
+            {
+                await _photoServices.AddPhotoRestaurantFoodItem(photo_DTO);
+                return Ok("Фотография загружена");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-        [HttpDelete("RemoveRangePhoto/{id}")]
-        public async Task<ActionResult> RemoveRangePhoto(int id)
+
+        [HttpGet("Image")]
+        public IActionResult ImageOutput([FromHeader] string filePath)
         {
-            await _photoServices.RemoveAllPhotos();
-            return NoContent();
+            try
+            {
+                var file = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+
+                return File(file, "image/jpeg");
+            }
+            catch (Exception e)
+            {
+                return BadRequest("image_not_found");
+            }
         }
-        [HttpGet("GetPhotos/{id}")]
-        public async Task<List<RestaurantTable>> GetPhotos()
+
+        [HttpDelete("RemovePhotoRestaurant/{id}")]
+        public async Task<IActionResult> RemovePhotoRestaurant(Guid restaurantId)
         {
-             return await _photoServices.GetPhotos();
+            await _photoServices.RemovePhotoFromRestaurant(restaurantId);
+            return Ok();
         }
-        [HttpGet("GetAllPhotos")]
-        public async Task<List<RestaurantTable>> GetAllPhotos(Guid restaurantId) 
+
+        [HttpDelete("RemovePhotoFoodItem/{id}")]
+        public async Task<IActionResult> RemovePhotoFoodItem(Guid fooditemId)
         {
-            return await _photoServices.GetAllPhotos(restaurantId);
+            await _photoServices.RemovePhotoFromFoodItem(fooditemId);
+            return Ok();
         }
     }
 }

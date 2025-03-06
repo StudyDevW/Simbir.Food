@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ORM_Components;
@@ -11,9 +12,10 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250306001740_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -404,9 +406,6 @@ namespace ORM_Components.Migrations
                     b.Property<string>("address")
                         .HasColumnType("text");
 
-                    b.Property<string>("email")
-                        .HasColumnType("text");
-
                     b.Property<string>("first_name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -442,7 +441,6 @@ namespace ORM_Components.Migrations
                         {
                             Id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
                             address = "улица Шолмова, 7",
-                            email = "",
                             first_name = "Антон (Study)",
                             last_name = "",
                             money_value = 5000L,

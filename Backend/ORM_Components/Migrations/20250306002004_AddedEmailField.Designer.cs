@@ -12,8 +12,8 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250304110323_Init")]
-    partial class Init
+    [Migration("20250306002004_AddedEmailField")]
+    partial class AddedEmailField
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -272,7 +272,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("977a4622-7940-4269-8b72-c02892702b3f"),
+                            Id = new Guid("7a4154a5-9e58-4df8-ae1a-bc02898f47ec"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
@@ -282,7 +282,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2fd96345-1feb-47b9-9db1-cd253c43334f"),
+                            Id = new Guid("d1426c2f-81d1-430c-9701-6542b246fdc9"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
@@ -352,7 +352,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("fda6f2af-8dc4-4db3-95d5-8bf47130c92b"),
+                            Id = new Guid("800a1f58-30f1-4b14-a612-aaf987bdc7fa"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",
@@ -406,6 +406,9 @@ namespace ORM_Components.Migrations
                     b.Property<string>("address")
                         .HasColumnType("text");
 
+                    b.Property<string>("email")
+                        .HasColumnType("text");
+
                     b.Property<string>("first_name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -441,6 +444,7 @@ namespace ORM_Components.Migrations
                         {
                             Id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
                             address = "улица Шолмова, 7",
+                            email = "",
                             first_name = "Антон (Study)",
                             last_name = "",
                             money_value = 5000L,

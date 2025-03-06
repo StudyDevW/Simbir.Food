@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CourierAPI.Controllers.CustomAttributes
 {

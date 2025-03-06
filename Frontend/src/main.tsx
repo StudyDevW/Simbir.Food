@@ -12,6 +12,7 @@ import OnBoardingMain from './pages/OnBoarding/OnBoardingMain.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import AddressPage from './pages/AddressPage.tsx';
 import ProfilePage from './pages/ProfilePage.tsx';
+import BasketPage from './pages/BasketPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,12 @@ const router = createBrowserRouter([
           <AddressPage/>
       ),
   },
+  {
+    path: '/basket',
+    element: (
+        <BasketPage/>
+    ),
+    },
   {
       path: '/login',
       element: (

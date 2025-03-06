@@ -7,7 +7,6 @@ namespace RestaurantAPI.Model.Interface
     {
         Task<Restaurants_DTO> GetRestaurant(Guid restaurantId);
         Task<List<Restaurants_DTO>> GetAllRestaurant();
-        Task CreateRestaurant(Guid restaurantId);
         Task UpdateRestaurant(Guid restaurantId, RestaurantUpdate_DTO restaurantUpdate_DTO);
         Task DeleteRestaurant(Guid restaurantId);
         Task DeleteAllRestaurant();

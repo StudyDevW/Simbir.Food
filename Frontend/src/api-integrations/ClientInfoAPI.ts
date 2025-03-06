@@ -1,21 +1,10 @@
 import axios from 'axios';
 import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { TokenNeedUpdate } from './TokenObserver.ts';
+import { GetMeInfo } from './Interfaces/API_Interfaces.ts';
 
 var CLIENT_API_URL = import.meta.env.VITE_CLIENT_API;
 
-interface GetMeInfo {
-    Id: string,
-    telegram_id: number,
-    first_name: string,
-    last_name: string | null,
-    username: string | null,
-    photo_url: string | null,
-    chat_id: number,
-    address: string | null,
-    restaurant_own: string[] | null,
-    roles: string[]
-}
 
 const handleGetInfoMe = async (accessToken: string, retry: boolean = true)  : Promise<any> => {
 

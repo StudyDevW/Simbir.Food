@@ -21,22 +21,7 @@ namespace RestaurantAPI.Model.Services
             _dataContext = dataContext;
             _tgmessageSender = messageSender;
         }
-        //Одобрение заявки на создание ресторана
-        public async Task CreateRestaurant(Guid restaurantId)
-        {
-            var restaurant =  _dataContext.restaurantTable.Where(c => c.Id == restaurantId).FirstOrDefault();
 
-            if (restaurant == null)
-            {
-                throw new Exception("Ресторан не найден.");
-            }
-
-            if(restaurant.status == RestaurantStatus.Unverified)
-            {
-                restaurant.status = RestaurantStatus.Verified;
-                await _dataContext.SaveChangesAsync();
-            }
-        }
         private long GetUserChatId(Guid? clientId)
         {
             var finded = _dataContext.userTable.Where(c => c.Id == clientId).FirstOrDefault();

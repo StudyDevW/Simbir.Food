@@ -11,80 +11,121 @@ namespace RestaurantAPI.Model.Services
 {
     public class PhotoServices : IPhotoServices
     {
-        private readonly IPhotoServices _photoServices;
         private readonly DataContext _dbContext;
-        private readonly IWebHostEnvironment _hostingEnvironment;
-        private readonly IJwtService _jwtServices;
 
-        public PhotoServices(DataContext dbContext, IWebHostEnvironment hostingEnvironment, IJwtService jwtServices, IPhotoServices photoServices)
+        public PhotoServices(DataContext dbContext)
         {
-            _jwtServices = jwtServices;
             _dbContext = dbContext;
-            _hostingEnvironment = hostingEnvironment;
-            _photoServices = photoServices;
         }
-        public async Task AddPhotos([FromForm] Photos_DTO photo_DTO)
+
+        public async Task AddPhotoRestaurant(PhotoDTO_Restaurant photo_DTO)
         {       
             if (photo_DTO.File == null || photo_DTO.File.Length == 0)
             {
-                throw new Exception("Файл не был загружен.");
+                throw new Exception("file_incorrect");
             }
 
-            var filePath = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", photo_DTO.File.FileName);
+            var filePath = Path.GetFullPath("uploads/" + photo_DTO.File.FileName);
+
+            if (!Directory.Exists(Path.GetFullPath("uploads/")))
+                Directory.CreateDirectory(Path.GetFullPath("uploads/"));
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await photo_DTO.File.CopyToAsync(stream);
             }
 
-            var restaurantItem = new RestaurantTable()
-            {
-                imagePath = $"/uploads/{photo_DTO.File.FileName}", // Путь к файлу
-            };
+            var restaurantSelected = _dbContext.restaurantTable
+                .Where(c => c.Id == photo_DTO.restaurantId).FirstOrDefault();
 
-            _dbContext.restaurantTable.Add(restaurantItem);
+            if (restaurantSelected == null)
+                throw new Exception("restaurant_not_found");
+
+            restaurantSelected.imagePath = filePath;
             await _dbContext.SaveChangesAsync();
-            throw new Exception("Файл был успешно загружен  .");
-
         }
-        public async Task RemovePhoto(int id)
-        {
-            var restaurantItem = await _dbContext.restaurantTable.FindAsync(id);
 
-            if (restaurantItem == null)
+        public async Task AddPhotoRestaurantFoodItem(PhotoDTO_FoodItem photo_DTO)
+        {
+            if (photo_DTO.File == null || photo_DTO.File.Length == 0)
             {
+                throw new Exception("file_incorrect");
+            }
+
+            var filePath = Path.GetFullPath("uploads/" + photo_DTO.File.FileName);
+
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo_DTO.File.CopyToAsync(stream);
+            }
+
+            var foodItemSelected = _dbContext.restaurantFoodItemsTable
+                .Where(c => c.Id == photo_DTO.fooditemId).FirstOrDefault();
+
+            if (foodItemSelected == null)
+                throw new Exception("fooditem_not_found");
+
+            foodItemSelected.image = filePath;
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task RemovePhotoFromRestaurant(Guid restaurantId)
+        {
+            var imageItem = await _dbContext.restaurantTable
+                .Where(c => c.Id == restaurantId).FirstOrDefaultAsync();
+
+            if (imageItem == null)
                 throw new Exception("Фото не найдено.");
-            }
 
-            _dbContext.restaurantTable.Remove(restaurantItem);
+            if (File.Exists(imageItem.imagePath))
+                File.Delete(imageItem.imagePath);
+
+            imageItem.imagePath = string.Empty;
             await _dbContext.SaveChangesAsync();
 
         }
-        public async Task RemoveAllPhotos()
+
+        public async Task RemovePhotoFromFoodItem(Guid fooditemId)
         {
-            var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
+            var imageItem = await _dbContext.restaurantFoodItemsTable
+                .Where(c => c.Id == fooditemId).FirstOrDefaultAsync();
 
-            if (restaurantItems == null || !restaurantItems.Any())
-            {
-                throw new Exception("Нет доступных фотографий для удаления.");
-            }
+            if (imageItem == null)
+                throw new Exception("Фото не найдено.");
 
-            _dbContext.restaurantTable.RemoveRange(restaurantItems);
+            if (File.Exists(imageItem.image))
+                File.Delete(imageItem.image);
+
+            imageItem.image = string.Empty;
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<RestaurantTable>> GetPhotos()
-        {
-            var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
+        //public async Task RemoveAllPhotos()
+        //{
+        //    var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
+
+        //    if (restaurantItems == null || !restaurantItems.Any())
+        //    {
+        //        throw new Exception("Нет доступных фотографий для удаления.");
+        //    }
+
+        //    _dbContext.restaurantTable.RemoveRange(restaurantItems);
+        //    await _dbContext.SaveChangesAsync();
+        //}
+
+        //public async Task<List<RestaurantTable>> GetPhotos()
+        //{
+        //    var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
             
-            return(restaurantItems);
-        }
+        //    return(restaurantItems);
+        //}
 
-        public async Task<List<RestaurantTable>> GetAllPhotos(Guid restaurantId)
-        {
+        //public async Task<List<RestaurantTable>> GetAllPhotos(Guid restaurantId)
+        //{
 
-            var restaurantAllItems = await _dbContext.restaurantTable.Where(c => c.user_id == restaurantId).ToListAsync();
-            return(restaurantAllItems);
-        }
+        //    var restaurantAllItems = await _dbContext.restaurantTable.Where(c => c.user_id == restaurantId).ToListAsync();
+        //    return(restaurantAllItems);
+        //}
     }
 }

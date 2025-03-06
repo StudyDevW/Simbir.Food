@@ -53,7 +53,7 @@ namespace RestaurantAPI.Model.Controllers
             return NoContent();
         }
         [HttpDelete]
-        [Route("DeleteAllRestaurantFoodItems")]
+        [Route("DeleteAllRestaurantFoodItems/{id}")]
         public async Task<IActionResult> DeleteAllRestaurantFoodItems(Guid id)
         {
             await _restaurantFoodItemsServices.DeleteAllRestaurantFoodItems(id);
@@ -65,12 +65,14 @@ namespace RestaurantAPI.Model.Controllers
         {
             return await _restaurantFoodItemsServices.GetAllRestaurantFoodItems();
         }
+
         [HttpGet]
         [Route("GetRestaurantFoodItems/{id}")]
-        public async Task<List<RestaurantFoodItemsTable>> GetRestaurantFoodItems(Guid restaurantId)
+        public async Task<IActionResult> GetRestaurantFoodItems(Guid id)
         {
-            return await _restaurantFoodItemsServices.GetRestaurantFoodItems(restaurantId);
+            return Ok(await _restaurantFoodItemsServices.GetRestaurantFoodItems(id));
         }
+
         [HttpPut]
         [Route("PutRestaurantFoodItems")]
         public async Task<IActionResult> PutRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO, Guid food_Id)

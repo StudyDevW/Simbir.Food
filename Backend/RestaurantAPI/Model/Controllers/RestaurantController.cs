@@ -53,12 +53,12 @@ namespace RestaurantAPI.Model.Controllers
             return await _restaurantService.GetAllRestaurant();
         }
 
-        [HttpPost("CreateRestaurant")]
-        public async Task<ActionResult> CreateRestaurant(Guid restaurantId)
-        {
-            await _restaurantService.CreateRestaurant(restaurantId);
-            return NoContent();
-        }
+        //[HttpPost("CreateRestaurant")]
+        //public async Task<ActionResult> CreateRestaurant(Guid restaurantId)
+        //{
+        //    await _restaurantService.CreateRestaurant(restaurantId);
+        //    return NoContent();
+        //}
         [HttpPut("{restaurantId}/UpdateRestaurant")]
         public async Task<ActionResult> UpdateRestaurant(Guid restaurantId, [FromBody] RestaurantUpdate_DTO restaurantUpdate_DTO)
         {

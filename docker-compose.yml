@@ -76,6 +76,8 @@ services:
       DATABASE_CONNECT: ${DATABASE_CONNECT}
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
+    volumes:
+      - uploads:/app/uploads
     ports:
        - "8082:80"
     restart: unless-stopped
@@ -128,6 +130,12 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
+      MAILSERVER: ${MAILSERVER}
+      MAILPORT: ${MAILPORT}
+      USESSL: ${USESSL}
+      SENDERNAME: ${SENDERNAME}
+      SENDEREMAIL: ${SENDEREMAIL}
+      EMAILPASSWORD: ${EMAILPASSWORD}
     ports:
        - "9000:80"
     restart: unless-stopped
@@ -255,5 +263,6 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
 
 volumes:
+  uploads:
   rabbitmq_broker: 
   grafana_data:
