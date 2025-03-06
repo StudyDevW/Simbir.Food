@@ -1,7 +1,7 @@
 ﻿using CourierAPI.Contracts;
-using CourierAPI.Controllers.CustomAttributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Middleware_Components.CustomAttributes;
 using ORM_Components.DTO.CourierAPI;
 
 namespace CourierAPI.Controllers
