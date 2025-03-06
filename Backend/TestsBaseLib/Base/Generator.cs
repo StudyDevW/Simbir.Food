@@ -141,4 +141,25 @@ public static class Generator
     {
         return GenerateCourier(user_id, CourierStatus.IsInactive);
     }
+
+    private static Faker<ReviewTable> _GetReviewFaker(Guid client_id, Guid courier_id, Guid restaurant_id, Guid order_id, int rating)
+    {
+        var faker = new Faker<ReviewTable>();
+        faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
+            .RuleFor(x => x.client_id, _ => client_id)
+            .RuleFor(x => x.comment, f => f.Random.Words(4))
+            .RuleFor(x => x.review_date, _ => DateTime.UtcNow)
+            .RuleFor(x => x.courier_id, _ => courier_id)
+            .RuleFor(x => x.restaurant_id, _ => restaurant_id)
+            .RuleFor(x => x.order_id, _ => order_id)
+            .RuleFor(x => x.rating, _ => rating);
+
+        return faker;
+    }
+
+    public static ReviewTable GenReview(Guid client_id, Guid courier_id, Guid restaurant_id, Guid order_id, int rating) =>
+        _GetReviewFaker(client_id, courier_id, restaurant_id, order_id, rating);
+
+    public static ReviewTable GenReview(Guid restaurant_id, int rating) =>
+        _GetReviewFaker(Guid.NewGuid(), Guid.NewGuid(), restaurant_id, Guid.NewGuid(), rating);
 }

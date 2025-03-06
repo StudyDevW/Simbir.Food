@@ -65,6 +65,10 @@ public static class UnitTestsExtensions
                                    table.close_time);
     }
 
+    public static RestaurantUpdate_DTO ToUpdateDto(this RestaurantTable table) => new RestaurantUpdate_DTO(
+        table.restaurantName, table.address, table.phone_number, table.status, table.description, table.imagePath,
+        table.open_time, table.close_time);
+
     /// <summary>
     /// Адаптация RestaurantTable в RestaurantAddRequest
     /// </summary>
