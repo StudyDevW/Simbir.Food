@@ -1,9 +1,11 @@
 ﻿using DotNetEnv;
 using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Middleware_Components.Broker;
 using Middleware_Components.Cache;
 using Middleware_Components.Services;
 using ORM_Components.Interfaces;
@@ -23,9 +25,6 @@ namespace ORM_Components
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Logging.ClearProviders();
-            builder.Logging.AddConsole();
-
             builder.Configuration.AddDotNetEnv(".env", LoadOptions.TraversePath());
 
             builder.Services.AddDbContext<DataContext>(options =>
@@ -39,6 +38,12 @@ namespace ORM_Components
             builder.Services.AddSingleton<IAutoMigrationService, AutoMigrationService>();
 
             builder.Services.AddSingleton<ICacheService, CacheSDK>();
+
+            builder.Services.AddSingleton<IMailSender, MailSender>();
+
+            builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+
+            builder.Services.AddHostedService<RabbitMQListenerService>();
 
             var app = builder.Build();
 

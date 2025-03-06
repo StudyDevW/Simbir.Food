@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ORM_Components;
@@ -11,9 +12,10 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250306002004_AddedEmailField")]
+    partial class AddedEmailField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,7 +272,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("48dcb7f2-c4e9-42a5-8a3a-3822c7bf657b"),
+                            Id = new Guid("7a4154a5-9e58-4df8-ae1a-bc02898f47ec"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
@@ -280,7 +282,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("acfd2bfd-668d-42fd-8276-d1c6278ad30f"),
+                            Id = new Guid("d1426c2f-81d1-430c-9701-6542b246fdc9"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
@@ -350,7 +352,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("d033cf0e-b719-4af6-afeb-62d7fe2ef8d0"),
+                            Id = new Guid("800a1f58-30f1-4b14-a612-aaf987bdc7fa"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",
