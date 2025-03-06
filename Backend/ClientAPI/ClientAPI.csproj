@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,12 +7,12 @@
     <UserSecretsId>86b25637-80e7-4c12-8612-32543b4072b9</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <DocumentationFile>F:\Simbir.Food\Backend\ClientAPI\bin\Debug\net6.0\apidocs.xml</DocumentationFile>
+    <DocumentationFile>C:\Users\diamond\Documents\apidocs.xml</DocumentationFile>
   </PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="DotNetEnv" Version="3.1.1" />
-		<PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+		<PackageReference Include="RabbitMQ.Client" Version="7.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">

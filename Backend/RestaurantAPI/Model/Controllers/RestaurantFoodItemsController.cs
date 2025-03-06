@@ -54,9 +54,9 @@ namespace RestaurantAPI.Model.Controllers
         }
         [HttpDelete]
         [Route("DeleteAllRestaurantFoodItems")]
-        public async Task<IActionResult> DeleteAllRestaurantFoodItems()
+        public async Task<IActionResult> DeleteAllRestaurantFoodItems(Guid id)
         {
-            await _restaurantFoodItemsServices.DeleteAllRestaurantFoodItems();
+            await _restaurantFoodItemsServices.DeleteAllRestaurantFoodItems(id);
             return NoContent();
         }
         [HttpGet]

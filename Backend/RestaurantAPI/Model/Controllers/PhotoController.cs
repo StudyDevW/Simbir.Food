@@ -8,14 +8,11 @@ using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using RestaurantAPI.Model.Controllers.CustomAttributes;
 using RestaurantAPI.Model.Interface;
-=======
-
->>>>>>> Пробный коммит
 
 
 namespace RestaurantAPI.Model.Controllers
 {
-    [ValidateJwt]
+    [CourierAPI.Controllers.CustomAttributes.ValidateJwt]
     [Route("api/Photos")]
     [ApiController]
     public class PhotoController : ControllerBase
