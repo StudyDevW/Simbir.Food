@@ -121,7 +121,7 @@ namespace CourierAPI.Service
             }
         }
 
-        public async Task TakeOrder(Guid orderId)
+        private async Task TakeOrder(Guid orderId)
         {
             await UpdateOrderStatus(orderId, OrderStatus.Ready, OrderStatus.WaitingForDelivery);
         }

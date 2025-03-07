@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Middleware_Components.CustomAttributes;
 using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
-using RestaurantAPI.Model.Controllers.CustomAttributes;
 using RestaurantAPI.Model.Interface;
 
 namespace RestaurantAPI.Model.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Asymmetric")]
+    [ValidateJwt]
     [Route("api/Restaurant/")]
     [ApiController]
     public class RestaurantController : ControllerBase
@@ -23,12 +26,13 @@ namespace RestaurantAPI.Model.Controllers
             _jwtServices = jwtServices;
             _restaurantService = restaurantService;
         }
+
         [HttpGet("Get/AverageMarkRestaurant")]
-        public async Task<ActionResult<List<RestaurantMark_DTO>>> GetAverageMarkForEveryRestaurant(Order_DTO order)
+        public async Task<ActionResult<List<RestaurantMark_DTO>>> GetAverageMarkForEveryRestaurant()
         {
-            await _restaurantService.OrderRejections(order);
             return await _restaurantService.GetRestaurantMark();
         }
+
         [HttpPost("OrderRejections")]
         public async Task<IActionResult> OrderReject(Order_DTO order_DTO)
         {
@@ -41,6 +45,7 @@ namespace RestaurantAPI.Model.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpGet("{restaurantId}/GetRestaurant")]
         public async Task<ActionResult<Restaurants_DTO>> GetRestaurant(Guid restaurantId)
         {
@@ -53,12 +58,6 @@ namespace RestaurantAPI.Model.Controllers
             return await _restaurantService.GetAllRestaurant();
         }
 
-        //[HttpPost("CreateRestaurant")]
-        //public async Task<ActionResult> CreateRestaurant(Guid restaurantId)
-        //{
-        //    await _restaurantService.CreateRestaurant(restaurantId);
-        //    return NoContent();
-        //}
         [HttpPut("{restaurantId}/UpdateRestaurant")]
         public async Task<ActionResult> UpdateRestaurant(Guid restaurantId, [FromBody] RestaurantUpdate_DTO restaurantUpdate_DTO)
         {
@@ -79,6 +78,7 @@ namespace RestaurantAPI.Model.Controllers
             await _restaurantService.DeleteAllRestaurant();
             return NoContent();
         }
+
         [HttpPost("{orderId}/SetReadyStatusForOrder")]
         public async Task<IActionResult> SetReadyStatusForOrder(Guid orderId)
         {

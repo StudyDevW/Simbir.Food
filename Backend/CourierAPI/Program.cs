@@ -5,6 +5,7 @@ using DotNetEnv.Configuration;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Middleware_Components.Broker;
@@ -16,6 +17,7 @@ using ORM_Components.Interfaces;
 using ORM_Components.MapsterConfigs;
 using ORM_Components.Services;
 using ORM_Components.Validators.CourierValidators;
+using System.Reflection;
 using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
@@ -72,10 +74,8 @@ namespace CourierAPI
                     Description = "Simbir.Food, Practice"
                 });
 
-                var basePath = AppContext.BaseDirectory;
-
-                // var xmlPath = Path.Combine(basePath, "apidocs.xml");
-                // o.IncludeXmlComments(xmlPath);
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
 
             builder.Services.AddAuthentication(o =>
