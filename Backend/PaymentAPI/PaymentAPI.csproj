@@ -7,7 +7,7 @@
     <UserSecretsId>ee999781-6491-47ec-9462-c35c618dc7cb</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <DocumentationFile>C:\Users\aleyc\source\repos\Simbir.Food\Backend\PaymentAPI\bin\Debug\net6.0\apidocs.xml</DocumentationFile>
+    <DocumentationFile>F:\Simbir.Food\Backend\PaymentAPI\bin\Debug\net6.0\apidocs.xml</DocumentationFile>
   </PropertyGroup>
 
 	<ItemGroup>

@@ -921,5 +921,19 @@ namespace ClientAPI.Services
                 }
             }
         }
+
+        public async Task ChangeOrAddEmail(string bearer_key, string email)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                await _database.ChangeOrAddEmail(email, validation.token_success.Id);
+            }
+        }
     }
 }

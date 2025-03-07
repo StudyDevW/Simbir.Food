@@ -74,6 +74,36 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
             return "Клиент";     
     }
 
+    const getProductLabel = (count: number): string => {
+        if (count % 10 === 1 && count % 100 !== 11) {
+          return `${count} товар`;
+        } else if (
+          (count % 10 >= 2 && count % 10 <= 4) &&
+          (count % 100 < 10 || count % 100 >= 20)
+        ) {
+          return `${count} товара`;
+        } else {
+          return `${count} товаров`;
+        }
+    };
+
+    const getOrderString = (count: number): string => {
+        const lastDigit = count % 10;
+        const lastTwoDigits = count % 100;
+      
+        if (lastDigit === 1 && lastTwoDigits !== 11) {
+          return `${count} заказ`;
+        } else if (
+          (lastDigit >= 2 && lastDigit <= 4) &&
+          (lastTwoDigits < 12 || lastTwoDigits > 14)
+        ) {
+          return `${count} заказа`;
+        } else {
+          return `${count} заказов`;
+        }
+    };
+      
+
     return (<>
 
         {closedProfile && 
@@ -96,7 +126,7 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                 <div className="app_profile_area" onTouchStart={handleTouchStart}>
                     <div className="app_profile_area_panel" style={isMobile ? {
                     height: `calc(100vh - 100px - 48px)`
-                } : {height: `calc(100vh + 15px)`}}  
+                } : {height: `calc(100vh - 5px)`}}  
                 onMouseLeave={()=>setClosedProfile(true)}>
                         <div className="app_profile_info_area">
                             <div className="app_profile_info_avatar" style={{
@@ -142,6 +172,8 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                             <div className="app_maincontent_balance_title">
                                 {`${info.money_value} руб.`}
                             </div>
+
+                            <div className="app_profile_elements_desc" onClick={()=>navigate("/payment")}>{`Пополнить`}</div>
                         </div>
 
                         <div className="app_profile_elements_separator">{`Основное`}</div>
@@ -149,16 +181,28 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                         <ElementMenu 
                             is_mobile={isMobile} 
                             name_element="Корзина" 
-                            description="0 товаров" 
+                            description={`${getProductLabel(info.basket_items)}`} 
                             icon_url="./images/basket_icon.png"
-                            onClickEx={()=>navigate("/basket")}/>
+                            onClickEx={()=> 
+                                {
+                                    info.basket_items > 0 ? 
+                                    navigate("/basket") : 
+                                    WebApp.showAlert("В корзину вы можете добавить блюда, чтобы потом их заказать")
+                                }}/>
                         
+
 
                         <ElementMenu 
                             is_mobile={isMobile} 
                             name_element="Заказы" 
-                            description="Отсутствуют" 
-                            icon_url="./images/orders_icon.png"/>
+                            description={info.orders_count > 0 ? `${getOrderString(info.orders_count)}` : "Отсутствуют"} 
+                            icon_url="./images/orders_icon.png"
+                            onClickEx={()=> 
+                                {
+                                    info.orders_count > 0 ? 
+                                    navigate("/ordersinfo") : 
+                                    WebApp.showAlert("Здесь будут отображаться заказы")
+                                }}/>
 
                         {info.restaurant_own !== null && <>
                         

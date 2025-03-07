@@ -12,8 +12,8 @@ using ORM_Components;
 namespace ORM_Components.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250306002004_AddedEmailField")]
-    partial class AddedEmailField
+    [Migration("20250306043023_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -272,7 +272,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7a4154a5-9e58-4df8-ae1a-bc02898f47ec"),
+                            Id = new Guid("4e37119d-878c-41c4-b632-9e87e99b45ab"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
@@ -282,7 +282,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("d1426c2f-81d1-430c-9701-6542b246fdc9"),
+                            Id = new Guid("0dcfbe90-6964-4064-af66-280920c81943"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
@@ -352,7 +352,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("800a1f58-30f1-4b14-a612-aaf987bdc7fa"),
+                            Id = new Guid("e25ca427-7d35-49d3-8793-ce9a2975c53a"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",

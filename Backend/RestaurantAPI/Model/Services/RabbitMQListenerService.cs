@@ -67,6 +67,16 @@ namespace RestaurantAPI.Services
             orderAccepting.status = OrderStatus.Accepted; 
             await _dbcontext.SaveChangesAsync();
 
+            OrderStatusHistoryTable orderHistory = new OrderStatusHistoryTable()
+            {
+                order_id = order.id,
+                status = OrderStatus.Accepted,
+                status_datetime = DateTime.UtcNow
+            };
+
+            _dbcontext.orderHistory.Add(orderHistory);
+            await _dbcontext.SaveChangesAsync();
+
             await NotifyOrderStarted(order);
         }
     }

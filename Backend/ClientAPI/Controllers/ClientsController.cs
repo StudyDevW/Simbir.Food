@@ -124,6 +124,24 @@ namespace ClientAPI.Controllers
         //}
 
         /// <summary>
+        /// Добавить или изменить почту
+        /// </summary>
+        /// <returns></returns>
+        [HttpPatch("Email")]
+        public async Task<IActionResult> ChangeEmailForClient(EmailAdd dtoObj)
+        {
+            try
+            {
+                await _clientService.ChangeOrAddEmail(Request.Headers["Authorization"], dtoObj.email);
+                return Ok("email_changed");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Удалить определенного пользователя
         /// </summary>
         /// <returns></returns>

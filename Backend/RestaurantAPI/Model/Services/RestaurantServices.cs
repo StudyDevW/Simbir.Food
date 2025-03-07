@@ -122,6 +122,16 @@ namespace RestaurantAPI.Model.Services
                 .FirstOrDefaultAsync(x => x.Id == order.client_id)
                 ?? throw new Exception("Пользователь не найден.");
 
+            OrderStatusHistoryTable orderHistory = new OrderStatusHistoryTable()
+            {
+                order_id = orderId,
+                status = OrderStatus.Ready,
+                status_datetime = DateTime.UtcNow,
+            };
+
+            _dataContext.orderHistory.Add(orderHistory);
+            await _dataContext.SaveChangesAsync();
+
             await _tgmessageSender.Send(user.telegram_chat_id.ToString(), "Ваш заказ ожидает курьера.");
             await SendMessageForEveryActiveCourier();
         }

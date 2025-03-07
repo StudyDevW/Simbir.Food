@@ -270,7 +270,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("48dcb7f2-c4e9-42a5-8a3a-3822c7bf657b"),
+                            Id = new Guid("4e37119d-878c-41c4-b632-9e87e99b45ab"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
@@ -280,7 +280,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("acfd2bfd-668d-42fd-8276-d1c6278ad30f"),
+                            Id = new Guid("0dcfbe90-6964-4064-af66-280920c81943"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
@@ -350,7 +350,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("d033cf0e-b719-4af6-afeb-62d7fe2ef8d0"),
+                            Id = new Guid("e25ca427-7d35-49d3-8793-ce9a2975c53a"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",

@@ -30,9 +30,6 @@ const handleGetInfoMe = async (accessToken: string, retry: boolean = true)  : Pr
                     console.log("Повторный запрос!");
 
                     if (await TokenNeedUpdate()) {
-
-                     
-
                         const accessTokens: string = await StorageGetItem("AccessToken");
 
                         if (accessTokens !== "empty")

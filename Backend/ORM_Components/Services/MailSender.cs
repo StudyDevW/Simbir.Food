@@ -13,10 +13,10 @@ namespace ORM_Components.Services
         private readonly ILogger _logger;
         private readonly DataContext _dataContext;
 
-        public MailSender(IConfiguration configuration, DataContext dataContext) 
+        public MailSender(IConfiguration configuration) 
         {
             _configuration = configuration;
-            _dataContext = dataContext;
+            _dataContext = new DataContext(configuration["DATABASE_CONNECT"]);
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("MailSender | database-sdk-logger");
         }
 

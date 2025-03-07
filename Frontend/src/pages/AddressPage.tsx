@@ -39,7 +39,7 @@ const AddressPage: React.FC = () => {
 
     const address_default = locationReact.state?.address_default || '';
 
-
+    const flag_state = locationReact.state?.flag || '';
 
     const navigate = useNavigate();
     //Yandex Integrations
@@ -186,7 +186,10 @@ const AddressPage: React.FC = () => {
         const validate = await handleUserAuth(authvars);
 
         if (validate) {
-            navigate("/");
+            if (flag_state === "orderCreate")
+                navigate("/ordered");
+            else 
+                navigate("/");
         }
     
     }
@@ -217,7 +220,12 @@ const AddressPage: React.FC = () => {
 
     return (
     <>
-        <BackButton onClick={()=>navigate("/")}/>
+
+        {flag_state === "orderCreate" && <BackButton onClick={()=>navigate("/ordered")}/>}
+
+        {flag_state !== "orderCreate" && <BackButton onClick={()=>navigate("/")}/>}
+
+       
 
         <div className="app_background_area">
 
