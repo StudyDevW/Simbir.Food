@@ -253,6 +253,9 @@ public class RestaurantServicesTests : UnitTest
             Generator.GenerateCourier(users[2].Id, CourierStatus.IsInactive)
         });
 
+        var history = itemsSetup(x => x.orderHistory,
+            add: x => x.orderHistory.Add(any<OrderStatusHistoryTable>()));
+
         // act
         await _sut.SetReadyStatusForOrder(order.Id);
 
@@ -261,5 +264,7 @@ public class RestaurantServicesTests : UnitTest
 
         _sender.Verify(x => x.Send(users[0].telegram_chat_id.ToString(), any<string>()));
         _sender.Verify(x => x.Send(users[1].telegram_chat_id.ToString(), any<string>()));
+
+        history.Count.Should().Be(1);
     }
 }

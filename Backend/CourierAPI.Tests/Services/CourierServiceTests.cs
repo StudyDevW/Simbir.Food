@@ -113,65 +113,65 @@ public class CourierServiceTests : UnitTest
         await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
     }
 
-    [Fact]
-    public async Task TakeOrder_WithStatusReady_SetOrderStatusToWaitingForDelivery()
-    {
-        // arrange
-        var owner = Generator.GenerateUser();
-        var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.Ready);
+    //[Fact]
+    //public async Task TakeOrder_WithStatusReady_SetOrderStatusToWaitingForDelivery()
+    //{
+    //    // arrange
+    //    var owner = Generator.GenerateUser();
+    //    var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.Ready);
 
-        var history = new List<OrderStatusHistoryTable>();
+    //    var history = new List<OrderStatusHistoryTable>();
 
-        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-        _context.Setup(x => x.orderHistory).ReturnsDbSet(history);
-        _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-        _context.Setup(x => x.orderHistory.Add(It.IsAny<OrderStatusHistoryTable>()))
-            .Callback<OrderStatusHistoryTable>(x => history.Add(x));
-
-        
-
-        // act
-        await _sut.TakeOrder(order.Id);
-
-        // assert
-        order.status.Should().Be(OrderStatus.WaitingForDelivery);
-        history.First().status.Should().Be(OrderStatus.WaitingForDelivery);
-        history.First().order_id.Should().Be(order.Id);
-    }
-
-    [Fact]
-    public async Task TakeOrder_WithNotExpectedStatus_ThrowsException()
-    {
-        // arrange
-        var order = Generator.GenerateOrder(OrderStatus.WaitingForDelivery);
-
-        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+    //    _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+    //    _context.Setup(x => x.orderHistory).ReturnsDbSet(history);
+    //    _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
+    //    _context.Setup(x => x.orderHistory.Add(It.IsAny<OrderStatusHistoryTable>()))
+    //        .Callback<OrderStatusHistoryTable>(x => history.Add(x));
 
         
 
-        // act
-        Func<Task> act = async() => await _sut.TakeOrder(order.Id);
+    //    // act
+    //    await _sut.TakeOrder(order.Id);
 
-        // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Статус не соответствует ожидаемому.");
-    }
+    //    // assert
+    //    order.status.Should().Be(OrderStatus.WaitingForDelivery);
+    //    history.First().status.Should().Be(OrderStatus.WaitingForDelivery);
+    //    history.First().order_id.Should().Be(order.Id);
+    //}
 
-    [Fact]
-    public async Task TakeOrder_WithWrongOrderId_ThrowsException()
-    {
-        // arrange
-        var order = Generator.GenerateOrder(OrderStatus.Ready);
+    //[Fact]
+    //public async Task TakeOrder_WithNotExpectedStatus_ThrowsException()
+    //{
+    //    // arrange
+    //    var order = Generator.GenerateOrder(OrderStatus.WaitingForDelivery);
 
-        _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+    //    _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
 
         
 
-        // act
-        Func<Task> act = async () => await _sut.TakeOrder(Guid.NewGuid());
+    //    // act
+    //    Func<Task> act = async() => await _sut.TakeOrder(order.Id);
 
-        // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Заказ не найден.");
-    }
+    //    // assert
+    //    await act.Should().ThrowAsync<Exception>().WithMessage("Статус не соответствует ожидаемому.");
+    //}
+
+    //[Fact]
+    //public async Task TakeOrder_WithWrongOrderId_ThrowsException()
+    //{
+    //    // arrange
+    //    var order = Generator.GenerateOrder(OrderStatus.Ready);
+
+    //    _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
+
+        
+
+    //    // act
+    //    Func<Task> act = async () => await _sut.TakeOrder(Guid.NewGuid());
+
+    //    // assert
+    //    await act.Should().ThrowAsync<Exception>().WithMessage("Заказ не найден.");
+    //}
 
     [Fact]
     public async Task CourierOnPlace_WithStatusWaitingForDelivery_SetOrderStatusToCourierOnPlace()

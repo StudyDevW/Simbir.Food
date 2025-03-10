@@ -102,6 +102,8 @@ public class DatabaseServiceTests : UnitTest
         _users.AddRange(users);
 
         itemsSetup(x => x.restaurantTable);
+        itemsSetup(x => x.basketTable);
+        itemsSetup(x => x.orderTable);
 
         // act
         var result = _sut.GetAllClients(from, count);
@@ -123,6 +125,8 @@ public class DatabaseServiceTests : UnitTest
         _users.AddRange(users);
 
         itemsSetup(x => x.restaurantTable);
+        itemsSetup(x => x.basketTable);
+        itemsSetup(x => x.orderTable);
 
         // act
         var result = _sut.GetAllClients(from, 0);
@@ -254,6 +258,8 @@ public class DatabaseServiceTests : UnitTest
         _users.Add(user);
 
         itemsSetup(x => x.restaurantTable);
+        itemsSetup(x => x.basketTable);
+        itemsSetup(x => x.orderTable);
 
         // act
         var result = _sut.InfoClientDatabase(user.Id);
@@ -271,6 +277,8 @@ public class DatabaseServiceTests : UnitTest
         _users.Add(user);
 
         var rests = itemsSetup(x => x.restaurantTable);
+        itemsSetup(x => x.basketTable);
+        itemsSetup(x => x.orderTable);
 
         rests.Add(Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified));
         rests.Add(Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified));
