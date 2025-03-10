@@ -1,21 +1,11 @@
 ﻿using ClientAPI.Services;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using Moq;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.Tables;
-using ORM_Components;
 using Moq.EntityFrameworkCore;
-using System.Collections.Generic;
 using TestsBaseLib.Base;
 using ORM_Components.Tables.Helpers;
-using Telegram.Bot.Types;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using Moq.Language.Flow;
-using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.AspNetCore.Http;
 
 namespace ClientAPI.Tests.Services;
 
@@ -718,4 +708,278 @@ public class DatabaseServiceTests : UnitTest
 
         //todo: more tests
     }
+
+    [Fact]
+    public async Task RejectRequestRestaurantFromAdmin_WithCorrectData_RemovesRestaurantAndRequest()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        var rest = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Unverified);
+        var request = Generator.GenRestaurantRequest(user.Id, rest.Id);
+
+        _users.Add(user);
+        var rests = itemsSetup(x => x.restaurantTable,
+            remove: x => x.restaurantTable.Remove(any<RestaurantTable>()));
+        rests.Add(rest);
+
+        var requests = itemsSetup(x => x.requestTable,
+            remove: x => x.requestTable.Remove(any<RequestTable>()));
+        requests.Add(request);
+
+        // act
+        await _sut.RejectRequestRestaurantFromAdmin(request.Id);
+
+        // assert
+        rests.Count.Should().Be(0);
+        requests.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task RejectRequestRestaurantFromAdmin_WithNonExistentRequest_ThrowsException()
+    {
+        // arrange
+        var requests = itemsSetup(x => x.requestTable);
+
+        // act
+        Func<Task> act = async () => await _sut.RejectRequestRestaurantFromAdmin(Guid.NewGuid());
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("request_not_found");
+    }
+
+    [Fact]
+    public async Task RejectRequestRestaurantFromAdmin_WithNonExistentRestaurant_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        var request = Generator.GenRestaurantRequest(user.Id, Guid.NewGuid());
+
+        _users.Add(user);
+        itemsSetup(x => x.restaurantTable);
+
+        var requests = itemsSetup(x => x.requestTable,
+            remove: x => x.requestTable.Remove(any<RequestTable>()));
+        requests.Add(request);
+
+        // act
+        Func<Task> act = async () => await _sut.RejectRequestRestaurantFromAdmin(request.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("restaurant_not_found");
+    }
+
+    [Fact]
+    public async Task RejectRequestCourierFromAdmin_WithCorrectData_RemovesCourierAndRequest()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.Unverified);
+        var request = Generator.GenCourierRequest(user.Id, courier.Id);
+
+        _users.Add(user);
+        var couriers = itemsSetup(x => x.courierTable,
+            remove: x => x.courierTable.Remove(any<CourierTable>()));
+        couriers.Add(courier);
+
+        var requests = itemsSetup(x => x.requestTable,
+            remove: x => x.requestTable.Remove(any<RequestTable>()));
+        requests.Add(request);
+
+        // act
+        await _sut.RejectRequestCourierFromAdmin(request.Id);
+
+        // assert
+        couriers.Count.Should().Be(0);
+        requests.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task RejectRequestCourierFromAdmin_WithNonExistentRequest_ThrowsException()
+    {
+        // arrange
+        itemsSetup(x => x.requestTable);
+
+        // act
+        Func <Task> act = async () => await _sut.RejectRequestCourierFromAdmin(Guid.NewGuid());
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("request_not_found");
+    }
+
+    [Fact]
+    public async Task RejectRequestCourierFromAdmin_WithNonExistentCourier_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        var request = Generator.GenCourierRequest(user.Id, Guid.NewGuid());
+
+        _users.Add(user);
+        itemsSetup(x => x.courierTable);
+
+        var requests = itemsSetup(x => x.requestTable,
+            remove: x => x.requestTable.Remove(any<RequestTable>()));
+        requests.Add(request);
+
+        // act
+        Func<Task> act = async () => await _sut.RejectRequestCourierFromAdmin(request.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("courier_not_found");
+    }
+
+    [Fact]
+    public void GetOnlyMeRequestsRestaurant_WithExistentUserAndSomeRequestsAndRestaurants_ReturnsRequestInfoRestaurants()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        var rest = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified);
+        var request = Generator.GenRestaurantRequest(user.Id, rest.Id);
+
+        var rest2 = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified);
+        var request2 = Generator.GenRestaurantRequest(user.Id, rest2.Id);
+
+        _users.Add(user);
+        itemsSetup(x => x.requestTable).AddItems(request, request2);
+        itemsSetup(x => x.restaurantTable).AddItems(rest, rest2);
+
+        // act
+        var result = _sut.GetOnlyMeRequestsRestaurant(user.Id);
+
+        // assert
+        result.Count.Should().Be(2);
+        result[0].request_id.Should().Be(request.Id);
+        result[0].client_info.Id.Should().Be(user.Id);
+
+        result[1].request_id.Should().Be(request2.Id);
+        result[1].client_info.Id.Should().Be(user.Id);
+    }
+
+    [Fact]
+    public void GetOnlyMeRequestsRestaurant_WithExistentUserAndEmptyRestaurants_ReturnsEmptyList()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+
+        _users.Add(user);
+        itemsSetup(x => x.requestTable);
+        itemsSetup(x => x.restaurantTable);
+
+        // act
+        var result = _sut.GetOnlyMeRequestsRestaurant(user.Id);
+
+        // assert
+        result.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void GetOnlyMeRequestCourier_WithExistentUserAndSomeCourierAndRequest_ReturnsRequestInfoCouriers()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsInactive);
+        var request = Generator.GenCourierRequest(user.Id, courier.Id);
+
+        _users.Add(user);
+        itemsSetup(x => x.requestTable).AddItem(request);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+
+        // act
+        var result = _sut.GetOnlyMeRequestCourier(user.Id);
+
+        // assert
+        result.request_id.Should().Be(request.Id);
+        result.client_info.Id.Should().Be(user.Id);
+    }
+
+    [Fact]
+    public void GetOnlyMeRequestCourier_WithExistentUserWithoutCourier_ReturnsNull()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+
+        _users.Add(user);
+        itemsSetup(x => x.requestTable);
+        itemsSetup(x => x.courierTable);
+
+        // act
+        var result = _sut.GetOnlyMeRequestCourier(user.Id);
+
+        // assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetAllRequestsForAdmin_WithSomeRequests_ReturnsListOfRequests()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var rest1 = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified);
+        var rest2 = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified);
+
+        var restRequest1 = Generator.GenRestaurantRequest(user.Id, rest1.Id);
+        var restRequest2 = Generator.GenRestaurantRequest(user.Id, rest2.Id);
+
+        var courier1 = Generator.GenerateCourier(user.Id);
+        var courier2 = Generator.GenerateCourier(user.Id);
+
+        var courierRequest1 = Generator.GenCourierRequest(user.Id, courier1.Id);
+        var courierRequest2 = Generator.GenCourierRequest(user.Id, courier2.Id);
+
+        itemsSetup(x => x.requestTable).AddItems(restRequest1, restRequest2, courierRequest1, courierRequest2);
+        itemsSetup(x => x.courierTable).AddItems(courier1, courier2);
+        itemsSetup(x => x.restaurantTable).AddItems(rest1, rest2);
+
+        // act
+        var result = _sut.GetAllRequestsForAdmin();
+
+        // assert
+        result.courier_requests.Count.Should().Be(2);
+        result.restaurant_requests.Count.Should().Be(2);
+
+        result.courier_requests[0].request_id.Should().Be(courierRequest1.Id);
+        result.courier_requests[1].request_id.Should().Be(courierRequest2.Id);
+
+        result.courier_requests[0].client_info.Id.Should().Be(user.Id);
+        result.courier_requests[1].client_info.Id.Should().Be(user.Id);
+
+        result.restaurant_requests[0].request_id.Should().Be(restRequest1.Id);
+        result.restaurant_requests[1].request_id.Should().Be(restRequest2.Id);
+
+        result.restaurant_requests[0].client_info.Id.Should().Be(user.Id);
+        result.restaurant_requests[1].client_info.Id.Should().Be(user.Id);
+    }
+
+    [Fact]
+    public void GetAllRequestsForAdmin_WithZeroRequests_ReturnsEmptyLists()
+    {
+        // arrange
+        itemsSetup(x => x.requestTable);
+        itemsSetup(x => x.courierTable);
+        itemsSetup(x => x.restaurantTable);
+
+        // act
+        var result = _sut.GetAllRequestsForAdmin();
+
+        // assert
+        result.courier_requests.Count.Should().Be(0);
+        result.restaurant_requests.Count.Should().Be(0);
+    }
+
+    //[Fact]
+    //public void GetAllFrozenEntities_WithFrozenRestaurantsAndCouriers_ReturnsListsOfFrozenRestaurantsAndCouriers()
+    //{
+    //    // arrange
+    //    var user = Generator.GenerateUser();
+    //    _users.Add(user);
+
+    //    itemsSetup(x => x.restaurantTable).AddRange(Generator.GenerateRestaurants(user.Id, RestaurantStatus.Frozen, 3));
+    //    //itemsSetup(x => x.restaurantTable)
+    //    //todo: couriers
+
+    //    // act
+
+    //    // assert
+    //}
 }

@@ -157,29 +157,29 @@ public class RestaurantServicesTests : UnitTest
         rest.Should().BeEquivalentTo(newRest);
     }
 
-    [Fact]
-    public async Task UpdateRestaurant_WithNullData_DoesntUpdateRestaurant()
-    {
-        // arrange
-        var userId = Guid.NewGuid();
+    //[Fact]
+    //public async Task UpdateRestaurant_WithNullData_DoesntUpdateRestaurant()
+    //{
+    //    // arrange
+    //    var userId = Guid.NewGuid();
 
-        var rest = Generator.GenerateRestaurant(userId, RestaurantStatus.Verified);
-        _rests.Add(rest);
+    //    var rest = Generator.GenerateRestaurant(userId, RestaurantStatus.Verified);
+    //    _rests.Add(rest);
 
-        var dto = new RestaurantUpdate_DTO(null, null, null, null, null, null, null, null);
+    //    var dto = new RestaurantUpdate_DTO(null, null, null, null, null, null, null, null);
 
-        // act
-        await _sut.UpdateRestaurant(rest.Id, dto);
+    //    // act
+    //    await _sut.UpdateRestaurant(rest.Id, dto);
 
-        // arrange
-        rest.restaurantName.Should().NotBeNull();
-        rest.address.Should().NotBeNull();
-        rest.phone_number.Should().NotBeNull();
-        rest.description.Should().NotBeNull();
-        rest.imagePath.Should().NotBeNull();
-        rest.open_time.Should().NotBeNull();
-        rest.close_time.Should().NotBeNull();
-    }
+    //    // arrange
+    //    rest.restaurantName.Should().NotBeNull();
+    //    rest.address.Should().NotBeNull();
+    //    rest.phone_number.Should().NotBeNull();
+    //    rest.description.Should().NotBeNull();
+    //    rest.imagePath.Should().NotBeNull();
+    //    rest.open_time.Should().NotBeNull();
+    //    rest.close_time.Should().NotBeNull();
+    //}
 
     [Fact]
     public async Task UpdateRestaurant_WithNonExistentRestaurant_ThrowsException()

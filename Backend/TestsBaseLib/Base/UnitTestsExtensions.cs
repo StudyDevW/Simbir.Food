@@ -137,4 +137,16 @@ public static class UnitTestsExtensions
         controller.ControllerContext.HttpContext = new DefaultHttpContext();
         controller.ControllerContext.HttpContext.Request.Headers.Authorization = "auth";
     }
+
+    public static List<T> AddItem<T>(this List<T> list, T item)
+    {
+        list.Add(item);
+        return list;
+    }
+
+    public static List<T> AddItems<T>(this List<T> list, params T[] items)
+    {
+        list.AddRange(items);
+        return list;
+    }
 }

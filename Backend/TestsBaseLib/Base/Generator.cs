@@ -54,6 +54,9 @@ public static class Generator
     public static List<RestaurantTable> GenerateRestaurants(Guid user_id, int count) =>
         _GetRestaurantFaker(user_id, RestaurantStatus.Unverified).Generate(count);
 
+    public static List<RestaurantTable> GenerateRestaurants(Guid user_id, RestaurantStatus status, int count) =>
+        _GetRestaurantFaker(user_id, status).Generate(count);
+
     public static RequestTable GenRestaurantRequest(Guid user_id, Guid rest_id)
     {
         var faker = new Faker<RequestTable>();
