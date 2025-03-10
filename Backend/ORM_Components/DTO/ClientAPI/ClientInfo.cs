@@ -20,6 +20,10 @@
 
         public string? address { get; set; }
 
+        public int basket_items { get; set; }
+
+        public int orders_count { get; set; }
+
         public long money_value { get; set; }
 
         public List<string> roles { get; set; }

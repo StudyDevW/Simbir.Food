@@ -65,7 +65,7 @@ namespace ClientAPI.Services
                 if (_cache.CheckExistKeysStorage(check.check_success.Id, "refreshTokens"))
                     _cache.DeleteKeyFromStorage(check.check_success.Id, "refreshTokens");
 
-                _cache.WriteKeyInStorage(check.check_success.Id, "accessTokens", accessToken, DateTime.UtcNow.AddMinutes(5));
+                _cache.WriteKeyInStorage(check.check_success.Id, "accessTokens", accessToken, DateTime.UtcNow.AddMinutes(10));
                 _cache.WriteKeyInStorage(check.check_success.Id, "refreshTokens", refreshToken, DateTime.UtcNow.AddDays(7));
 
                 _session.SetupSession(check.check_success.Id, accessToken);
@@ -102,7 +102,7 @@ namespace ClientAPI.Services
                         if (_cache.CheckExistKeysStorage(check.check_success.Id, "refreshTokens"))
                             _cache.DeleteKeyFromStorage(check.check_success.Id, "refreshTokens");
 
-                        _cache.WriteKeyInStorage(check.check_success.Id, "accessTokens", accessToken, DateTime.UtcNow.AddMinutes(5));
+                        _cache.WriteKeyInStorage(check.check_success.Id, "accessTokens", accessToken, DateTime.UtcNow.AddMinutes(10));
                         _cache.WriteKeyInStorage(check.check_success.Id, "refreshTokens", refreshToken, DateTime.UtcNow.AddDays(7));
 
                         _session.SetupSession(check.check_success.Id, accessToken);
@@ -281,7 +281,7 @@ namespace ClientAPI.Services
                     _cache.DeleteKeyFromStorage(authsuccess.Id, "refreshTokens");
 
 
-                _cache.WriteKeyInStorage(authsuccess.Id, "accessTokens", accessToken, DateTime.UtcNow.AddMinutes(5));
+                _cache.WriteKeyInStorage(authsuccess.Id, "accessTokens", accessToken, DateTime.UtcNow.AddMinutes(10));
                 _cache.WriteKeyInStorage(authsuccess.Id, "refreshTokens", refreshToken, DateTime.UtcNow.AddDays(7));
 
 
@@ -919,6 +919,20 @@ namespace ClientAPI.Services
                     _logger.LogWarning($"Было отправлено ({dtoObj.money_value} руб)");
 
                 }
+            }
+        }
+
+        public async Task ChangeOrAddEmail(string bearer_key, string email)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                await _database.ChangeOrAddEmail(email, validation.token_success.Id);
             }
         }
     }

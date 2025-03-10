@@ -51,10 +51,51 @@ body
     background-size: 36px
     background-repeat: no-repeat
 
+.app_preorder_basket_image
+    flex: none
+    margin-left: 8px
+    margin-top: 8px
+    height: 50px
+    width: 50px
+    background-image: url(./images/basket_themed.png)
+    background-position: center
+    background-size: 45px
+    background-repeat: no-repeat
+
+.app_preorder_ruble_image
+    flex: none
+    margin-left: 8px
+    margin-top: 8px
+    height: 50px
+    width: 50px
+    background-image: url(./images/icon-ruble_themed.png)
+    background-position: center
+    background-size: 40px
+    background-repeat: no-repeat
+
+
+.app_preorder_box_image
+    flex: none
+    margin-left: 8px
+    margin-top: 8px
+    height: 50px
+    width: 50px
+    background-image: url(./images/box.png)
+    background-position: center
+    background-size: 40px
+    background-repeat: no-repeat
+
 .app_delivery_header_title_area
     flex: none
     width: 60%
     height: 50px
+    user-select: none
+
+.app_order_miniitem_title_area
+    flex: none
+    margin-left: 10px
+    width: 80%
+    height: 100%
     user-select: none
 
 .app_delivery_header_title
@@ -66,7 +107,7 @@ body
     width: 100%
     height: 50%
     user-select: none
-
+    
 .app_loading_area
     display: flex
     position: absolute
@@ -296,11 +337,40 @@ body
     border-right: 1px solid white
     animation: profile_open_foreground 0.5s forwards
     z-index: 50
-    overflow: scroll
-    -webkit-overflow-scrolling: auto
+    overflow: auto
+    scrollbar-width: none
+    
 
 .app_profile_area_panel.closed
     animation: profile_close_foreground 0.5s forwards
+
+.app_basket_order_complete_area
+    display: flex
+    flex-direction: row
+    align-items: center
+    position: absolute
+    bottom: 0
+    backdrop-filter: blur(5px)
+    width: 100%
+    height: 80px
+
+.app_basket_separator
+    position: relative
+    width: 100%
+    height: 80px
+
+.app_basket_order_complete_button
+    text-align: center
+    color: white
+    align-content: center
+    font-family: MUSEOSANS
+    position: relative
+    margin-left: 15px
+    width: calc(100% - 30px)
+    height: 70%
+    background-color: black
+    border-radius: 10px
+
 
 .app_profile_info_area
     flex: none
@@ -520,11 +590,12 @@ body
 
 .app_maincontent_area
     position: absolute
-    margin-top: 50px
+    margin-top: 60px
     width: 100%
-    height: calc(100% - 50px)
-    overflow-y: scroll
-
+    height: calc(100% - 60px)
+    overflow: auto
+    scrollbar-width: none
+    
 
 .app_basket_item
     display: flex
@@ -532,7 +603,19 @@ body
     flex-wrap: wrap
     position: relative
     margin-left: 15px
-    width: calc(100% - 15px)
+    width: calc(100% - 15px * 2)
+    height: 70px
+    background-color: #EAEAEA
+    border-radius: 10px
+    margin-bottom: 10px
+
+.app_order_item
+    display: flex
+    flex-direction: column
+    flex-wrap: wrap
+    position: relative
+    margin-left: 15px
+    width: calc(100% - 15px * 2)
     height: 70px
     background-color: #EAEAEA
     border-radius: 10px
@@ -545,6 +628,24 @@ body
     padding-left: 10px
     margin-top: 18px
     width: calc(100% - 80px) 
+
+
+.app_basket_item_title.sm
+    margin-top: 2px
+
+
+.app_order_item_title
+    position: relative
+    font-family: MUSEOSANS
+    font-size: 15px
+    padding-left: 10px
+    margin-top: 18px
+    width: calc(100% - 80px) 
+
+
+.app_order_item_title.sm
+    margin-top: 2px
+
 
 .app_basket_item_delete
     position: absolute
@@ -561,9 +662,6 @@ body
     background-repeat: no-repeat
 
 
-.app_basket_item_title.sm
-    margin-top: 2px
-
 .app_basket_item_image
     position: relative
     margin-top: 5px
@@ -576,3 +674,397 @@ body
     background-position: center
     background-size: contain
     background-repeat: no-repeat
+
+.app_preorder_area
+    display: flex
+    flex-direction: column
+    position: absolute
+    margin-left: 15px
+    width: calc(100% - 30px)
+    height: 100%
+
+.app_preorder_maparea
+    display: flex
+    flex-direction: row
+    position: relative
+    padding-top: 8px
+    width: 100%
+    height: calc(100% - 8px)
+    background-color: white
+    border-radius: 15px
+    margin-bottom: 10px
+
+.app_preorder_maparea_second
+    position: absolute
+    margin-top: 55px
+    margin-left: 10px
+    width: calc(100% - 20px)
+    height: calc(100% - 75px)
+    background-color: #EAEAEA
+    border-radius: 15px
+    margin-bottom: 10px
+    overflow: hidden
+
+.app_preorder_miniitemarea 
+    flex: none
+    display: flex
+    flex-direction: column
+    flex-wrap: wrap
+    width: 100%
+    height: 65px
+    margin-bottom: 10px
+    border-radius: 15px
+    background-color: white
+
+.app_preorder_paybutton 
+    color: white
+    flex: none
+    font-family: MUSEOSANS
+    text-align: center
+    align-content: center
+    width: 100%
+    height: 55px
+    margin-top: 10px
+    margin-bottom: 10px
+    border-radius: 15px
+    background-color: black
+
+.area_payment
+  position: absolute
+  margin-left: calc(50% - 400px / 2)
+  margin-top: calc(50vh - 600px / 2)
+  width: 400px
+  height: 600px
+  border-radius: 20px
+
+.payment_title
+  margin-top: 5px
+  position: absolute
+  font-family: MUSEOSANS
+  align-content: center
+  text-align: center
+  font-size: 25px
+  width: 330px
+  height: 80px
+
+.payment_title_hash
+  margin-top: 65px
+  position: absolute
+  font-family: MUSEOSANS
+  align-content: center
+  text-align: left
+  font-size: 17px
+  padding-left: 27px
+  width: calc(100% - 27px)
+  height: 40px
+
+
+.payment_area_elements
+  position: absolute
+  margin-top: 17%
+  width: 100%
+  height: 80%
+  
+
+@keyframes firstCardAnim
+  0%
+    margin-left: 310px
+    background-color: white
+  100%
+    margin-left: 290px
+    background-color: transparent
+    backdrop-filter: blur(10px)
+
+@keyframes firstCardAnimClose
+  0%
+    margin-left: 290px
+    background-color: transparent
+    backdrop-filter: blur(10px)
+  100%
+    margin-left: 310px
+    background-color: white
+
+.firstcardpay
+  background-color: white
+  position: absolute
+  top: -50px
+  left: -285px
+  margin-left: 310px
+  margin-top: 95px
+  width: 350px
+  height: 200px
+  border-radius: 20px
+  box-shadow: 0px 0px 10px -4px #000000
+  animation: firstCardAnimClose 0.5s forwards
+  z-index: 3
+  scale: 0.9
+
+.firstcardpay.active
+  animation: firstCardAnim 0.5s forwards
+
+.input_text 
+  font-family: MUSEOSANS
+  font-size: 24px
+  margin-top: 70px
+  margin-left: 20px
+  position: absolute
+  padding: 0px 10px
+  width: calc(97% - 20px - 30px)
+  height: 35px
+  background-color: rgb(255, 255, 255)
+  border: solid black 1px
+  border-radius: 5px
+
+.input_text.small
+  font-size: 16px
+  text-align: center
+  margin-top: 125px
+  margin-left: 250px
+  width: calc(60px)
+  height: 25px
+
+.firstcardpay_title
+  position: absolute
+  align-content: center
+  font-family: MUSEOSANS
+  font-size: 20px
+  margin-top: 5px
+  padding-left: 20px
+  width: calc(100% - 20px)
+  height: 60px
+
+.firstcardpay_desc
+  position: absolute
+  align-content: center
+  font-family: MUSEOSANS
+  font-size: 14px
+  margin-top: 100px
+  padding-left: 20px
+  color: rgb(63, 63, 63)
+  width: calc(100% - 20px)
+  height: 40px    
+
+.image_desc
+  position: absolute
+  margin-top: 125px
+  margin-left: 40%
+  color: rgb(63, 63, 63)
+  width: calc(60%)
+  height: 70px    
+  background-image: url(../images/logo_main.png)
+  background-size: contain
+  background-repeat: no-repeat
+  background-position: bottom
+
+.image_desc.left
+  font-size: 12px
+  margin-top: 175px
+  font-family: MUSEOSANS
+  background-image: none
+  margin-left: 15px
+  height: 20px   
+
+.buy_button
+  font-family: MUSEOSANS
+  font-size: 20px
+  color: white
+  border-radius: 10px
+  text-align: center
+  align-content: center
+  position: absolute
+  margin-left: calc(100% - 200px - 30px)
+  margin-top: 400px
+  width: 200px
+  height: 50px
+  background-color: black
+  user-select: none
+
+.secondcardpay_desc
+  position: absolute
+  align-content: center
+  font-family: MUSEOSANS
+  text-align: right
+  font-size: 14px
+  padding-right: 30px
+  margin-top: 150px
+  padding-left: 25px
+  color: rgb(63, 63, 63)
+  width: calc(100% - 55px)
+  height: 30px
+
+@keyframes secCardAnim
+  0%
+    margin-left: 310px
+    background-color: white
+  100%
+    box-shadow: 0px 0px 10px -4px #000000
+    margin-top: 175px
+    margin-left: 325px
+
+@keyframes secCardAnimClose
+  0%
+    box-shadow: 0px 0px 10px -4px #000000
+    margin-top: 175px
+    margin-left: 325px
+  100%
+    margin-left: 310px
+    background-color: white
+
+.secondcardpay
+  position: absolute
+  margin-left: 310px
+  margin-top: 95px
+  top: -50px
+  left: -285px
+  width: 350px
+  height: 200px
+  border-radius: 20px
+  background-color: white
+  animation: secCardAnimClose 0.5s forwards
+  z-index: 2
+  scale: 0.9
+
+.secondcardpay.active
+  animation: secCardAnim 0.5s forwards
+
+
+.secondcardpay_line
+  position: absolute
+  margin-top: 40px
+  width: 100%
+  height: 45px
+  background-color: rgb(189, 189, 189)
+
+.payment_print_area
+  position: absolute
+  display: flex
+  flex-direction: column
+  margin-left: 25px
+  margin-top: 120px
+  width: calc(100% - 25px * 2)
+  height: 430px 
+
+.payment_print_item
+  position: relative
+  flex: none
+  width: 100%
+  height: 100px
+  background-color: white
+  border: solid black 1px
+  box-shadow: 0px 0px 10px -4px #000000
+  border-radius: 10px
+  margin-bottom: 20px
+   user-select: none
+
+.payment_print_item_cardn
+  position: relative
+  margin-left: 15px
+  margin-top: 5px
+  font-family: MUSEOSANS
+  font-size: 15px
+  user-select: none
+
+.payment_print_item_status
+  position: relative
+  top: -45px
+  text-align: right
+  margin-right: 20px
+  margin-top: 5px
+  font-family: MUSEOSANS
+  font-size: 15px
+  user-select: none
+  
+.payment_print_item_data
+  position: relative
+  top: -45px
+  text-align: right
+  margin-right: 20px
+  margin-top: 5px
+  font-family: MUSEOSANS
+  font-size: 15px
+  user-select: none
+
+.payment_print_item_title
+  
+  position: relative
+  margin-left: 15px
+  margin-top: 15px
+  font-family: MUSEOSANS
+  font-size: 20px
+  user-select: none
+
+.payment_cards_fromother_card_item
+  flex: none
+  position: relative
+  margin-left: 10px
+  width: calc(100% - 10px * 2)
+  height: 120px
+  margin-bottom: 15px
+  background-color: white
+  border: solid black 1px
+  box-shadow: 0px 0px 10px -4px #000000
+  border-radius: 10px
+
+.payment_cards_fromother_card_item_title
+  
+  position: absolute
+  margin-top: 10px
+  margin-left: 10px
+  font-family: MUSEOSANS
+  font-size: 15px
+
+.payment_cards_fromother_card_item_number
+  position: absolute
+  margin-top: 45px
+  width: 100%
+  text-align: center
+  font-family: MUSEOSANS
+  font-size: 18px
+
+.payment_cards_fromother_card_item_image_desc
+  position: absolute
+  margin-top: 85px
+  margin-left: 40%
+  color: rgb(63, 63, 63)
+  width: calc(60%)
+  height: 30px    
+  background-image: url(../images/logo_main.png)
+  background-size: contain
+  background-repeat: no-repeat
+  background-position: bottom
+
+
+.payment_cards_fromother_title
+  flex: none
+  position: relative
+  font-family: MUSEOSANS
+  font-size: 17px
+  align-content: center
+  margin-left: 10px
+  width: calc(100% - 10px)
+  height: 40px
+
+.payment_cards_fromother_card_item_area
+  flex: none
+  display: flex
+  flex-direction: column
+  position: relative
+  width: 100%
+  height: calc(100% - 40px)
+  overflow-y: scroll
+
+
+.payment_cards_fromother_card_item_area::-webkit-scrollbar
+  display: none
+
+
+.payment_cards_fromother_area
+  position: absolute
+  display: flex
+  flex-direction: column
+  margin-left: 20px
+  width: 250px
+  height: 450px
+  background-color: white
+  border-radius: 10px
+  box-shadow: 0px 0px 10px -4px #000000

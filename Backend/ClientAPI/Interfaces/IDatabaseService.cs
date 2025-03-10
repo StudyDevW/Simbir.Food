@@ -64,6 +64,8 @@ namespace ClientAPI.Interfaces
 
         public List<OrderInfo_History> GetHistoryStatusOrder(Guid orderId);
 
+        public Task ChangeOrAddEmail(string email, Guid userGUID);
+
         public Task InsertMoney(Guid userGUID, long money_value);
 
         public bool ExistMoney(Guid userGUID, long money_value);

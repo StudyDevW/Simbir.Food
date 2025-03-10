@@ -130,6 +130,10 @@ namespace ClientAPI.Services
 
                 var restaurantOwnerId = RestaurantOwner(userGUID);
 
+                var basketItems = _dbcontext.basketTable.Where(c => c.user_id == userGUID).ToList();
+
+                var orderItems = _dbcontext.orderTable.Where(c => c.client_id == userGUID).ToList();
+
                 return new ClientInfo()
                 {
                     Id = selectedUser.Id,
@@ -140,6 +144,8 @@ namespace ClientAPI.Services
                     username = selectedUser.username,
                     address = selectedUser.address,
                     photo_url = selectedUser.photo_url,
+                    basket_items = basketItems.Count,
+                    orders_count = orderItems.Count,
                     restaurant_own = restaurantOwnerId,
                     money_value = selectedUser.money_value,
                     roles = selectedUser.roles.ToList()
@@ -166,6 +172,10 @@ namespace ClientAPI.Services
                 {
                     var restaurantOwnerId = RestaurantOwner(client.Id);
 
+                    var basketItems = _dbcontext.basketTable.Where(c => c.user_id == client.Id).ToList();
+
+                    var orderItems = _dbcontext.orderTable.Where(c => c.client_id == client.Id).ToList();
+
                     ClientInfo clientInfo = new ClientInfo()
                     {
                         Id = client.Id,
@@ -177,6 +187,8 @@ namespace ClientAPI.Services
                         address = client.address,
                         photo_url = client.photo_url,
                         restaurant_own = restaurantOwnerId,
+                        basket_items = basketItems.Count,
+                        orders_count = orderItems.Count,
                         money_value = client.money_value,
                         roles = client.roles.ToList()
                     };
@@ -192,6 +204,10 @@ namespace ClientAPI.Services
                 {
                     var restaurantOwnerId = RestaurantOwner(client.Id);
 
+                    var basketItems = _dbcontext.basketTable.Where(c => c.user_id == client.Id).ToList();
+
+                    var orderItems = _dbcontext.orderTable.Where(c => c.client_id == client.Id).ToList();
+
                     ClientInfo clientInfo = new ClientInfo()
                     {
                         Id = client.Id,
@@ -203,6 +219,8 @@ namespace ClientAPI.Services
                         address = client.address,
                         photo_url = client.photo_url,
                         restaurant_own = restaurantOwnerId,
+                        basket_items = basketItems.Count,
+                        orders_count = orderItems.Count,
                         money_value = client.money_value,
                         roles = client.roles.ToList()
                     };
@@ -1118,7 +1136,7 @@ namespace ClientAPI.Services
 
             var selectedHistoryOrder = _dbcontext.orderHistory.Where(c => c.order_id == selectedOrder.Id).OrderByDescending(x => x.status_datetime).FirstOrDefault();
 
-            var status_order_now = "Заказ оплачен, ожидаем ресторан";
+            var status_order_now = "";
 
             if (selectedHistoryOrder == null)
                 throw new Exception("order_status_history_not_found");
@@ -1218,6 +1236,18 @@ namespace ClientAPI.Services
             }
 
             return ordersHistory;
+        }
+
+        public async Task ChangeOrAddEmail(string email, Guid userGUID)
+        {
+            var selectedUser = _dbcontext.userTable
+                .Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
+
+            selectedUser.email = email;
+            await _dbcontext.SaveChangesAsync();
         }
 
         public string GetTelegramChatIdFromRequestId(Guid requestId)

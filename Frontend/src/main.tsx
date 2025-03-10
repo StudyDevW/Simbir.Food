@@ -13,6 +13,9 @@ import LoginPage from './pages/LoginPage.tsx';
 import AddressPage from './pages/AddressPage.tsx';
 import ProfilePage from './pages/ProfilePage.tsx';
 import BasketPage from './pages/BasketPage.tsx';
+import OrderPage from './pages/OrderPage.tsx';
+import OrderInfoPage from './pages/OrderInfoPage.tsx';
+import PaymentPage from './pages/PaymentPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -38,7 +41,25 @@ const router = createBrowserRouter([
     element: (
         <BasketPage/>
     ),
-    },
+  },
+  {
+    path: '/ordered',
+    element: (
+        <OrderPage/>
+    ),
+  },
+  {
+    path: '/payment',
+    element: (
+        <PaymentPage/>
+    ),
+  },
+  {
+    path: '/ordersinfo',
+    element: (
+        <OrderInfoPage/>
+    ),
+  },
   {
       path: '/login',
       element: (

@@ -36,6 +36,11 @@ namespace RestaurantAPI.Model.Services
                 throw new Exception($"Заказ с идентификатором: {order.id} не существует.");
             }
 
+            if (orderRejections.status == OrderStatus.Delivered)
+            {
+                throw new Exception($"Заказ с идентификатором: {order.id} уже доставлен. Его нельзя отклонить.");
+            }
+
             orderRejections.status = OrderStatus.Denied;
 
             await _dataContext.SaveChangesAsync();
@@ -92,22 +97,20 @@ namespace RestaurantAPI.Model.Services
         }
         public async Task<List<RestaurantMark_DTO>> GetRestaurantMark()
         {
-            var restaurantWithMarks = await _dataContext.restaurantTable
-            .GroupJoin(
-                _dataContext.reviewTable,
-                restaurant => restaurant.Id,
-                review => review.restaurant_id,
-                (restaurant, reviews) => new
-                {
+            var restaurantWithMarks = await (
+                from restaurant in _dataContext.restaurantTable
+                let avg = _dataContext.reviewTable
+                    .Where(r => r.restaurant_id == restaurant.Id)
+                    .Select(r => (float?)r.rating)
+                    .DefaultIfEmpty(0)
+                    .Average()
+                select new RestaurantMark_DTO(
                     restaurant.Id,
                     restaurant.restaurantName,
-                    AverageMark = reviews.Any() ? reviews.Average(r => r.rating) : 0
-                })
-            .ToListAsync();
+                    (int)avg)
+            ).ToListAsync();
 
-            return restaurantWithMarks.Select(r =>
-                new RestaurantMark_DTO(r.Id, r.restaurantName, (int)r.AverageMark)
-            ).ToList();
+            return restaurantWithMarks;
         }
         public async Task SetReadyStatusForOrder(Guid orderId)
         {
@@ -121,6 +124,16 @@ namespace RestaurantAPI.Model.Services
             var user = await _dataContext.userTable
                 .FirstOrDefaultAsync(x => x.Id == order.client_id)
                 ?? throw new Exception("Пользователь не найден.");
+
+            OrderStatusHistoryTable orderHistory = new OrderStatusHistoryTable()
+            {
+                order_id = orderId,
+                status = OrderStatus.Ready,
+                status_datetime = DateTime.UtcNow,
+            };
+
+            _dataContext.orderHistory.Add(orderHistory);
+            await _dataContext.SaveChangesAsync();
 
             await _tgmessageSender.Send(user.telegram_chat_id.ToString(), "Ваш заказ ожидает курьера.");
             await SendMessageForEveryActiveCourier();

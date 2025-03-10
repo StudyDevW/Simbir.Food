@@ -209,6 +209,7 @@ namespace ORM_Components.Migrations
                     photo_url = table.Column<string>(type: "text", nullable: true),
                     username = table.Column<string>(type: "text", nullable: true),
                     money_value = table.Column<long>(type: "bigint", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: true),
                     roles = table.Column<string[]>(type: "text[]", nullable: false)
                 },
                 constraints: table =>
@@ -226,8 +227,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "calories", "image", "name", "price", "restaurant_id", "weight" },
                 values: new object[,]
                 {
-                    { new Guid("48dcb7f2-c4e9-42a5-8a3a-3822c7bf657b"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
-                    { new Guid("acfd2bfd-668d-42fd-8276-d1c6278ad30f"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
+                    { new Guid("0dcfbe90-6964-4064-af66-280920c81943"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
+                    { new Guid("4e37119d-878c-41c4-b632-9e87e99b45ab"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
                 });
 
             migrationBuilder.InsertData(
@@ -236,13 +237,13 @@ namespace ORM_Components.Migrations
                 values: new object[,]
                 {
                     { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "NONE", "10:00", "+78005555535", "Тестовый ресторан", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
-                    { new Guid("d033cf0e-b719-4af6-afeb-62d7fe2ef8d0"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
+                    { new Guid("e25ca427-7d35-49d3-8793-ce9a2975c53a"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
                 });
 
             migrationBuilder.InsertData(
                 table: "userTable",
-                columns: new[] { "Id", "address", "first_name", "last_name", "money_value", "photo_url", "roles", "telegram_chat_id", "telegram_id", "username" },
-                values: new object[] { new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), "улица Шолмова, 7", "Антон (Study)", "", 5000L, "https://t.me/i/userpic/320/YC895p02kbd-O-aU-F49vK8j1qFbmbObwS_DaaPkKdg.svg", new[] { "Client", "Admin", "Courier" }, 1006365928L, 1006365928L, "studywhite" });
+                columns: new[] { "Id", "address", "email", "first_name", "last_name", "money_value", "photo_url", "roles", "telegram_chat_id", "telegram_id", "username" },
+                values: new object[] { new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), "улица Шолмова, 7", "", "Антон (Study)", "", 5000L, "https://t.me/i/userpic/320/YC895p02kbd-O-aU-F49vK8j1qFbmbObwS_DaaPkKdg.svg", new[] { "Client", "Admin", "Courier" }, 1006365928L, 1006365928L, "studywhite" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

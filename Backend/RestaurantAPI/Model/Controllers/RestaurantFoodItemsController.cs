@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Middleware_Components.CustomAttributes;
 using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
@@ -16,6 +17,7 @@ using System.Net;
 namespace RestaurantAPI.Model.Controllers
 {
     [Authorize(AuthenticationSchemes = "Asymmetric")]
+    [ValidateJwt]
     [Route("api/RestaurantFoodItems/")]
     [ApiController]
     public class RestaurantFoodItemsController : ControllerBase
@@ -38,7 +40,7 @@ namespace RestaurantAPI.Model.Controllers
             try
             {
                 await _restaurantFoodItemsServices.AddRestaurantFoodItems(restaurantFoodItems_DTO);
-                return Ok("Ресторан загружен");
+                return Ok("Блюдо успешно добавлено.");
             }
             catch (Exception ex)
             {

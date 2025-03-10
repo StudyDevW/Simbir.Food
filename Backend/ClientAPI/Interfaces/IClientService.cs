@@ -74,5 +74,7 @@ namespace ClientAPI.Interfaces
         public Task<List<OrderInfo_History>?> GetAllHistoryOrder(string bearer_key, Guid orderId);
 
         public Task MoneyOut(string bearer_key, PaymentOut dtoObj);
+
+        public Task ChangeOrAddEmail(string bearer_key, string email);
     }
 }

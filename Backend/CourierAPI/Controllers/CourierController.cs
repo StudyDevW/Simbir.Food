@@ -1,7 +1,7 @@
 ﻿using CourierAPI.Contracts;
-using CourierAPI.Controllers.CustomAttributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Middleware_Components.CustomAttributes;
 using ORM_Components.DTO.CourierAPI;
 
 namespace CourierAPI.Controllers
@@ -19,12 +19,23 @@ namespace CourierAPI.Controllers
             _courierService = courierService;
         }
 
+        /// <summary>
+        /// Получает список заказов, доступных курьеру для доставки.
+        /// </summary>
+        /// <returns>Список заказов для курьера.</returns>
+        /// <response code="200">Возвращает список заказов</response>
         [HttpGet("ordersForCourier")]
         public async Task<ActionResult<List<OrderForCourierDto>>> GetOrderList()
         {
             return await _courierService.GetOrders();
         }
 
+        /// <summary>
+        /// Принимает заказ курьером в доставку. Статус заказа меняется на 'Принято в доставку'.
+        /// </summary>
+        /// <param name="orderId">ID заказа</param>
+        /// <returns>Нет содержимого</returns>
+        /// <response code="204">Заказ успешно принят</response>
         [HttpPost("{orderId}/accept")]
         public async Task<IActionResult> AcceptOrder(Guid orderId)
         {
@@ -32,6 +43,11 @@ namespace CourierAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Меняет статус заказа на 'Курьер на месте'.
+        /// </summary>
+        /// <param name="orderId">ID заказа</param>
+        /// <returns>Нет содержимого</returns>
         [HttpPost("{orderId}/courierOnPlace")]
         public async Task<IActionResult> CourierOnPlace(Guid orderId)
         {
@@ -39,6 +55,11 @@ namespace CourierAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Меняет статус заказа на 'Заказ доставлен'.
+        /// </summary>
+        /// <param name="orderId">ID заказа</param>
+        /// <returns>Нет содержимого</returns>
         [HttpPost("{orderId}/delivered")]
         public async Task<IActionResult> Delivered(Guid orderId)
         {
@@ -46,18 +67,31 @@ namespace CourierAPI.Controllers
             return NoContent();
         }
 
-        [HttpGet("{courierId}/get")]
+        /// <summary>
+        /// Получает информацию для авторизованного курьера.
+        /// </summary>
+        /// <returns>Информация о курьере</returns>
+        [HttpGet("get")]
         public async Task<ActionResult<CourierDto>> GetAsync()
         {
             return await _courierService.GetAsync();
         }
 
+        /// <summary>
+        /// Получает информацию о всех зарегистрированных курьерах. (Develop-Method)
+        /// </summary>
+        /// <returns>Информация обо всех курьерах</returns>
         [HttpGet("getAll")]
         public async Task<ActionResult<List<CourierDto>>> GetAllAsync()
         {
             return await _courierService.GetAllAsync();
         }
 
+        /// <summary>
+        /// Создание заказа вручную. (Develop-Method)
+        /// </summary>
+        /// <param name="courierDtoForCreate">DTO с данными нового курьера.</param>
+        /// <returns>Нет содержимого</returns>
         [HttpPost("create")]
         public async Task<IActionResult> CreateAsync([FromBody] CourierDtoForCreate courierDtoForCreate)
         {
@@ -65,6 +99,11 @@ namespace CourierAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Обновляет информацию курьера.
+        /// </summary>
+        /// <param name="courierDtoForUpdate">DTO для обновления данных курьера.</param>
+        /// <returns>Нет содержимого</returns>
         [HttpPut("update")]
         public async Task<IActionResult> UpdateAsync([FromBody] CourierDtoForUpdate courierDtoForUpdate)
         {
@@ -72,6 +111,11 @@ namespace CourierAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Удаляет курьера.
+        /// </summary>
+        /// <param name="courierId">ID курьера.</param>
+        /// <returns>Нет содержимого</returns>
         [HttpDelete("{courierId}/delete")]
         public async Task<IActionResult> DeleteAsync(Guid courierId)
         {
