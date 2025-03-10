@@ -6,6 +6,9 @@ using ORM_Components.Tables;
 using Moq.EntityFrameworkCore;
 using TestsBaseLib.Base;
 using ORM_Components.Tables.Helpers;
+using Telegram.Bot.Types;
+using System.Diagnostics.Metrics;
+using StackExchange.Redis;
 
 namespace ClientAPI.Tests.Services;
 
@@ -975,19 +978,702 @@ public class DatabaseServiceTests : UnitTest
         result.restaurant_requests.Count.Should().Be(0);
     }
 
-    //[Fact]
-    //public void GetAllFrozenEntities_WithFrozenRestaurantsAndCouriers_ReturnsListsOfFrozenRestaurantsAndCouriers()
-    //{
-    //    // arrange
-    //    var user = Generator.GenerateUser();
-    //    _users.Add(user);
+    [Fact]
+    public void GetAllFrozenEntities_WithFrozenRestaurantsAndCouriers_ReturnsListsOfFrozenRestaurantsAndCouriers()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
 
-    //    itemsSetup(x => x.restaurantTable).AddRange(Generator.GenerateRestaurants(user.Id, RestaurantStatus.Frozen, 3));
-    //    //itemsSetup(x => x.restaurantTable)
-    //    //todo: couriers
+        itemsSetup(x => x.restaurantTable)
+            .AddItems(Generator.GenerateRestaurants(user.Id, RestaurantStatus.Frozen, 3))
+            .AddItems(Generator.GenerateRestaurants(user.Id, RestaurantStatus.Verified, 2));
+        itemsSetup(x => x.courierTable)
+            .AddItems(Generator.GenCouriers(user.Id, CourierStatus.Frozen, 3))
+            .AddItems(Generator.GenCouriers(user.Id, CourierStatus.IsInactive, 2));
 
-    //    // act
+        // act
+        var result = _sut.GetAllFrozenEntities();
 
-    //    // assert
-    //}
+        // assert
+        result.Should().NotBeNull();
+        result.frozen_restaurants.Count.Should().Be(3);
+        result.frozen_couriers.Count.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task UnfreezeRestaurantWork_WithExistentRestaurant_SetsRestaurantStatusToVerified()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var rest = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Frozen);
+        itemsSetup(x => x.restaurantTable).AddItem(rest);
+
+        // act
+        await _sut.UnfreezeRestaurantWork(rest.Id);
+
+        // assert
+        rest.status.Should().Be(RestaurantStatus.Verified);
+    }
+
+    [Fact]
+    public async Task UnfreezeRestaurantWork_WithNonExistentRestaurant_ThrowsException()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+        itemsSetup(x => x.restaurantTable);
+
+        // act
+        Func<Task> act = async () => await _sut.UnfreezeRestaurantWork(id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("restaurant_not_found");
+    }
+
+    [Fact]
+    public async Task UnfreezeRestaurantWork_WithVerifiedStatus_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var rest = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified);
+        itemsSetup(x => x.restaurantTable).AddItem(rest);
+
+        // act
+        Func<Task> act = async () => await _sut.UnfreezeRestaurantWork(rest.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("restaurant_not_frozen");
+    }
+
+    [Fact]
+    public async Task UnfreezeRestaurantWork_WithUnverifiedStatus_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var rest = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Unverified);
+        itemsSetup(x => x.restaurantTable).AddItem(rest);
+
+        // act
+        Func<Task> act = async () => await _sut.UnfreezeRestaurantWork(rest.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("restaurant_unverified_now");
+    }
+
+    [Fact]
+    public async Task UnfreezeCourierWork_WithExistentCourier_SetsCourierStatusToIsInactive()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.Frozen);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+
+        // act
+        await _sut.UnfreezeCourierWork(user.Id);
+
+        // assert
+        courier.status.Should().Be(CourierStatus.IsInactive);
+    }
+
+    [Fact]
+    public async Task UnfreezeCourierWork_WithNonExistentCourier_ThrowsException()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+        itemsSetup(x => x.courierTable);
+
+        // act
+        Func<Task> act = async () => await _sut.UnfreezeCourierWork(id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("courier_not_found");
+    }
+
+    [Fact]
+    public async Task UnfreezeCourierWork_WithIsInactiveStatus_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsInactive);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+
+        // act
+        Func<Task> act = async () => await _sut.UnfreezeCourierWork(user.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("courier_not_frozen");
+    }
+
+    [Fact]
+    public async Task UnfreezeCourierWork_WithUnverifiedStatus_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.Unverified);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+
+        // act
+        Func<Task> act = async () => await _sut.UnfreezeCourierWork(user.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("courier_unverified_now");
+    }
+
+    [Fact]
+    public async Task FreezeRestaurantWork_WithCorrectData_SetRestaurantStatusToFrozen()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var rest = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified);
+        itemsSetup(x => x.restaurantTable).AddItem(rest);
+
+        // act
+        await _sut.FreezeRestaurantWork(rest.Id);
+
+        // assert
+        rest.status.Should().Be(RestaurantStatus.Frozen);
+    }
+
+    [Fact]
+    public async Task FreezeRestaurantWork_WithNonExistentRestraurant_ThrowsException()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+        itemsSetup(x => x.restaurantTable);
+
+        // act
+        Func<Task> act = async () => await _sut.FreezeRestaurantWork(id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("restaurant_not_found");
+    }
+
+    [Fact]
+    public async Task FreezeRestaurantWork_WithAlreadyFrozenRestaurant_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var rest = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Frozen);
+        itemsSetup(x => x.restaurantTable).AddItem(rest);
+
+        // act
+        Func<Task> act = async () => await _sut.FreezeRestaurantWork(rest.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("restaurant_already_frozen");
+    }
+
+    [Fact]
+    public async Task FreezeRestaurantWork_WithUnverifiedRestaurant_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var rest = Generator.GenerateRestaurant(user.Id, RestaurantStatus.Unverified);
+        itemsSetup(x => x.restaurantTable).AddItem(rest);
+
+        // act
+        Func<Task> act = async () => await _sut.FreezeRestaurantWork(rest.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("restaurant_unverified_now");
+    }
+
+    [Fact]
+    public async Task FreezeCourierWork_WithCorrectData_SetCourierStatusToFrozen()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsInactive);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+
+        // act
+        await _sut.FreezeCourierWork(user.Id);
+
+        // assert
+        courier.status.Should().Be(CourierStatus.Frozen);
+    }
+
+    [Fact]
+    public async Task FreezeCourierWork_WithNonExistentCourier_ThrowsException()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+        itemsSetup(x => x.courierTable);
+
+        // act
+        Func<Task> act = async () => await _sut.FreezeCourierWork(id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("courier_not_found");
+    }
+
+    [Fact]
+    public async Task FreezeCourierWork_WithAlreadyFrozenCourier_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.Frozen);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+
+        // act
+        Func<Task> act = async () => await _sut.FreezeCourierWork(user.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("courier_already_frozen");
+    }
+
+    [Fact]
+    public async Task FreezeCourierWork_WithUnverifiedCourier_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.Unverified);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+
+        // act
+        Func<Task> act = async () => await _sut.FreezeCourierWork(user.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("courier_unverified_now");
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithItemsInBasketInEnoughMoneyToPay_CreatesAndPaysOrderAndReturnsDto()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        user.money_value = 1000;
+        _users.Add(user);
+
+        var rests = itemsSetup(x => x.restaurantTable)
+            .AddItem(Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified));
+        var foods = itemsSetup(x => x.restaurantFoodItemsTable)
+            .AddItem(Generator.GenerateFoodItem(rests[0].Id, 250))
+            .AddItem(Generator.GenerateFoodItem(rests[0].Id, 400));
+        var orders = itemsSetup(x => x.orderTable,
+            add: x => x.orderTable.Add(any<OrderTable>()));
+        var history = itemsSetup(x => x.orderHistory,
+            add: x => x.orderHistory.Add(any<OrderStatusHistoryTable>()));
+        var basket = itemsSetup(x => x.basketTable,
+            remove: x => x.basketTable.Remove(any<BasketTable>()))
+            .AddItem(Generator.GenBasket(user.Id, foods[0].Id))
+            .AddItem(Generator.GenBasket(user.Id, foods[0].Id))
+            .AddItem(Generator.GenBasket(user.Id, foods[1].Id));
+        
+        var orderItems = itemsSetup(x => x.orderItemsTable,
+            add: x => x.orderItemsTable.Add(any<OrderItemsTable>()));
+
+        // act
+        var result = await _sut.CreateOrder(user.Id);
+
+        // assert
+        result.Should().BeOfType<Order_DTO>();
+        result.total_price.Should().Be(900);
+        basket.Count.Should().Be(0);
+        orders.Count.Should().Be(1);
+
+        orders[0].total_price.Should().Be(900);
+        orderItems.Count.Should().Be(3);
+
+        history.Count.Should().Be(1);
+        user.money_value.Should().Be(100);
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithEmptyBasket_ThrowsException()
+    {
+        // arrange
+        itemsSetup(x => x.basketTable);
+
+        // act
+        Func<Task> act = async () => await _sut.CreateOrder(Guid.NewGuid());
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("basket_was_empty");
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithNotEnoughMoneyToPay_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        user.money_value = 500;
+        _users.Add(user);
+
+        var rests = itemsSetup(x => x.restaurantTable)
+            .AddItem(Generator.GenerateRestaurant(user.Id, RestaurantStatus.Verified));
+        var foods = itemsSetup(x => x.restaurantFoodItemsTable)
+            .AddItem(Generator.GenerateFoodItem(rests[0].Id, 250))
+            .AddItem(Generator.GenerateFoodItem(rests[0].Id, 400));
+        var orders = itemsSetup(x => x.orderTable,
+            add: x => x.orderTable.Add(any<OrderTable>()));
+        var history = itemsSetup(x => x.orderHistory,
+            add: x => x.orderHistory.Add(any<OrderStatusHistoryTable>()));
+        var basket = itemsSetup(x => x.basketTable,
+            remove: x => x.basketTable.Remove(any<BasketTable>()))
+            .AddItem(Generator.GenBasket(user.Id, foods[0].Id))
+            .AddItem(Generator.GenBasket(user.Id, foods[0].Id))
+            .AddItem(Generator.GenBasket(user.Id, foods[1].Id));
+
+        var orderItems = itemsSetup(x => x.orderItemsTable,
+            add: x => x.orderItemsTable.Add(any<OrderItemsTable>()));
+
+        // act
+        Func<Task> act = async () => await _sut.CreateOrder(user.Id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("no_money_for_pay");
+    }
+
+    [Fact]
+    public void GetOrderInfoFromId_WithCorrectData_ReturnsOrderInfo()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        var courierUser = Generator.GenerateUser();
+        var restOwner = Generator.GenerateUser();
+        _users.AddItems(user, courierUser, restOwner);
+
+        var rest = Generator.GenerateRestaurant(restOwner.Id, RestaurantStatus.Verified);
+        var courier = Generator.GenerateCourier(courierUser.Id, CourierStatus.IsInactive);
+        var order = Generator.GenerateOrder(user.Id, rest.Id, OrderStatus.Delivered, courier.Id);
+        order.total_price = 1250;
+
+        var food1 = Generator.GenerateFoodItem(rest.Id, 250);
+        var food2 = Generator.GenerateFoodItem(rest.Id, 500);
+
+        var orderItem1 = Generator.GenOrderItem(food1.Id, order.Id);
+        var orderItem2 = Generator.GenOrderItem(food2.Id, order.Id);
+        var orderItem3 = Generator.GenOrderItem(food2.Id, order.Id);
+
+        var history = new OrderStatusHistoryTable { order_id = order.Id, status = OrderStatus.Delivered, status_datetime = DateTime.UtcNow };
+
+        itemsSetup(x => x.restaurantTable).AddItem(rest);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+        itemsSetup(x => x.orderTable).AddItem(order);
+        itemsSetup(x => x.restaurantFoodItemsTable).AddItems(food1, food2);
+        itemsSetup(x => x.orderItemsTable).AddItems(orderItem1, orderItem2, orderItem3);
+        itemsSetup(x => x.orderHistory).AddItem(history);
+
+        // act
+        var result = _sut.GetOrderInfoFromId(order.Id);
+
+        // assert
+        result.courier_info!.courier_id.Should().Be(courier.Id);
+        result.courier_info!.user_id.Should().Be(courierUser.Id);
+
+        result.restaurant_info.restaurant_id.Should().Be(rest.Id);
+
+        result.food_items.Count.Should().Be(3);
+        result.price_order.Should().Be(1250);
+    }
+
+    [Fact]
+    public void GetOrderInfoFromId_WithNonExistentOrder_ThrowsException()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+        itemsSetup(x => x.orderTable);
+
+        // act
+        Action act = () => _sut.GetOrderInfoFromId(id);
+
+        // assert
+        act.Should().Throw<Exception>().WithMessage("order_not_found");
+    }
+
+    [Fact]
+    public void GetOrderInfoFromId_WithNonExistentRestaurant_ThrowsException()
+    {
+        // arrange
+        var order = Generator.GenerateOrder(OrderStatus.Delivered);
+        itemsSetup(x => x.orderTable).AddItem(order);
+        itemsSetup(x => x.restaurantTable);
+
+        // act
+        Action act = () => _sut.GetOrderInfoFromId(order.Id);
+
+        // assert
+        act.Should().Throw<Exception>().WithMessage("restaurant_not_found");
+    }
+
+    [Fact]
+    public void GetAllOrders_WithSomeOrders_ReturnsListOfOrderInfo()
+    {
+        var user = Generator.GenerateUser();
+        var courierUser = Generator.GenerateUser();
+        var restOwner = Generator.GenerateUser();
+        _users.AddItems(user, courierUser, restOwner);
+
+        var rest = Generator.GenerateRestaurant(restOwner.Id, RestaurantStatus.Verified);
+        var courier = Generator.GenerateCourier(courierUser.Id, CourierStatus.IsInactive);
+
+        var order1 = Generator.GenerateOrder(user.Id, rest.Id, OrderStatus.Delivered, courier.Id);
+        var order2 = Generator.GenerateOrder(user.Id, rest.Id, OrderStatus.Denied, courier.Id);
+        var order3 = Generator.GenerateOrder(user.Id, rest.Id, OrderStatus.AfterPay, courier.Id);
+
+        var history1 = new OrderStatusHistoryTable { order_id = order1.Id, status = OrderStatus.Delivered, status_datetime = DateTime.UtcNow };
+        var history2 = new OrderStatusHistoryTable { order_id = order2.Id, status = OrderStatus.Denied, status_datetime = DateTime.UtcNow };
+        var history3 = new OrderStatusHistoryTable { order_id = order3.Id, status = OrderStatus.AfterPay, status_datetime = DateTime.UtcNow };
+
+        itemsSetup(x => x.restaurantTable).AddItem(rest);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+        itemsSetup(x => x.orderTable).AddItems(order1, order2, order3);
+        itemsSetup(x => x.restaurantFoodItemsTable);
+        itemsSetup(x => x.orderItemsTable);
+        itemsSetup(x => x.orderHistory).AddItems(history1, history2, history3);
+
+        // act
+        var result = _sut.GetAllOrders(user.Id);
+
+        // assert
+        result.Count.Should().Be(3);
+    }
+
+    [Fact]
+    public void GetAllOrders_WithZeroOrders_ThrowsException()
+    {
+        var user = Generator.GenerateUser();
+
+        itemsSetup(x => x.restaurantTable);
+        itemsSetup(x => x.courierTable);
+        itemsSetup(x => x.orderTable);
+        itemsSetup(x => x.restaurantFoodItemsTable);
+        itemsSetup(x => x.orderItemsTable);
+        itemsSetup(x => x.orderHistory);
+
+        // act
+        Action act = () => _sut.GetAllOrders(user.Id);
+
+        // assert
+        act.Should().Throw<Exception>().WithMessage("orders_not_found");
+    }
+
+    [Fact]
+    public async Task ChangeOrAddEmail_WithCorrectData_SetsEmail()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var email = "temp@gmail.com";
+
+        // act
+        await _sut.ChangeOrAddEmail(email, user.Id);
+
+        // assert
+        user.email.Should().Be(email);
+    }
+
+    [Fact]
+    public async Task ChangeOrAddEmail_WithNonExistentUser_ThrowsException()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+        var email = "temp@gmail.com";
+
+        // act
+        Func<Task> act = async() => await _sut.ChangeOrAddEmail(email, id);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("user_not_found");
+    }
+
+    [Fact]
+    public void GetTelegramChatIdFromRequestId_WithExistentRequest_ReturnsTelegramChatId()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        var request = Generator.GenCourierRequest(user.Id, Guid.NewGuid());
+        itemsSetup(x => x.requestTable).AddItem(request);
+
+        // act
+        var result = _sut.GetTelegramChatIdFromRequestId(request.Id);
+
+        // assert
+        result.Should().Be(user.telegram_chat_id.ToString());
+    }
+
+    [Fact]
+    public void GetTelegramChatIdFromRequestId_WithNonExistentRequest_ReturnsEmptyString()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+        itemsSetup(x => x.requestTable);
+
+        // act
+        var result = _sut.GetTelegramChatIdFromRequestId(id);
+
+        // assert
+        result.Should().Be(string.Empty);
+    }
+
+    [Fact]
+    public async Task InsertMoney_WithExistentUser_AddedMoneyToUser()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        // act
+        await _sut.InsertMoney(user.Id, 250);
+
+        // assert
+        user.money_value.Should().Be(250);
+    }
+
+    [Fact]
+    public async Task InsertMoney_WithNegativeSum_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        // act
+        Func<Task> act = async () => await _sut.InsertMoney(user.Id, -250);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public void ExistMoney_With300BalanceAnd300Expecting_ReturnsTrue()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        user.money_value = 300;
+        _users.Add(user);
+
+        // act
+        var result = _sut.ExistMoney(user.Id, 300);
+
+        // assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ExistMoney_With200BalanceAnd300Expecting_ReturnsFalse()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        user.money_value = 200;
+        _users.Add(user);
+
+        // act
+        var result = _sut.ExistMoney(user.Id, 300);
+
+        // assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task DecreaseMoney_With300BalanceAnd200Decreasing_SetsMoneyTo100()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        user.money_value = 300;
+        _users.Add(user);
+
+        // act
+        await _sut.DecreaseMoney(user.Id, 200);
+
+        // assert
+        user.money_value.Should().Be(100);
+    }
+
+    [Fact]
+    public async Task DecreaseMoney_With300BalanceAnd350Decreasing_ThrowsException()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        user.money_value = 300;
+        _users.Add(user);
+
+        // act
+        Func<Task> act = async() => await _sut.DecreaseMoney(user.Id, 350);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public void GetTelegramChatId_WithExistentUser_ReturnsTelegramChatId()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        _users.Add(user);
+
+        // act
+        var result = _sut.GetTelegramChatId(user.Id);
+
+        // assert
+        result.Should().Be(user.telegram_chat_id.ToString());
+    }
+
+    [Fact]
+    public void GetTelegramChatId_WithNonExistentUser_ReturnsEmptyString()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+
+        // act
+        var result = _sut.GetTelegramChatId(id);
+
+        // assert
+        result.Should().Be(string.Empty);
+    }
+
+    [Fact]
+    public void GetUserBalance_WithExistentUser_ReturnsMoneyValue()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        user.money_value = 399;
+        _users.Add(user);
+
+        // act
+        var result = _sut.GetUserBalance(user.Id);
+
+        // assert
+        result.Should().Be(399);
+    }
+
+    [Fact]
+    public void GetUserBalance_WithNonExistentUser_Returns0()
+    {
+        // arrange
+        var id = Guid.NewGuid();
+
+        // act
+        var result = _sut.GetUserBalance(id);
+
+        // assert
+        result.Should().Be(0);
+    }
 }

@@ -1133,7 +1133,7 @@ namespace ClientAPI.Services
                 };
 
             }
-
+            
             var selectedHistoryOrder = _dbcontext.orderHistory.Where(c => c.order_id == selectedOrder.Id).OrderByDescending(x => x.status_datetime).FirstOrDefault();
 
             var status_order_now = "";

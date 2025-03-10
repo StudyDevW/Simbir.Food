@@ -91,24 +91,28 @@ public static class Generator
     public static BasketTable GenBasket(Guid user_id) => GenBasket(user_id, Guid.NewGuid());
 
     public static RestaurantFoodItemsTable GenerateFoodItem(Guid restaurant_id)
-    {
-        var items = GenerateFoodItems(restaurant_id, 1);
-        return items.First();
-    }
+        => _GetFoodItemsFaker(restaurant_id, 0)
+        .RuleFor(x => x.price, f => f.Random.Number(3, 2000)).Generate();
 
-    public static List<RestaurantFoodItemsTable> GenerateFoodItems(Guid restaurant_id, int count)
+    public static RestaurantFoodItemsTable GenerateFoodItem(Guid restaurant_id, long price)
+        => _GetFoodItemsFaker(restaurant_id, price).Generate();
+
+    private static Faker<RestaurantFoodItemsTable> _GetFoodItemsFaker(Guid restaurant_id, long price)
     {
         var faker = new Faker<RestaurantFoodItemsTable>();
         faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
             .RuleFor(x => x.restaurant_id, _ => restaurant_id)
-            .RuleFor(x => x.price, f => f.Random.Number(200))
+            .RuleFor(x => x.price, _ => price)
             .RuleFor(x => x.weight, f => f.Random.Number(1, 100))
             .RuleFor(x => x.calories, f => f.Random.Number(50, 3000))
             .RuleFor(x => x.image, f => f.Random.Word())
             .RuleFor(x => x.name, f => f.Random.Word());
 
-        return faker.Generate(count);
+        return faker;
     }
+
+    public static List<RestaurantFoodItemsTable> GenerateFoodItems(Guid restaurant_id, int count)
+        => _GetFoodItemsFaker(restaurant_id, 0).Generate(count);
 
     public static OrderTable GenerateOrder(Guid client_id, Guid restaurant_id, OrderStatus status, Guid? courier_id = null)
     {
@@ -145,6 +149,12 @@ public static class Generator
         return GenerateCourier(user_id, CourierStatus.IsInactive);
     }
 
+    public static IEnumerable<CourierTable> GenCouriers(Guid user_id, CourierStatus status, int count)
+    {
+        for (int i = 0; i < count; i++)
+            yield return GenerateCourier(user_id, status);
+    }
+
     private static Faker<ReviewTable> _GetReviewFaker(Guid client_id, Guid courier_id, Guid restaurant_id, Guid order_id, int rating)
     {
         var faker = new Faker<ReviewTable>();
@@ -165,4 +175,11 @@ public static class Generator
 
     public static ReviewTable GenReview(Guid restaurant_id, int rating) =>
         _GetReviewFaker(Guid.NewGuid(), Guid.NewGuid(), restaurant_id, Guid.NewGuid(), rating);
+
+    public static OrderItemsTable GenOrderItem(Guid restFoodId, Guid order_id) => new OrderItemsTable
+    {
+        Id = Guid.NewGuid(),
+        restaraunt_food_item = restFoodId,
+        order_id = order_id
+    };
 }

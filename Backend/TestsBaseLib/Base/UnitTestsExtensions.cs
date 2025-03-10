@@ -8,6 +8,7 @@ using ORM_Components.Tables.Helpers;
 using Moq.Language.Flow;
 using Microsoft.AspNetCore.Mvc;
 using ORM_Components.DTO.ClientAPI;
+using System.Collections.Generic;
 
 namespace TestsBaseLib.Base;
 
@@ -145,6 +146,12 @@ public static class UnitTestsExtensions
     }
 
     public static List<T> AddItems<T>(this List<T> list, params T[] items)
+    {
+        list.AddRange(items);
+        return list;
+    }
+
+    public static List<T> AddItems<T>(this List<T> list, IEnumerable<T> items)
     {
         list.AddRange(items);
         return list;
