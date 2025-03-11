@@ -15,6 +15,13 @@ namespace Middleware_Components.Broker
         private readonly IConnection _connection;
         private readonly IModel _channel;
 
+        public RabbitMQService(ConnectionFactory factory)
+        {
+            _factory = factory;
+            _connection = _factory.CreateConnection();
+            _channel = _connection.CreateModel();
+        }
+
         public RabbitMQService()
         {
             _factory = new ConnectionFactory

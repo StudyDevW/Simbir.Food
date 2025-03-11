@@ -7,5 +7,10 @@
   "Jwt": {
     "Issuer": "SimbirFood",
     "Audience": "SimbirFoodUsers"
+  },
+  "Rabbit": {
+    "Hostname": "rabbitmqservice",
+    "Username": "guest",
+    "Password": "guest"
   }
 }

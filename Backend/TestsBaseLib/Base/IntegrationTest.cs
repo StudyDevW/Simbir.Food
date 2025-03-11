@@ -2,6 +2,7 @@
 using ClientAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Middleware_Components.Broker;
 using Middleware_Components.Cache;
 using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.JWT;
@@ -9,6 +10,7 @@ using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.Tables;
+using RabbitMQ.Client;
 using StackExchange.Redis;
 using System.Text.Json;
 
@@ -55,6 +57,18 @@ public class IntegrationTest
     protected ISessionService GetSessionService(ICacheService cache)
     {
         return new SessionService(cache);
+    }
+
+    protected IRabbitMQService GetRabbitService()
+    {
+        var factory = new ConnectionFactory
+        {
+            HostName = Configuration["Rabbit:Hostname"]!,
+            UserName = Configuration["Rabbit:Username"]!,
+            Password = Configuration["Rabbit:Password"]!
+        };
+
+        return new RabbitMQService(factory);
     }
 
     protected IDatabaseService GetDataService(DataContext context)
