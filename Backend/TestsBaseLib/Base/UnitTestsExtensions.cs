@@ -32,6 +32,20 @@ public static class UnitTestsExtensions
             });
     }
 
+    public static AuthAddUser ToDto(this UserTable table, string device) => new AuthAddUser
+    {
+        first_name = table.first_name,
+        address = table.address,
+        chat_id = table.telegram_chat_id,
+        device = device,
+        id = table.telegram_id,
+        is_bot = false,
+        last_name = table.last_name,
+        photo_url = null,
+        roles = table.roles,
+        username = table.username
+    };
+
     /// <summary>
     /// Адаптация OrderTable в Order_DTO
     /// </summary>

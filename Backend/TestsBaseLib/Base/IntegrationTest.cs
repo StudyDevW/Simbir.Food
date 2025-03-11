@@ -8,11 +8,15 @@ using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.JWT;
 using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
+using Moq;
 using ORM_Components;
 using ORM_Components.Tables;
 using RabbitMQ.Client;
 using StackExchange.Redis;
 using System.Text.Json;
+using Telegram.Bot;
+using Telegram_Components.Interfaces;
+using Telegram_Components.Services;
 
 namespace TestsBaseLib.Base;
 public class IntegrationTest
@@ -32,6 +36,33 @@ public class IntegrationTest
         context.Database.EnsureCreated();
 
         return context;
+    }
+
+    protected void ClearDatabase(DataContext context)
+    {
+        context.userTable.RemoveRange(context.userTable);
+        context.bankCardTable.RemoveRange(context.bankCardTable);
+        context.basketTable.RemoveRange(context.basketTable);
+        context.cardUsersTable.RemoveRange(context.cardUsersTable);
+        context.courierTable.RemoveRange(context.courierTable);
+        context.orderHistory.RemoveRange(context.orderHistory);
+        context.orderItemsTable.RemoveRange(context.orderItemsTable);
+        context.orderTable.RemoveRange(context.orderTable);
+        context.payTable.RemoveRange(context.payTable);
+        context.requestTable.RemoveRange(context.requestTable);
+        context.restaurantFoodItemsTable.RemoveRange(context.restaurantFoodItemsTable);
+        context.restaurantTable.RemoveRange(context.restaurantTable);
+        context.reviewTable.RemoveRange(context.reviewTable);
+        context.userTable.RemoveRange(context.userTable);
+
+        context.SaveChanges();
+    }
+
+    protected void ClearRedis()
+    {
+        var mult = GetConnectionMultiplexer();
+        var server = mult.GetServer(Configuration["RedisEndPoint"]!);
+        server.FlushDatabase();
     }
 
     protected IConnectionMultiplexer GetConnectionMultiplexer()
@@ -59,13 +90,23 @@ public class IntegrationTest
         return new SessionService(cache);
     }
 
+    protected ITelegramBotClient GetBotClient() => Mock.Of<ITelegramBotClient>();
+
+    protected IDatabaseOperations GetOperations(DataContext context) => new DatabaseOperations(context);
+
+    protected IMessageReceiver GetTelegramMessageReceiver(ITelegramBotClient client, IDatabaseOperations oper, ICacheService cache)
+    {
+        return new MessageReceiver(client, oper, cache);
+    }
+
     protected IRabbitMQService GetRabbitService()
     {
         var factory = new ConnectionFactory
         {
             HostName = Configuration["Rabbit:Hostname"]!,
             UserName = Configuration["Rabbit:Username"]!,
-            Password = Configuration["Rabbit:Password"]!
+            Password = Configuration["Rabbit:Password"]!,
+            Port = int.Parse(Configuration["Rabbit:Port"]!)
         };
 
         return new RabbitMQService(factory);
