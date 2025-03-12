@@ -8,6 +8,7 @@ namespace Middleware_Components.Broker
 {
     public interface IRabbitMQService
     {
+        public void QueuePurge(string name);
         public void SendMessage<T>(string queueName, T message);
 
         public void StartListening<T>(string queueName, Action<T> onMessageReceived);

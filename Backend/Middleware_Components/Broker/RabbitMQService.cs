@@ -35,6 +35,11 @@ namespace Middleware_Components.Broker
             _channel = _connection.CreateModel();
         }
 
+        public void QueuePurge(string name)
+        {
+            _channel.QueuePurge(name);
+        }
+
         public void SendMessage<T>(string queueName, T message)
         {
             _channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
