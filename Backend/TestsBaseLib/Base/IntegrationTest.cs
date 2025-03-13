@@ -11,6 +11,8 @@ using Middleware_Components.Services;
 using Moq;
 using ORM_Components;
 using ORM_Components.Tables;
+using PaymentAPI.Interfaces;
+using PaymentAPI.Services;
 using RabbitMQ.Client;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -88,6 +90,11 @@ public class IntegrationTest
     protected ISessionService GetSessionService(ICacheService cache)
     {
         return new SessionService(cache);
+    }
+
+    protected IPaymentService GetPaymentService(IRabbitMQService rabbit, DataContext context)
+    {
+        return new PaymentService(rabbit, context);
     }
 
     protected ITelegramBotClient GetBotClient() => Mock.Of<ITelegramBotClient>();

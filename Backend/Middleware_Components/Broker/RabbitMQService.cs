@@ -37,6 +37,7 @@ namespace Middleware_Components.Broker
 
         public void QueuePurge(string name)
         {
+            _channel.QueueDeclare(queue: name, durable: true, exclusive: false, autoDelete: false, arguments: null);
             _channel.QueuePurge(name);
         }
 

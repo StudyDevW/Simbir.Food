@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PaymentAPI\PaymentAPI.csproj" />
     <ProjectReference Include="..\RestaurantAPI\RestaurantAPI.csproj" />
     <ProjectReference Include="..\TestsBaseLib\TestsBaseLib.csproj" />
   </ItemGroup>

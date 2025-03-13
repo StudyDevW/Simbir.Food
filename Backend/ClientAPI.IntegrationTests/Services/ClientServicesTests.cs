@@ -8,6 +8,7 @@ using Moq;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
+using ORM_Components.DTO.PaymentAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
 using StackExchange.Redis;
@@ -15,18 +16,20 @@ using System.Diagnostics.CodeAnalysis;
 using Telegram_Components.Interfaces;
 using TestsBaseLib.Base;
 using RabbitMQListenerServiceRestaurant = RestaurantAPI.Services.RabbitMQListenerService;
+using RabbitMQListenerServicePayment = PaymentAPI.Services.RabbitMQListenerService;
+using RabbitMQListenerServiceClient = ClientAPI.Services.RabbitMQListenerService;
 
 namespace ClientAPI.IntegrationTests.Services;
 
 public class ClientServicesTests : IntegrationTest
 {
     private readonly ClientService _sut;
-    private readonly RabbitMQListenerServiceRestaurant _listener;
     private readonly DataContext _context;
     private readonly ICacheService _cache;
     private readonly IDatabase _cacheDatabase;
     private readonly ISessionService _session;
     private readonly IRabbitMQService _rabbit;
+    private readonly IMessageSender _sender;
 
     public ClientServicesTests()
     {
@@ -34,6 +37,7 @@ public class ClientServicesTests : IntegrationTest
         _rabbit = rabbit;
 
         var tgsender = Mock.Of<IMessageSender>();
+        _sender = tgsender;
 
         var multiplexer = GetConnectionMultiplexer();
         _cacheDatabase = multiplexer.GetDatabase();
@@ -49,8 +53,6 @@ public class ClientServicesTests : IntegrationTest
 
         var database = GetDataService(context);
         var jwt = GetJwtService(cache);
-
-        _listener = new RabbitMQListenerServiceRestaurant(rabbit, tgsender, context);
 
         _sut = new ClientService(rabbit, tgsender, session, database, jwt, cache);
 
@@ -395,11 +397,22 @@ public class ClientServicesTests : IntegrationTest
         _context.requestTable.First().user_id.Should().Be(user.user.Id);
     }
 
+    /// <summary>
+    /// Данный тест проверяет метод CreateOrder класса ClientService.
+    /// Сложность метода заключается в работе с Rabbit Listener (Restaurant).
+    /// Метод запускает прослушиватель очереди Rabbit, выполняет метод CreateOrder,
+    /// после чего прослушиватели подхватывают сообщения и выполняют логику создания и
+    /// принятия заказа рестораном. Для того чтобы удостовериться, что
+    /// прослушиватель выполнил свою логику, после вызова CreateOrder, данный тест попадает
+    /// в сон на 100мс, позволяя прослушивателю выполнить свою логику перед проверкой
+    /// состояний.
+    /// </summary>
     [Fact]
     public async Task CreateOrder_WithCorrectData_AutoAccepting()
     {
         // arrange
         var user = await createUser(money: 600);
+        var listener = new RabbitMQListenerServiceRestaurant(_rabbit, _sender, _context);
 
         var owner = await createUser();
         var rest = Generator.GenerateRestaurant(owner.user.Id, RestaurantStatus.Verified);
@@ -413,13 +426,15 @@ public class ClientServicesTests : IntegrationTest
         _context.SaveChanges();
 
         _rabbit.QueuePurge("client_to_restaurant");
-        await _listener.StartAsync(new CancellationToken());
+        await listener.StartAsync(new CancellationToken());
 
         // act
         await _sut.CreateOrder(user.bearer);
         await Task.Delay(100); // сон для того чтобы rabbit успел обработать запрос
 
         // assert
+        await listener.StopAsync(new CancellationToken());
+
         var order = _context.orderTable.First();
         order.status.Should().Be(OrderStatus.Accepted);
         order.total_price.Should().Be(600);
@@ -427,6 +442,124 @@ public class ClientServicesTests : IntegrationTest
         order.restaurant_id.Should().Be(rest.Id);
 
         _context.orderHistory.Count().Should().Be(2);
+    }
+
+    /// <summary>
+    /// Данный тест проверяет метод MoneyOut класса ClientService.
+    /// Сложность метода заключается в работе с двумя Rabbit Listeners (Payment и Client).
+    /// Метод запускает два прослушивателя очередей Rabbit, выполняет метод MoneyOut,
+    /// после чего прослушиватели подхватывают сообщения и выполняют логику пополнения
+    /// карты и списания баланса пользователя. Для того чтобы удостовериться, что
+    /// прослушиватели выполнили свою логику, после вызова MoneyOut, данный тест попадает
+    /// в сон на 200мс, позволяя прослушивателям выполнить свою логику перед проверкой
+    /// состояний.
+    /// </summary>
+    [Fact]
+    public async Task MoneyOut_WithCorrectData_AddsPaymentTable()
+    {
+        // arrange
+        var payment = GetPaymentService(_rabbit, _context);
+        var listenerPayment = new RabbitMQListenerServicePayment(payment, _rabbit);
+
+        var database = GetDataService(_context);
+        var listenerClient = new RabbitMQListenerServiceClient(database, _sender, _rabbit);
+
+        var user = await createUser(money: 1200);
+        var card = new BankCardTable
+        {
+            card_number = "2205 1520 6894 2536",
+            cvv = "555",
+            name_card = "MIR",
+            money_value = 200,
+            Id = Guid.NewGuid()
+        };
+
+        _context.bankCardTable.Add(card);
+        _context.SaveChanges();
+
+        var dto = new PaymentOut
+        {
+            card_number = card.card_number,
+            money_value = 500,
+            user_id = user.user.Id
+        };
+
+        // очищаем очереди rabbit чтобы все тесты точно проходили
+        _rabbit.QueuePurge("client_to_payment");
+        _rabbit.QueuePurge("payment_to_client_access_moneyback");
+        _rabbit.QueuePurge("payment_to_client_error");
+
+        await listenerPayment.StartAsync(new CancellationToken());
+        await listenerClient.StartAsync(new CancellationToken());
+
+        // act
+        await _sut.MoneyOut(user.bearer, dto);
+        await Task.Delay(200); // сон для того чтобы rabbit успел обработать запрос
+
+        // assert
+
+        await listenerPayment.StopAsync(new CancellationToken());
+        await listenerClient.StopAsync(new CancellationToken());
+
+        _context.bankCardTable.First().money_value.Should().Be(700);
+        _context.userTable.First().money_value.Should().Be(700);
+        
+        var paymentTable = _context.payTable.First();
+        paymentTable.user_id.Should().Be(user.user.Id);
+        paymentTable.card_number.Should().Be(card.card_number);
+        paymentTable.pay_status.Should().Be(PayStatus.MoneyBack);
+    }
+
+
+    /// <summary>
+    /// Данный тест проверяет метод MoneyOut класса ClientService.
+    /// Метод тестирует очередь payment_to_client_error.
+    /// Сложность метода заключается в работе с двумя Rabbit Listeners (Payment и Client).
+    /// Метод запускает два прослушивателя очередей Rabbit, выполняет метод MoneyOut,
+    /// после чего прослушиватели подхватывают сообщения и не выполняют логику, так как карты не существует.
+    /// Для того чтобы удостовериться, что прослушиватели выполнили логику,
+    /// после вызова MoneyOut, данный тест попадает в сон на 200мс, позволяя прослушивателям выполнить
+    /// свою логику перед проверкой состояний.
+    /// </summary>
+    [Fact]
+    public async Task MoneyOut_WithNonExistentCard_DoesNothingWithBalance()
+    {
+        // arrange
+        var payment = GetPaymentService(_rabbit, _context);
+        var listenerPayment = new RabbitMQListenerServicePayment(payment, _rabbit);
+
+        var database = GetDataService(_context);
+        var listenerClient = new RabbitMQListenerServiceClient(database, _sender, _rabbit);
+
+        var user = await createUser(money: 1200);
+
+        var dto = new PaymentOut
+        {
+            card_number = "2205 1520 6894 2536",
+            money_value = 500,
+            user_id = user.user.Id
+        };
+
+        // очищаем очереди rabbit чтобы все тесты точно проходили
+        _rabbit.QueuePurge("client_to_payment");
+        _rabbit.QueuePurge("payment_to_client_access_moneyback");
+        _rabbit.QueuePurge("payment_to_client_error");
+
+        await listenerPayment.StartAsync(new CancellationToken());
+        await listenerClient.StartAsync(new CancellationToken());
+
+        // act
+        await _sut.MoneyOut(user.bearer, dto);
+        await Task.Delay(200); // сон для того чтобы rabbit успел обработать запрос
+
+        // assert
+
+        await listenerPayment.StopAsync(new CancellationToken());
+        await listenerClient.StopAsync(new CancellationToken());
+
+        _context.userTable.First().money_value.Should().Be(1200);
+        _context.payTable.Count().Should().Be(0);
+        _context.bankCardTable.Count().Should().Be(0);
     }
 }
 
