@@ -24,6 +24,7 @@ namespace Telegram_Components.Services
 
         public async Task AddUserFromTelegram(AuthAddUser dto, bool admin)
         {
+            //todo: test
             if (dto == null)
             {
                 throw new Exception("dto null");

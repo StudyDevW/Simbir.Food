@@ -24,8 +24,7 @@ public abstract class UnitTest
         Expression<Func<DataContext, EntityEntry<T>>>? remove = null,
         Expression<Func<DataContext, EntityEntry<T>>>? add = null,
         Expression<Func<DataContext, ValueTask<T?>>>? find = null,
-        Expression<Action<DataContext>>? removeRange = null,
-        Expression<Func<DataContext, Task<List<T>>>>? toListAsync = null
+        Expression<Action<DataContext>>? removeRange = null
         )
         where T : IId
     {
@@ -48,9 +47,6 @@ public abstract class UnitTest
                 foreach (var item in x)
                     items.Remove(item);
             });
-
-        if (toListAsync != null)
-            _context.Setup(toListAsync).Returns(Task.FromResult(items));
 
         return items;
     }

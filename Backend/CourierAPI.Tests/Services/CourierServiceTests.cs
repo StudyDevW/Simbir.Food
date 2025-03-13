@@ -113,66 +113,6 @@ public class CourierServiceTests : UnitTest
         await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
     }
 
-    //[Fact]
-    //public async Task TakeOrder_WithStatusReady_SetOrderStatusToWaitingForDelivery()
-    //{
-    //    // arrange
-    //    var owner = Generator.GenerateUser();
-    //    var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.Ready);
-
-    //    var history = new List<OrderStatusHistoryTable>();
-
-    //    _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-    //    _context.Setup(x => x.orderHistory).ReturnsDbSet(history);
-    //    _context.Setup(x => x.userTable).ReturnsDbSet(new List<UserTable> { owner });
-    //    _context.Setup(x => x.orderHistory.Add(It.IsAny<OrderStatusHistoryTable>()))
-    //        .Callback<OrderStatusHistoryTable>(x => history.Add(x));
-
-        
-
-    //    // act
-    //    await _sut.TakeOrder(order.Id);
-
-    //    // assert
-    //    order.status.Should().Be(OrderStatus.WaitingForDelivery);
-    //    history.First().status.Should().Be(OrderStatus.WaitingForDelivery);
-    //    history.First().order_id.Should().Be(order.Id);
-    //}
-
-    //[Fact]
-    //public async Task TakeOrder_WithNotExpectedStatus_ThrowsException()
-    //{
-    //    // arrange
-    //    var order = Generator.GenerateOrder(OrderStatus.WaitingForDelivery);
-
-    //    _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-
-        
-
-    //    // act
-    //    Func<Task> act = async() => await _sut.TakeOrder(order.Id);
-
-    //    // assert
-    //    await act.Should().ThrowAsync<Exception>().WithMessage("Статус не соответствует ожидаемому.");
-    //}
-
-    //[Fact]
-    //public async Task TakeOrder_WithWrongOrderId_ThrowsException()
-    //{
-    //    // arrange
-    //    var order = Generator.GenerateOrder(OrderStatus.Ready);
-
-    //    _context.Setup(x => x.orderTable).ReturnsDbSet(new List<OrderTable> { order });
-
-        
-
-    //    // act
-    //    Func<Task> act = async () => await _sut.TakeOrder(Guid.NewGuid());
-
-    //    // assert
-    //    await act.Should().ThrowAsync<Exception>().WithMessage("Заказ не найден.");
-    //}
-
     [Fact]
     public async Task CourierOnPlace_WithStatusWaitingForDelivery_SetOrderStatusToCourierOnPlace()
     {
@@ -224,6 +164,7 @@ public class CourierServiceTests : UnitTest
     [Fact]
     public async Task OrderDelivered_WithOrderHasNoCourier_ThrowsException()
     {
+        //todo: integrations tests 
         // arrange
         var owner = Generator.GenerateUser();
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace);
@@ -240,7 +181,7 @@ public class CourierServiceTests : UnitTest
         Func<Task> act = async() => await _sut.OrderDelivered(order.Id);
 
         // assert
-        await act.Should().ThrowAsync<Exception>();
+        await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не назначен на заказ.");
     }
 
     [Fact]
@@ -396,5 +337,77 @@ public class CourierServiceTests : UnitTest
 
         // assert
         await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
+    }
+
+    [Fact]
+    public async Task GetOrders_WithExistingWaitingForDeliveryOrder_ReturnsOnlyReadyOrdersInThisRestaurant()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        setUser(user.Id);
+
+        var owner = Generator.GenerateUser();
+        var client = Generator.GenerateUser();
+
+        var rest = Generator.GenerateRestaurant(owner.Id, RestaurantStatus.Verified);
+        var rest2 = Generator.GenerateRestaurant(owner.Id, RestaurantStatus.Verified);
+
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsActive);
+
+        var order1 = Generator.GenerateOrder(client.Id, rest.Id, OrderStatus.WaitingForDelivery, courier.Id);
+        var order2 = Generator.GenerateOrder(client.Id, rest.Id, OrderStatus.Ready);
+        var order3 = Generator.GenerateOrder(client.Id, rest.Id, OrderStatus.Ready);
+        var order4 = Generator.GenerateOrder(client.Id, rest.Id, OrderStatus.AfterPay);
+        var order5 = Generator.GenerateOrder(client.Id, rest2.Id, OrderStatus.Ready);
+        var order6 = Generator.GenerateOrder(client.Id, rest2.Id, OrderStatus.Denied);
+
+        itemsSetup(x => x.userTable).AddItems(user, owner, client);
+        itemsSetup(x => x.restaurantTable).AddItems(rest, rest2);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+        itemsSetup(x => x.orderTable).AddItems(order1, order2, order3, order4, order5, order6);
+
+        // act
+        var result = await _sut.GetOrders();
+
+        // assert
+        result.Should().Contain(x => x.orderId == order2.Id);
+        result.Should().Contain(x => x.orderId == order3.Id);
+        result.Count.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task GetOrders_WithCourierWithoutDeliveringOrder_ReturnsAllReadyOrders()
+    {
+        // arrange
+        var user = Generator.GenerateUser();
+        setUser(user.Id);
+
+        var owner = Generator.GenerateUser();
+        var client = Generator.GenerateUser();
+
+        var rest = Generator.GenerateRestaurant(owner.Id, RestaurantStatus.Verified);
+        var rest2 = Generator.GenerateRestaurant(owner.Id, RestaurantStatus.Verified);
+
+        var courier = Generator.GenerateCourier(user.Id, CourierStatus.IsActive);
+
+        var order2 = Generator.GenerateOrder(client.Id, rest.Id, OrderStatus.Ready);
+        var order3 = Generator.GenerateOrder(client.Id, rest.Id, OrderStatus.Ready);
+        var order4 = Generator.GenerateOrder(client.Id, rest.Id, OrderStatus.AfterPay);
+        var order5 = Generator.GenerateOrder(client.Id, rest2.Id, OrderStatus.Ready);
+        var order6 = Generator.GenerateOrder(client.Id, rest2.Id, OrderStatus.Denied);
+
+        itemsSetup(x => x.userTable).AddItems(user, owner, client);
+        itemsSetup(x => x.restaurantTable).AddItems(rest, rest2);
+        itemsSetup(x => x.courierTable).AddItem(courier);
+        itemsSetup(x => x.orderTable).AddItems(order2, order3, order4, order5, order6);
+
+        // act
+        var result = await _sut.GetOrders();
+
+        // assert
+        result.Should().Contain(x => x.orderId == order2.Id);
+        result.Should().Contain(x => x.orderId == order3.Id);
+        result.Should().Contain(x => x.orderId == order5.Id);
+        result.Count.Should().Be(3);
     }
 }
