@@ -18,7 +18,8 @@ public static class Generator
             .RuleFor(x => x.roles, _ => roles.Split(" "))
             .RuleFor(x => x.money_value, _ => 0)
             .RuleFor(x => x.telegram_id, f => f.Random.Long(0, long.MaxValue))
-            .RuleFor(x => x.telegram_chat_id, f => f.Random.Long(0, long.MaxValue));
+            .RuleFor(x => x.telegram_chat_id, f => f.Random.Long(0, long.MaxValue))
+            .RuleFor(x => x.email, f => f.Internet.Email());
 
         return faker;
     }

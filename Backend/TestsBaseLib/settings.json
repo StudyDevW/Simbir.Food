@@ -1,5 +1,5 @@
 {
-  "DatabaseConnectionString": "Server=localhost;Port=5432;User Id=postgres;Password=admin;Database=simbirtests",
+  "DATABASE_CONNECT": "Server=localhost;Port=5432;User Id=postgres;Password=admin;Database=simbirtests",
   "RedisEndPoint": "localhost:6379",
   "RedisPassword": "root",
   "RSA_PUBLIC_KEY": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCeXVuaJGOQleufBCm+80wkZwEI\n34QhypgPc1rFpAJqq6NLDNVuHbKmqE8qejzg5VAHnkTJk4c+3urwITUKtc+z1/VO\nCPbR+GeIdX65k9EH8YolRnwe972vqNYd4NiTKRSFSldsdSw2yUj0grwALkSir4Ja\niBD4EakJ4NrkWdb2+wIDAQAB\n-----END PUBLIC KEY-----",
@@ -13,5 +13,12 @@
     "Username": "guest",
     "Password": "guest",
     "Port": 5672
-  }
+  },
+  "MAILSERVER": "smtp.mail.ru",
+  "MAILPORT": 465,
+  "USESSL": true,
+  "SENDERNAME": "SimbirFood",
+  "SENDEREMAIL": "",
+  "EMAILPASSWORD": "",
+  "EMAILRECEIVER": ""
 }

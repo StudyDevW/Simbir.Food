@@ -164,7 +164,6 @@ public class CourierServiceTests : UnitTest
     [Fact]
     public async Task OrderDelivered_WithOrderHasNoCourier_ThrowsException()
     {
-        //todo: integrations tests 
         // arrange
         var owner = Generator.GenerateUser();
         var order = Generator.GenerateOrder(owner.Id, Guid.NewGuid(), OrderStatus.CourierOnPlace);

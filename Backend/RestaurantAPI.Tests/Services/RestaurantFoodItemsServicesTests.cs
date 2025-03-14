@@ -142,8 +142,6 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         await act.Should().ThrowAsync<Exception>().WithMessage("Блюдо не найдено.");
     }
 
-    //todo: DeleteAllRestaurantFoodItems 
-
     [Fact]
     public async Task PutRestaurantFoodItems_WithCorrectData_ReturnsSuccess()
     {

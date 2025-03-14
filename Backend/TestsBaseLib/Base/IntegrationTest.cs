@@ -10,6 +10,8 @@ using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
 using Moq;
 using ORM_Components;
+using ORM_Components.Interfaces;
+using ORM_Components.Services;
 using ORM_Components.Tables;
 using PaymentAPI.Interfaces;
 using PaymentAPI.Services;
@@ -23,7 +25,7 @@ using Telegram_Components.Services;
 namespace TestsBaseLib.Base;
 public class IntegrationTest
 {
-    protected IConfiguration Configuration { get; set; }
+    public IConfiguration Configuration { get; set; }
     public IntegrationTest()
     {
         Configuration = TestConfiguration.GetConfiguration();
@@ -32,12 +34,17 @@ public class IntegrationTest
     protected DataContext GetDbContext()
     {
         var builder = new DbContextOptionsBuilder<DataContext>()
-            .UseNpgsql(Configuration["DatabaseConnectionString"]!);
+            .UseNpgsql(Configuration["DATABASE_CONNECT"]!);
 
         var context = new DataContext(builder.Options);
         context.Database.EnsureCreated();
 
         return context;
+    }
+
+    protected IMailSender GetMailSender()
+    {
+        return new MailSender(Configuration);
     }
 
     protected void ClearDatabase(DataContext context)
