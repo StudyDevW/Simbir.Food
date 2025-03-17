@@ -23,7 +23,7 @@ namespace Telegram_Components.Services
 
         public async Task handleCallbackQuery(CallbackQuery query)
         {
-            //todo: integration test in clientservice register
+            //test
             if (query.Data == null || query.Message == null)
                 return;
 

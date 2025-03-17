@@ -18,6 +18,7 @@ using TestsBaseLib.Base;
 using RabbitMQListenerServiceRestaurant = RestaurantAPI.Services.RabbitMQListenerService;
 using RabbitMQListenerServicePayment = PaymentAPI.Services.RabbitMQListenerService;
 using RabbitMQListenerServiceClient = ClientAPI.Services.RabbitMQListenerService;
+using Telegram.Bot.Types;
 
 namespace ClientAPI.IntegrationTests.Services;
 
@@ -87,11 +88,19 @@ public class ClientServicesTests : IntegrationTest
         // act
         var result = await _sut.UserRegister(dto);
 
-        // assert
-        var obj = _cache.GetKeyFromStorage<AuthAddUser>($"register_request_{dto.id}");
+        await reciever.handleCallbackQuery(new CallbackQuery
+        {
+            Data = "registerQuery",
+            From = new User { Id = user.telegram_id },
+            Message = new Message { Id = 21525262 }
+        });
 
-        obj.Should().BeEquivalentTo(dto);
-        result.Should().Be("register_request_created");
+        // assert
+        var registeredUser = _context.userTable.First();
+        registeredUser.Should().BeEquivalentTo(user,
+            x => x.Excluding(z => z.Id)
+            .Excluding(z => z.email)
+            );
     }
 
     [Fact]

@@ -716,8 +716,6 @@ public class DatabaseServiceTests : UnitTest
         couriers[0].status.Should().Be(CourierStatus.IsInactive);
         user.roles.Should().Contain("Courier");
         requests.Count.Should().Be(0);
-
-        //todo: more tests
     }
 
     [Fact]
