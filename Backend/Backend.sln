@@ -43,7 +43,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentAPI.IntegrationTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CourierAPI.IntegrationTests", "CourierAPI.IntegrationTests\CourierAPI.IntegrationTests.csproj", "{D8BC3E67-F92E-4000-80F4-DC0A66D8CC4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telegram_Components.Tests", "Telegram_Components.Tests\Telegram_Components.Tests.csproj", "{DEE50F58-B559-45C3-9C54-C48F9AC85145}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Telegram_Components.Tests", "Telegram_Components.Tests\Telegram_Components.Tests.csproj", "{DEE50F58-B559-45C3-9C54-C48F9AC85145}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EndToEndTests", "EndToEndTests", "{3D47070C-E866-4F69-9B33-C2AAD10D45B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndToEnd.Tests", "EndToEnd.Tests\EndToEnd.Tests.csproj", "{256001B3-861A-41D9-BE12-823B5C95CA98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +119,10 @@ Global
 		{DEE50F58-B559-45C3-9C54-C48F9AC85145}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEE50F58-B559-45C3-9C54-C48F9AC85145}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEE50F58-B559-45C3-9C54-C48F9AC85145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{256001B3-861A-41D9-BE12-823B5C95CA98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{256001B3-861A-41D9-BE12-823B5C95CA98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{256001B3-861A-41D9-BE12-823B5C95CA98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{256001B3-861A-41D9-BE12-823B5C95CA98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -138,6 +146,8 @@ Global
 		{91882DA6-4956-4407-B7C5-51C4F780EC86} = {04EAA07D-8AFA-430C-B168-E3224A2C99B1}
 		{D8BC3E67-F92E-4000-80F4-DC0A66D8CC4B} = {04EAA07D-8AFA-430C-B168-E3224A2C99B1}
 		{DEE50F58-B559-45C3-9C54-C48F9AC85145} = {FF11EA20-E40C-4EA2-AB74-D2F7EB056A02}
+		{3D47070C-E866-4F69-9B33-C2AAD10D45B7} = {368D4A56-F352-420C-90EE-FD9873C70CF0}
+		{256001B3-861A-41D9-BE12-823B5C95CA98} = {3D47070C-E866-4F69-9B33-C2AAD10D45B7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C115D34D-A3FF-4C27-A9A6-C45CF2ACBD3F}

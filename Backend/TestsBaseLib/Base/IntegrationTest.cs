@@ -47,6 +47,10 @@ public class IntegrationTest
         return new MailSender(Configuration);
     }
 
+    protected IClientService GetClientService(IRabbitMQService rabbit, IMessageSender tgsender, ISessionService session,
+        IDatabaseService database, IJwtService jwt, ICacheService cache) =>
+        new ClientService(rabbit, tgsender, session, database, jwt, cache);
+
     protected void ClearDatabase(DataContext context)
     {
         context.userTable.RemoveRange(context.userTable);
