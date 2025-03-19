@@ -1,5 +1,8 @@
 ﻿using ClientAPI.Interfaces;
 using ClientAPI.Services;
+using CourierAPI.Contracts;
+using CourierAPI.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Middleware_Components.Broker;
@@ -13,9 +16,12 @@ using ORM_Components;
 using ORM_Components.Interfaces;
 using ORM_Components.Services;
 using ORM_Components.Tables;
+using ORM_Components.Validators.CourierValidators;
 using PaymentAPI.Interfaces;
 using PaymentAPI.Services;
 using RabbitMQ.Client;
+using RestaurantAPI.Model.Interface;
+using RestaurantAPI.Model.Services;
 using StackExchange.Redis;
 using System.Text.Json;
 using Telegram.Bot;
@@ -46,6 +52,12 @@ public class IntegrationTest
     {
         return new MailSender(Configuration);
     }
+
+    protected IRestaurantFoodItemsServices GetFoodService(DataContext context, IJwtService jwtService) =>
+        new RestaurantFoodItemsServices(context, jwtService);
+
+    protected IRestaurantServices GetRestaurantService(DataContext context, IMessageSender msgSender) =>
+        new RestaurantServices(context, msgSender);
 
     protected IClientService GetClientService(IRabbitMQService rabbit, IMessageSender tgsender, ISessionService session,
         IDatabaseService database, IJwtService jwt, ICacheService cache) =>
@@ -107,6 +119,11 @@ public class IntegrationTest
     {
         return new PaymentService(rabbit, context);
     }
+
+    protected ICourierService GetCourierService(DataContext context, IMessageSender tgsender,
+        IRabbitMQService rabbit, IMailSender mailSender, IHttpContextAccessor accessor) =>
+        new CourierService(context, tgsender, rabbit, mailSender, new CourierValidatorDtoForCreate(),
+            new CourierValidatorDtoForUpdate(), accessor);
 
     protected ITelegramBotClient GetBotClient() => Mock.Of<ITelegramBotClient>();
 

@@ -17,8 +17,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClientAPI\ClientAPI.csproj" />
+    <ProjectReference Include="..\CourierAPI\CourierAPI.csproj" />
     <ProjectReference Include="..\ORM_Components\ORM_Components.csproj" />
     <ProjectReference Include="..\PaymentAPI\PaymentAPI.csproj" />
+    <ProjectReference Include="..\RestaurantAPI\RestaurantAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
