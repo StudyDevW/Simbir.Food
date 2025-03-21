@@ -11,6 +11,7 @@ using ORM_Components;
 using RestaurantAPI.Model.Interface;
 using RestaurantAPI.Model.Services;
 using RestaurantAPI.Services;
+using System.Reflection;
 using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
@@ -69,8 +70,8 @@ namespace RestaurantAPI
 
                 var basePath = AppContext.BaseDirectory;
 
-                // var xmlPath = Path.Combine(basePath, "apidocs.xml");
-                // o.IncludeXmlComments(xmlPath);
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
 
             builder.Services.AddAuthentication(o =>

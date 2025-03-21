@@ -27,12 +27,20 @@ namespace RestaurantAPI.Model.Controllers
             _restaurantService = restaurantService;
         }
 
+        /// <summary>
+        /// Получает список с данными об id ресторана, названии ресторана и средней оценкой этого ресторана.
+        /// </summary>
+        /// <returns>Список ресторанов и соответствующих оценок.</returns>
         [HttpGet("Get/AverageMarkRestaurant")]
         public async Task<ActionResult<List<RestaurantMark_DTO>>> GetAverageMarkForEveryRestaurant()
         {
             return await _restaurantService.GetRestaurantMark();
         }
 
+        /// <summary>
+        /// Отклоняет заказ, принятый в работу в ресторане.
+        /// </summary>
+        /// <response code="204">Заказ успешно отменён.</response>
         [HttpPost("OrderRejections")]
         public async Task<IActionResult> OrderReject(Order_DTO order_DTO)
         {
@@ -46,18 +54,30 @@ namespace RestaurantAPI.Model.Controllers
             }
         }
 
+        /// <summary>
+        /// Получает данные о ресторане по его id.
+        /// </summary>
+        /// <returns>Информацию о ресторане.</returns>
         [HttpGet("{restaurantId}/GetRestaurant")]
         public async Task<ActionResult<Restaurants_DTO>> GetRestaurant(Guid restaurantId)
         {
             return await _restaurantService.GetRestaurant(restaurantId);
         }
 
+        /// <summary>
+        /// Получает данные о всех ресторанах.
+        /// </summary>
+        /// <returns>Информация о всех ресторанах.</returns>
         [HttpGet("GetAllRestaurant")]
         public async Task<ActionResult<List<Restaurants_DTO>>> GetAllRestaurant()
         {
             return await _restaurantService.GetAllRestaurant();
         }
 
+        /// <summary>
+        /// Изменяет данные ресторана.
+        /// </summary>
+        /// <response code="204">Данные заказа успешно изменены.</response>
         [HttpPut("{restaurantId}/UpdateRestaurant")]
         public async Task<ActionResult> UpdateRestaurant(Guid restaurantId, [FromBody] RestaurantUpdate_DTO restaurantUpdate_DTO)
         {
@@ -65,6 +85,10 @@ namespace RestaurantAPI.Model.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Удаляет ресторан по id.
+        /// </summary>
+        /// <response code="204">Ресторан успешно удалён.</response>
         [HttpDelete("{restaurantId}/DeleteRestaurant")]
         public async Task<ActionResult> DeleteRestaurant(Guid restaurantId)
         {
@@ -72,6 +96,10 @@ namespace RestaurantAPI.Model.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Удаляет все рестораны.
+        /// </summary>
+        /// <response code="204">Все рестораны успешно удалены.</response>
         [HttpDelete("DeleteAllRestaurant")]
         public async Task<ActionResult> DeleteAllRestaurant()
         {
@@ -79,6 +107,10 @@ namespace RestaurantAPI.Model.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Изменяет статус у заказа.
+        /// </summary>
+        /// <response code="204">Статус заказа изменён.</response>
         [HttpPost("{orderId}/SetReadyStatusForOrder")]
         public async Task<IActionResult> SetReadyStatusForOrder(Guid orderId)
         {

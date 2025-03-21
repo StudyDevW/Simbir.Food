@@ -33,6 +33,10 @@ namespace RestaurantAPI.Model.Controllers
             _restaurantFoodItemsServices = restaurantFoodItemsServices;
         }
 
+        /// <summary>
+        /// Добавляет блюдо в ресторан.
+        /// </summary>
+        /// <response code="204">Блюдо добавлено в ресторан.</response>
         [HttpPost]
         [Route("AddRestaurantFoodItems")]
         public async Task<IActionResult> AddRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO)
@@ -47,6 +51,11 @@ namespace RestaurantAPI.Model.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Удаляет блюдо в ресторан.
+        /// </summary>
+        /// <response code="204">Блюдо из ресторана удалено.</response>
         [HttpDelete]
         [Route("DeleteRestaurantFoodItems/{id}")]
         public async Task<IActionResult> DeleteRestaurantFoodItems(Guid id)
@@ -54,6 +63,11 @@ namespace RestaurantAPI.Model.Controllers
             await _restaurantFoodItemsServices.DeleteRestaurantFoodItems(id);
             return NoContent();
         }
+
+        /// <summary>
+        /// Удаляет все блюда из ресторана.
+        /// </summary>
+        /// <response code="204">Меню ресторана очищено.</response>
         [HttpDelete]
         [Route("DeleteAllRestaurantFoodItems/{id}")]
         public async Task<IActionResult> DeleteAllRestaurantFoodItems(Guid id)
@@ -61,6 +75,11 @@ namespace RestaurantAPI.Model.Controllers
             await _restaurantFoodItemsServices.DeleteAllRestaurantFoodItems(id);
             return NoContent();
         }
+
+        /// <summary>
+        /// Получает данные о всех существующих блюдах.
+        /// </summary>
+        /// <returns>Получает все данные обо всех существующих блюдах.</returns>
         [HttpGet]
         [Route("GetRestaurantFoodItems")]
         public async Task<List<RestaurantFoodItemsTable>> GetAllRestaurantFoodItems()
@@ -68,6 +87,10 @@ namespace RestaurantAPI.Model.Controllers
             return await _restaurantFoodItemsServices.GetAllRestaurantFoodItems();
         }
 
+        /// <summary>
+        /// Получает данные о всех блюдах из ресторана.
+        /// </summary>
+        /// <returns>Получает все данные обо всех блюдах доступных в ресторане.</returns>
         [HttpGet]
         [Route("GetRestaurantFoodItems/{id}")]
         public async Task<IActionResult> GetRestaurantFoodItems(Guid id)
@@ -75,6 +98,10 @@ namespace RestaurantAPI.Model.Controllers
             return Ok(await _restaurantFoodItemsServices.GetRestaurantFoodItems(id));
         }
 
+        /// <summary>
+        /// Изменяет данные блюда.
+        /// </summary>
+        /// <response code="204">Данные блюда изменены.</response>
         [HttpPut]
         [Route("PutRestaurantFoodItems")]
         public async Task<IActionResult> PutRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO, Guid food_Id)
