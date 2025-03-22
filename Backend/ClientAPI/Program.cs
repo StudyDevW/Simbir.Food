@@ -14,6 +14,7 @@ using ClientAPI.Services;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 using Middleware_Components.Broker;
+using System.Reflection;
 
 namespace ClientAPI
 {
@@ -69,8 +70,8 @@ namespace ClientAPI
 
                 var basePath = AppContext.BaseDirectory;
 
-                var xmlPath = Path.Combine(basePath, "apidocs.xml");
-                o.IncludeXmlComments(xmlPath);
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
 
             builder.Services.AddAuthentication(o =>
@@ -138,7 +139,7 @@ namespace ClientAPI
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
-                    builder => builder.WithOrigins("http://localhost:4001", "http://localhost", "https://impressively-confident-puffin.cloudpub.ru")
+                    builder => builder.WithOrigins("http://localhost:4001", "http://localhost", "https://shockingly-unique-walleye.cloudpub.ru")
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });

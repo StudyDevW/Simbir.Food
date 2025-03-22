@@ -1,5 +1,7 @@
 using DotNetEnv;
 using DotNetEnv.Configuration;
+using FluentValidation.AspNetCore;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -8,6 +10,7 @@ using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
+using ORM_Components.Validators.CourierValidators;
 using RestaurantAPI.Model.Interface;
 using RestaurantAPI.Model.Services;
 using RestaurantAPI.Services;
@@ -15,6 +18,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
+using ORM_Components.Validators.RestaurantFoodItemsValidators;
 
 namespace RestaurantAPI
 {
@@ -136,6 +140,12 @@ namespace RestaurantAPI
 
             builder.Services.AddHostedService<RabbitMQListenerService>();
 
+            builder.Services.AddFluentValidationAutoValidation();
+
+            builder.Services.AddValidatorsFromAssemblyContaining<RestaurantValidatorDtoForUpdate>();
+
+            builder.Services.AddValidatorsFromAssemblyContaining<RestaurantFoodItemValidatorDtoForCreate>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
@@ -143,12 +153,6 @@ namespace RestaurantAPI
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });
-
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var rabbitListener = scope.ServiceProvider.GetRequiredService<IRabbitListenerService>();
-            //    rabbitListener.ListenPayment();
-            //}
 
             var app = builder.Build();
 

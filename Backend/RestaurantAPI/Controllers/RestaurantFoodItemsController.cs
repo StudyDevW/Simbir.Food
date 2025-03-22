@@ -8,7 +8,6 @@ using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
-using RestaurantAPI.Model.GetRastaurant;
 using RestaurantAPI.Model.Interface;
 using RestaurantAPI.Model.Services;
 using System.Net;
@@ -39,17 +38,10 @@ namespace RestaurantAPI.Model.Controllers
         /// <response code="204">Блюдо добавлено в ресторан.</response>
         [HttpPost]
         [Route("AddRestaurantFoodItems")]
-        public async Task<IActionResult> AddRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO)
+        public async Task<IActionResult> AddRestaurantFoodItems([FromBody] RestaurantFoodItemsDtoForCreate restaurantFoodItemsDtoForCreate)
         {
-            try
-            {
-                await _restaurantFoodItemsServices.AddRestaurantFoodItems(restaurantFoodItems_DTO);
-                return Ok("Блюдо успешно добавлено.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _restaurantFoodItemsServices.AddRestaurantFoodItems(restaurantFoodItemsDtoForCreate);
+            return Ok("Блюдо успешно добавлено.");
         }
 
         /// <summary>
@@ -82,7 +74,7 @@ namespace RestaurantAPI.Model.Controllers
         /// <returns>Получает все данные обо всех существующих блюдах.</returns>
         [HttpGet]
         [Route("GetRestaurantFoodItems")]
-        public async Task<List<RestaurantFoodItemsTable>> GetAllRestaurantFoodItems()
+        public async Task<List<RestaurantFoodItemsDto>> GetAllRestaurantFoodItems()
         {
             return await _restaurantFoodItemsServices.GetAllRestaurantFoodItems();
         }
@@ -104,9 +96,9 @@ namespace RestaurantAPI.Model.Controllers
         /// <response code="204">Данные блюда изменены.</response>
         [HttpPut]
         [Route("PutRestaurantFoodItems")]
-        public async Task<IActionResult> PutRestaurantFoodItems([FromBody] RestaurantFoodItems_DTO restaurantFoodItems_DTO, Guid food_Id)
+        public async Task<IActionResult> PutRestaurantFoodItems(Guid food_Id, [FromBody] RestaurantFoodItemsDtoForUpdate restaurantFoodItemsDtoForUpdate)
         {
-            await _restaurantFoodItemsServices.PutRestaurantFoodItems( restaurantFoodItems_DTO, food_Id);
+            await _restaurantFoodItemsServices.UpdateRestaurantFoodItems(food_Id, restaurantFoodItemsDtoForUpdate);
             return NoContent();
         }
     }
