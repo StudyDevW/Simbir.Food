@@ -1,4 +1,5 @@
 ﻿using ClientAPI.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Middleware_Components.Broker;
 using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.JWT.DTO.CheckUsers;
@@ -9,7 +10,9 @@ using ORM_Components.DTO.ClientAPI.ClientsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
 using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
+using ORM_Components.DTO.ClientAPI.Review;
 using ORM_Components.DTO.PaymentAPI;
+using ORM_Components.Tables;
 using Telegram_Components.Interfaces;
 
 namespace ClientAPI.Services
@@ -933,6 +936,35 @@ namespace ClientAPI.Services
             else if (validation.TokenHasSuccess())
             {
                 await _database.ChangeOrAddEmail(email, validation.token_success.Id);
+            }
+        }
+
+        public async Task<List<ReviewDto>> GetAllReviews(string bearer_key)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                return await _database.GetAllReviews();
+            }
+            return new List<ReviewDto>();
+        }
+
+        public async Task UpdateReview(string bearer_key, Guid reviewId, ReviewDtoForUpdate reviewUpdateDto)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                await _database.UpdateReview(reviewId, reviewUpdateDto);
             }
         }
     }

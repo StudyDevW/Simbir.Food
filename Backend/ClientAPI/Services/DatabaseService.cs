@@ -13,6 +13,8 @@ using ORM_Components.DTO.ClientAPI.RequestsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
 using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using Microsoft.Extensions.Logging;
+using ORM_Components.DTO.ClientAPI.Review;
+using System.Linq;
 
 namespace ClientAPI.Services
 {
@@ -1322,6 +1324,36 @@ namespace ClientAPI.Services
                 return selectedUser.money_value;
 
             return (long)0;
+        }
+
+        public async Task<List<ReviewDto>> GetAllReviews()
+        {
+            return await _dbcontext.reviewTable
+                    .Select(x => new ReviewDto(
+                        x.Id, x.order_id,
+                        x.client_id, x.courier_id,
+                        x.rating, x.comment,
+                        x.review_date))
+                    .ToListAsync();
+        }
+
+        public async Task CreateReview(ReviewTable review)
+        {
+            _dbcontext.Add(review);
+            await _dbcontext.SaveChangesAsync();
+        }
+
+        public async Task UpdateReview(Guid reviewId, ReviewDtoForUpdate reviewUpdateDto)
+        {
+            var review = await _dbcontext.reviewTable
+                .FirstOrDefaultAsync(x => x.Id == reviewId)
+                ?? throw new Exception($"Отзыв {reviewId} не найден.");
+            
+            review.rating = reviewUpdateDto.rating ?? 5;
+            review.comment = reviewUpdateDto.comment;
+            review.review_date = DateTime.UtcNow;
+
+            await _dbcontext.SaveChangesAsync();
         }
     }
 }

@@ -5,6 +5,7 @@ using ORM_Components.DTO.ClientAPI.ClientsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
 using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
+using ORM_Components.DTO.ClientAPI.Review;
 using ORM_Components.DTO.PaymentAPI;
 
 namespace ClientAPI.Interfaces
@@ -76,5 +77,10 @@ namespace ClientAPI.Interfaces
         public Task MoneyOut(string bearer_key, PaymentOut dtoObj);
 
         public Task ChangeOrAddEmail(string bearer_key, string email);
+
+        public Task<List<ReviewDto>> GetAllReviews(string bearer_key);
+
+        public Task UpdateReview(string bearer_key, Guid reviewId, ReviewDtoForUpdate reviewUpdateDto);
+
     }
 }
