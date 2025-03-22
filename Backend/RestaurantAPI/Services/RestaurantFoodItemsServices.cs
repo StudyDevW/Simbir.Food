@@ -8,6 +8,7 @@ using ORM_Components.DTO.CourierAPI;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using RestaurantAPI.Model.Interface;
+using RestaurantAPI.Utility;
 
 namespace RestaurantAPI.Model.Services
 {
@@ -34,7 +35,7 @@ namespace RestaurantAPI.Model.Services
             var restaurantExists = await _dbcontext.restaurantTable.FirstOrDefaultAsync(x => x.Id == restaurantFoodItemsDtoForCreate.restaurant_id);
             if (restaurantExists == null)
             {
-                throw new Exception("Ресторан с указанным ID не найден.");
+                throw new RestaurantNotFoundException(restaurantFoodItemsDtoForCreate.restaurant_id);
             }
 
             var foodItem = restaurantFoodItemsDtoForCreate.Adapt<RestaurantFoodItemsTable>();
@@ -45,10 +46,10 @@ namespace RestaurantAPI.Model.Services
 
         public async Task DeleteRestaurantFoodItems(Guid id)
         {
-            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable.FindAsync(id);
+            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable.FirstOrDefaultAsync(x => x.Id == id);
             if (restaurantFoodItems == null)
             {
-                throw new Exception("Блюдо не найдено.");
+                throw new RestaurantFoodItemNotFoundException(id);
             }
 
             _dbcontext.restaurantFoodItemsTable.Remove(restaurantFoodItems);
@@ -60,11 +61,6 @@ namespace RestaurantAPI.Model.Services
             var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable
                 .Where(item => item.restaurant_id == restaurantId)
                 .ToListAsync();
-
-            if (!restaurantFoodItems.Any())
-            {
-                throw new Exception("Нет доступных блюд для удаления в указанном ресторане.");
-            }
 
             _dbcontext.restaurantFoodItemsTable.RemoveRange(restaurantFoodItems);
             await _dbcontext.SaveChangesAsync();
@@ -103,7 +99,7 @@ namespace RestaurantAPI.Model.Services
             var restaurantFoodItem = await _dbcontext.restaurantFoodItemsTable.FirstOrDefaultAsync(x=> x.Id == food_Id);
             if (restaurantFoodItem == null)
             {
-                throw new Exception("Блюдо с указанным ID не найдено.");
+                throw new RestaurantFoodItemNotFoundException(food_Id);
             }
 
             var config = new TypeAdapterConfig();

@@ -8,6 +8,7 @@ using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
 using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Model.Interface;
+using RestaurantAPI.Utility;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 
@@ -27,13 +28,14 @@ namespace RestaurantAPI.Model.Services
             _restaurantUpdateValidator = restaurantUpdateValidator;
         }
 
-        private async Task<long> GetUserChatId(Guid? clientId)
+        private async Task<long> GetUserChatId(Guid clientId)
         {
-            var user = await _dataContext.userTable
+            var chatId = await _dataContext.userTable
                 .Where(x => x.Id == clientId)
-                .FirstOrDefaultAsync()
-                ?? throw new Exception("Пользователь не найден.");
-            return user.telegram_chat_id;
+                .Select(x => x.telegram_chat_id)
+                .FirstOrDefaultAsync();
+            if (chatId == 0) { throw new UserNotFoundException(clientId); }
+            return chatId;
         }
 
         public async Task OrderRejections(Order_DTO order)
@@ -42,12 +44,12 @@ namespace RestaurantAPI.Model.Services
 
             if (orderRejections == null)
             {
-                throw new Exception($"Заказ с идентификатором: {order.id} не существует.");
+                throw new OrderNotFoundException(order.id);
             }
 
             if (orderRejections.status == OrderStatus.Delivered)
             {
-                throw new Exception($"Заказ с идентификатором: {order.id} уже доставлен. Его нельзя отклонить.");
+                throw new OrderAlreadyDelivered(order.id);
             }
 
             orderRejections.status = OrderStatus.Denied;
@@ -70,7 +72,7 @@ namespace RestaurantAPI.Model.Services
         {
             var restaurant = await _dataContext.restaurantTable
                 .FirstOrDefaultAsync(x => x.Id == restaurantId)
-                ?? throw new Exception("Ресторан не найден.");
+                ?? throw new RestaurantNotFoundException(restaurantId);
 
             _dataContext.restaurantTable.Remove(restaurant);
             await _dataContext.SaveChangesAsync();
@@ -96,7 +98,7 @@ namespace RestaurantAPI.Model.Services
                     x.address, x.phone_number, x.status,
                     x.description, x.imagePath, x.open_time,
                     x.close_time))
-                .FirstOrDefaultAsync() ?? throw new Exception("Ресторан не найден.");
+                .FirstOrDefaultAsync() ?? throw new RestaurantNotFoundException(restaurantId);
         }
 
         public async Task UpdateRestaurant(Guid restaurantId, RestaurantUpdate_DTO restaurantsUpdate_DTO)
@@ -105,7 +107,7 @@ namespace RestaurantAPI.Model.Services
 
             var restaurant = await _dataContext.restaurantTable
                .FirstOrDefaultAsync(x => x.Id == restaurantId)
-               ?? throw new Exception("Ресторан не найден.");
+               ?? throw new RestaurantNotFoundException(restaurantId);
 
             var config = new TypeAdapterConfig();
             config.Default.IgnoreNullValues(true);
@@ -135,14 +137,14 @@ namespace RestaurantAPI.Model.Services
         {
             var order = await _dataContext.orderTable
                 .FirstOrDefaultAsync(x => x.Id == orderId)
-                ?? throw new Exception("Заказ не найден.");
+                ?? throw new OrderNotFoundException(orderId);
 
             order.status = OrderStatus.Ready;
             await _dataContext.SaveChangesAsync();
 
             var user = await _dataContext.userTable
                 .FirstOrDefaultAsync(x => x.Id == order.client_id)
-                ?? throw new Exception("Пользователь не найден.");
+                ?? throw new UserNotFoundException(order.client_id);
 
             OrderStatusHistoryTable orderHistory = new OrderStatusHistoryTable()
             {

@@ -4,6 +4,7 @@ using DotNetEnv;
 using DotNetEnv.Configuration;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -165,6 +166,8 @@ namespace CourierAPI
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             app.UseSwagger();
 

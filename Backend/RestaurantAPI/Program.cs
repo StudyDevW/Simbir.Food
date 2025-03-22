@@ -19,6 +19,7 @@ using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 using ORM_Components.Validators.RestaurantFoodItemsValidators;
+using RestaurantAPI.Utility;
 
 namespace RestaurantAPI
 {
@@ -121,7 +122,6 @@ namespace RestaurantAPI
                     options.UseNpgsql(connectString, b => b.MigrationsAssembly("RestaurantAPI"));
             });
 
-            //builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
             builder.Services.AddSingleton<IMessageSender>(
                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
             );
@@ -162,11 +162,13 @@ namespace RestaurantAPI
 
             app.UseForwardedHeaders();
 
-            app.UseAuthorization();
-
             app.UseAuthentication();
 
+            app.UseAuthorization();
+
             app.MapControllers();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseSwagger();
 
