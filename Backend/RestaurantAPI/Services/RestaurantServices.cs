@@ -1,11 +1,14 @@
-﻿using Mapster;
+﻿using FluentValidation;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
+using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Model.Interface;
+using RestaurantAPI.Utility;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 
@@ -15,37 +18,45 @@ namespace RestaurantAPI.Model.Services
     {
         private readonly DataContext _dataContext;
         private readonly IMessageSender _tgmessageSender;
+        private readonly IValidator<RestaurantUpdate_DTO> _restaurantUpdateValidator;
 
-        public RestaurantServices(DataContext dataContext, IMessageSender messageSender)
+        public RestaurantServices(DataContext dataContext, IMessageSender messageSender
+            , IValidator<RestaurantUpdate_DTO> restaurantUpdateValidator)
         {
             _dataContext = dataContext;
             _tgmessageSender = messageSender;
+            _restaurantUpdateValidator = restaurantUpdateValidator;
         }
 
-        private long GetUserChatId(Guid? clientId)
+        private async Task<long> GetUserChatId(Guid clientId)
         {
-            var finded = _dataContext.userTable.Where(c => c.Id == clientId).FirstOrDefault();
-            return finded.telegram_chat_id;
+            var chatId = await _dataContext.userTable
+                .Where(x => x.Id == clientId)
+                .Select(x => x.telegram_chat_id)
+                .FirstOrDefaultAsync();
+            if (chatId == 0) { throw new UserNotFoundException(clientId); }
+            return chatId;
         }
+
         public async Task OrderRejections(Order_DTO order)
         {
             var orderRejections = await _dataContext.orderTable.FindAsync(order.id);
 
             if (orderRejections == null)
             {
-                throw new Exception($"Заказ с идентификатором: {order.id} не существует.");
+                throw new OrderNotFoundException(order.id);
             }
 
             if (orderRejections.status == OrderStatus.Delivered)
             {
-                throw new Exception($"Заказ с идентификатором: {order.id} уже доставлен. Его нельзя отклонить.");
+                throw new OrderAlreadyDelivered(order.id);
             }
 
             orderRejections.status = OrderStatus.Denied;
 
             await _dataContext.SaveChangesAsync();
 
-            var userChatId = GetUserChatId(order.client_id);
+            var userChatId = await GetUserChatId(order.client_id);
             var messageToClient = $"Ваш заказ с ID: {order.id} был отклонён.";
             await _tgmessageSender.Send(userChatId.ToString(), messageToClient);
         }
@@ -56,15 +67,17 @@ namespace RestaurantAPI.Model.Services
             _dataContext.restaurantTable.RemoveRange(restaurants);
             await _dataContext.SaveChangesAsync();
         }
+
         public async Task DeleteRestaurant(Guid restaurantId)
         {
             var restaurant = await _dataContext.restaurantTable
                 .FirstOrDefaultAsync(x => x.Id == restaurantId)
-                ?? throw new Exception("Ресторан не найден.");
+                ?? throw new RestaurantNotFoundException(restaurantId);
 
             _dataContext.restaurantTable.Remove(restaurant);
             await _dataContext.SaveChangesAsync();
         }
+
         public async Task<List<Restaurants_DTO>> GetAllRestaurant()
         {
             return await _dataContext.restaurantTable
@@ -75,6 +88,7 @@ namespace RestaurantAPI.Model.Services
                     x.close_time))
                 .ToListAsync();
         }
+
         public async Task<Restaurants_DTO> GetRestaurant(Guid restaurantId)
         {
             return await _dataContext.restaurantTable
@@ -84,17 +98,23 @@ namespace RestaurantAPI.Model.Services
                     x.address, x.phone_number, x.status,
                     x.description, x.imagePath, x.open_time,
                     x.close_time))
-                .FirstOrDefaultAsync() ?? throw new Exception("Ресторан не найден.");
+                .FirstOrDefaultAsync() ?? throw new RestaurantNotFoundException(restaurantId);
         }
+
         public async Task UpdateRestaurant(Guid restaurantId, RestaurantUpdate_DTO restaurantsUpdate_DTO)
         {
+            await _restaurantUpdateValidator.ValidateAndThrowAsync(restaurantsUpdate_DTO);
+
             var restaurant = await _dataContext.restaurantTable
                .FirstOrDefaultAsync(x => x.Id == restaurantId)
-               ?? throw new Exception("Ресторан не найден.");
+               ?? throw new RestaurantNotFoundException(restaurantId);
 
-            restaurantsUpdate_DTO.Adapt(restaurant);
+            var config = new TypeAdapterConfig();
+            config.Default.IgnoreNullValues(true);
+            restaurantsUpdate_DTO.Adapt(restaurant, config);
             await _dataContext.SaveChangesAsync();
         }
+
         public async Task<List<RestaurantMark_DTO>> GetRestaurantMark()
         {
             var restaurantWithMarks = await (
@@ -112,18 +132,19 @@ namespace RestaurantAPI.Model.Services
 
             return restaurantWithMarks;
         }
+
         public async Task SetReadyStatusForOrder(Guid orderId)
         {
             var order = await _dataContext.orderTable
                 .FirstOrDefaultAsync(x => x.Id == orderId)
-                ?? throw new Exception("Заказ не найден.");
+                ?? throw new OrderNotFoundException(orderId);
 
             order.status = OrderStatus.Ready;
             await _dataContext.SaveChangesAsync();
 
             var user = await _dataContext.userTable
                 .FirstOrDefaultAsync(x => x.Id == order.client_id)
-                ?? throw new Exception("Пользователь не найден.");
+                ?? throw new UserNotFoundException(order.client_id);
 
             OrderStatusHistoryTable orderHistory = new OrderStatusHistoryTable()
             {
@@ -138,6 +159,7 @@ namespace RestaurantAPI.Model.Services
             await _tgmessageSender.Send(user.telegram_chat_id.ToString(), "Ваш заказ ожидает курьера.");
             await SendMessageForEveryActiveCourier();
         }
+
         private async Task SendMessageForEveryActiveCourier()
         {
             var activeCouriersWithChatIds = await _dataContext.courierTable

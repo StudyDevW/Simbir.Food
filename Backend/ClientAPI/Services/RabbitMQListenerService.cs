@@ -1,6 +1,8 @@
 ﻿using ClientAPI.Interfaces;
 using Middleware_Components.Broker;
+using ORM_Components.DTO.CourierAPI;
 using ORM_Components.DTO.PaymentAPI;
+using ORM_Components.Tables;
 using Telegram.Bot.Types;
 using Telegram_Components.Interfaces;
 
@@ -38,6 +40,10 @@ namespace ClientAPI.Services
                     await InsertMoneyForUserWithError(dtoClaimedsec.user_id, dtoClaimedsec.money_value);
                 });
 
+                _rabbitMQService.StartListening<OrderIdsDto>("order_review_queue", async dtoClaimed =>
+                {
+                    await CreateReview(dtoClaimed);
+                });
             }, stoppingToken);
 
 
@@ -79,6 +85,22 @@ namespace ClientAPI.Services
 
             await _tgmessage.SendHtml(chatId, $"Неправильно была указана карта");
 
+        }
+
+        private async Task CreateReview(OrderIdsDto orderReviewDto)
+        {
+            ReviewTable review = new ReviewTable
+            {
+                order_id = orderReviewDto.Id,
+                client_id = orderReviewDto.clientId,
+                courier_id = orderReviewDto.courier_id,
+                restaurant_id = orderReviewDto.restaurant_id,
+                rating = 5,
+                comment = "",
+                review_date = DateTime.UtcNow,
+            };
+
+            await _database.CreateReview(review);
         }
     }
 }

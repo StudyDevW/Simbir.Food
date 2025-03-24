@@ -33,7 +33,6 @@ namespace RestaurantAPI.Services
             {
                 _rabbitMQService.StartListening<Order_DTO>("client_to_restaurant", async order_DTO =>
                 {
-                    // Реализация принятие заказа
                     await AcceptingAnOrder(order_DTO);
                 });
 
@@ -44,20 +43,20 @@ namespace RestaurantAPI.Services
 
         private async Task NotifyOrderStarted(Order_DTO order)
         {
-            var userChatId = GetUserChatId(order.client_id);
+            var userChatId = await GetUserChatId(order.client_id);
             var message = $"Ваш заказ с ID: {order.id} начал готовиться.";
             await _messageSender.Send(userChatId.ToString(), message);
         }
 
-        private long GetUserChatId(Guid? clientId)
+        private async Task<long> GetUserChatId(Guid? clientId)
         {
-            var finded = _dbcontext.userTable.Where(c => c.Id == clientId).FirstOrDefault();
+            var finded = await _dbcontext.userTable.Where(c => c.Id == clientId).FirstOrDefaultAsync();
             return finded!.telegram_chat_id;
         }
  
         private async Task AcceptingAnOrder(Order_DTO order)
         {
-            var orderAccepting = await _dbcontext.orderTable.FindAsync(order.id);
+            var orderAccepting = await _dbcontext.orderTable.FirstOrDefaultAsync(x => x.Id == order.id);
 
             if (orderAccepting == null)
             {

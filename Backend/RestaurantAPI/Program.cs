@@ -1,5 +1,7 @@
 using DotNetEnv;
 using DotNetEnv.Configuration;
+using FluentValidation.AspNetCore;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -8,12 +10,16 @@ using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
+using ORM_Components.Validators.CourierValidators;
 using RestaurantAPI.Model.Interface;
 using RestaurantAPI.Model.Services;
 using RestaurantAPI.Services;
+using System.Reflection;
 using System.Security.Cryptography;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
+using ORM_Components.Validators.RestaurantFoodItemsValidators;
+using RestaurantAPI.Utility;
 
 namespace RestaurantAPI
 {
@@ -69,8 +75,8 @@ namespace RestaurantAPI
 
                 var basePath = AppContext.BaseDirectory;
 
-                // var xmlPath = Path.Combine(basePath, "apidocs.xml");
-                // o.IncludeXmlComments(xmlPath);
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
 
             builder.Services.AddAuthentication(o =>
@@ -116,7 +122,6 @@ namespace RestaurantAPI
                     options.UseNpgsql(connectString, b => b.MigrationsAssembly("RestaurantAPI"));
             });
 
-            //builder.Services.AddSingleton<IDatabaseService, DatabaseSDK>();
             builder.Services.AddSingleton<IMessageSender>(
                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
             );
@@ -135,6 +140,12 @@ namespace RestaurantAPI
 
             builder.Services.AddHostedService<RabbitMQListenerService>();
 
+            builder.Services.AddFluentValidationAutoValidation();
+
+            builder.Services.AddValidatorsFromAssemblyContaining<RestaurantValidatorDtoForUpdate>();
+
+            builder.Services.AddValidatorsFromAssemblyContaining<RestaurantFoodItemValidatorDtoForCreate>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
@@ -142,12 +153,6 @@ namespace RestaurantAPI
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });
-
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var rabbitListener = scope.ServiceProvider.GetRequiredService<IRabbitListenerService>();
-            //    rabbitListener.ListenPayment();
-            //}
 
             var app = builder.Build();
 
@@ -157,11 +162,13 @@ namespace RestaurantAPI
 
             app.UseForwardedHeaders();
 
-            app.UseAuthorization();
-
             app.UseAuthentication();
 
+            app.UseAuthorization();
+
             app.MapControllers();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseSwagger();
 

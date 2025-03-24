@@ -25,6 +25,10 @@ namespace RestaurantAPI.Model.Controllers
             _photoServices = photoServices;
         }
 
+        /// <summary>
+        /// Добавляет фото ресторану.
+        /// </summary>
+        /// <response code="204">Фото для ресторана добавлено.</response>
         [HttpPost("AddPhotoRestaurant")]
         public async Task<IActionResult> AddPhotoToRestaurant([FromForm] PhotoDTO_Restaurant photo_DTO)
         {
@@ -38,6 +42,10 @@ namespace RestaurantAPI.Model.Controllers
             }
         }
 
+        /// <summary>
+        /// Добавляет фото к блюду.
+        /// </summary>
+        /// <response code="204">Фото для блюда добавлено.</response>
         [HttpPost("AddPhotoFoodItem")]
         public async Task<IActionResult> AddPhotoToFoodItem([FromForm] PhotoDTO_FoodItem photo_DTO)
         {
@@ -52,6 +60,10 @@ namespace RestaurantAPI.Model.Controllers
             }
         }
 
+        /// <summary>
+        /// Получает изображение.
+        /// </summary>
+        /// <returns>Изображение получено.</returns>
         [HttpGet("Image")]
         public IActionResult ImageOutput([FromHeader] string filePath)
         {
@@ -67,6 +79,10 @@ namespace RestaurantAPI.Model.Controllers
             }
         }
 
+        /// <summary>
+        /// Удаляет изображение у ресторана.
+        /// </summary>
+        /// <response code="204">Фото у ресторана удалено.</response>
         [HttpDelete("RemovePhotoRestaurant/{id}")]
         public async Task<IActionResult> RemovePhotoRestaurant(Guid restaurantId)
         {
@@ -74,6 +90,10 @@ namespace RestaurantAPI.Model.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Удаляет фото у блюда.
+        /// </summary>
+        /// <response code="204">Фото блюда удалено.</response>
         [HttpDelete("RemovePhotoFoodItem/{id}")]
         public async Task<IActionResult> RemovePhotoFoodItem(Guid fooditemId)
         {

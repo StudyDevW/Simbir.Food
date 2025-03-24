@@ -5,6 +5,8 @@ using ORM_Components.DTO.ClientAPI.ClientsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
 using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
+using ORM_Components.DTO.ClientAPI.Review;
+using ORM_Components.Tables;
 
 namespace ClientAPI.Interfaces
 {
@@ -77,5 +79,11 @@ namespace ClientAPI.Interfaces
         public string GetTelegramChatId(Guid userGUID);
 
         public long GetUserBalance(Guid userGUID);
+        
+        public Task<List<ReviewDto>> GetAllReviews();
+
+        public Task CreateReview(ReviewTable review);
+
+        public Task UpdateReview(Guid reviewId, ReviewDtoForUpdate reviewDtoUpdate);
     }
 }

@@ -15,6 +15,7 @@ using FluentValidation;
 using ORM_Components.Interfaces;
 using ORM_Components.DTO.MailDtos;
 using System.Security.Claims;
+using RestaurantAPI.Utility;
 
 namespace CourierAPI.Service
 {
@@ -91,13 +92,13 @@ namespace CourierAPI.Service
 
             var order = await _dataContext.orderTable.
                 FirstOrDefaultAsync(x => x.Id == orderId)
-                ?? throw new Exception("Заказ не найден.");
+                ?? throw new OrderNotFoundException(orderId);
 
             bool isCourierExist = await _dataContext.courierTable
                 .AnyAsync(x => x.Id == courierId);
 
             if (!isCourierExist)
-                throw new Exception("Курьер не найден.");
+                throw new CourierNotFoundException(courierId);
 
             await CheckQuantityOfOrdersForCourier(courierId);
 
@@ -117,7 +118,7 @@ namespace CourierAPI.Service
 
             if (ordersCount >= 3)
             {
-                throw new Exception($"Курьер {courierId}, достиг лимита единовременных заказов: 3");
+                throw new OrderLimitForCourierException(courierId);
             }
         }
 
@@ -137,11 +138,11 @@ namespace CourierAPI.Service
 
             var order = await _dataContext.orderTable
                 .FirstOrDefaultAsync(x => x.Id == orderId)
-                ?? throw new Exception("Заказ не найден.");
+                ?? throw new OrderNotFoundException(orderId);
 
             if (order.courier_id == null || order.courier_id == Guid.Empty)
             {
-                throw new Exception("Курьер не назначен на заказ.");
+                throw new OrderDeliveryException(orderId);
             }
 
             OrderIdsDto orderDto = new OrderIdsDto
@@ -167,10 +168,10 @@ namespace CourierAPI.Service
         {
             var order = await _dataContext.orderTable
                 .FirstOrDefaultAsync(x => x.Id == orderId)
-                ?? throw new Exception("Заказ не найден.");
+                ?? throw new OrderNotFoundException(orderId);
 
             if (order.status != expectedStatus)
-                throw new Exception("Статус не соответствует ожидаемому.");
+                throw new OrderStatusException(orderId);
 
             order.status = newStatus;
 
@@ -223,7 +224,7 @@ namespace CourierAPI.Service
                 .AnyAsync(x => x.Id == courierDtoForCreate.userId);
 
             if (!isUserExist)
-                throw new Exception("Пользователь не найден.");
+                throw new UserNotFoundException(courierDtoForCreate.userId);
 
             var courier = courierDtoForCreate.Adapt<CourierTable>();
             _dataContext.Add(courier);
@@ -239,7 +240,7 @@ namespace CourierAPI.Service
             return await _dataContext.courierTable
                 .Where(x => x.Id == courierId)
                 .Select(x => new CourierDto(x.Id, x.userId, x.car_number, x.status))
-                .FirstOrDefaultAsync() ?? throw new Exception("Курьер не найден.");
+                .FirstOrDefaultAsync() ?? throw new CourierNotFoundException(courierId);
         }
 
         public async Task<List<CourierDto>> GetAllAsync()
@@ -256,7 +257,7 @@ namespace CourierAPI.Service
 
             var courier = await _dataContext.courierTable
                 .FirstOrDefaultAsync(x => x.Id == courierDtoForUpdate.Id)
-                ?? throw new Exception("Курьер не найден.");
+                ?? throw new CourierNotFoundException(courierDtoForUpdate.Id);
 
             courierDtoForUpdate.Adapt(courier);
             await _dataContext.SaveChangesAsync();
@@ -268,7 +269,7 @@ namespace CourierAPI.Service
         {
             var courier = await _dataContext.courierTable
                 .FirstOrDefaultAsync(x => x.Id == courierId)
-                ?? throw new Exception("Курьер не найден.");
+                ?? throw new CourierNotFoundException(courierId);
 
             _dataContext.Remove(courier);
             await _dataContext.SaveChangesAsync();

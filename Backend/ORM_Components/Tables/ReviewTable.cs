@@ -14,9 +14,9 @@ namespace ORM_Components.Tables
 
         public Guid client_id { get; set; }
 
-        public Guid? courier_id { get; set; }
+        public Guid courier_id { get; set; }
 
-        public Guid? restaurant_id { get; set; }
+        public Guid restaurant_id { get; set; }
 
         public int rating { get; set; }
 

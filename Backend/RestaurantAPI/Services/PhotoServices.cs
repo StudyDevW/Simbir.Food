@@ -99,33 +99,6 @@ namespace RestaurantAPI.Model.Services
 
             imageItem.image = string.Empty;
             await _dbContext.SaveChangesAsync();
-        }
-
-        //public async Task RemoveAllPhotos()
-        //{
-        //    var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
-
-        //    if (restaurantItems == null || !restaurantItems.Any())
-        //    {
-        //        throw new Exception("Нет доступных фотографий для удаления.");
-        //    }
-
-        //    _dbContext.restaurantTable.RemoveRange(restaurantItems);
-        //    await _dbContext.SaveChangesAsync();
-        //}
-
-        //public async Task<List<RestaurantTable>> GetPhotos()
-        //{
-        //    var restaurantItems = await _dbContext.restaurantTable.ToListAsync();
-            
-        //    return(restaurantItems);
-        //}
-
-        //public async Task<List<RestaurantTable>> GetAllPhotos(Guid restaurantId)
-        //{
-
-        //    var restaurantAllItems = await _dbContext.restaurantTable.Where(c => c.user_id == restaurantId).ToListAsync();
-        //    return(restaurantAllItems);
-        //}
+        }    
     }
 }

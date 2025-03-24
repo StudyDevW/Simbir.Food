@@ -10,6 +10,7 @@ using Middleware_Components.Services;
 using ORM_Components;
 using PaymentAPI.Interfaces;
 using PaymentAPI.Services;
+using System.Reflection;
 using System.Security.Cryptography;
 
 namespace PaymentAPI
@@ -66,8 +67,8 @@ namespace PaymentAPI
 
                 var basePath = AppContext.BaseDirectory;
 
-                var xmlPath = Path.Combine(basePath, "apidocs.xml");
-                o.IncludeXmlComments(xmlPath);
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
 
             builder.Services.AddAuthentication(o =>
