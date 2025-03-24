@@ -17,6 +17,7 @@ using ORM_Components.Interfaces;
 using ORM_Components.Services;
 using ORM_Components.Tables;
 using ORM_Components.Validators.CourierValidators;
+using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using PaymentAPI.Interfaces;
 using PaymentAPI.Services;
 using RabbitMQ.Client;
@@ -54,10 +55,11 @@ public class IntegrationTest
     }
 
     protected IRestaurantFoodItemsServices GetFoodService(DataContext context, IJwtService jwtService) =>
-        new RestaurantFoodItemsServices(context, jwtService);
+        new RestaurantFoodItemsServices(context, jwtService, new RestaurantFoodItemValidatorDtoForCreate(),
+            new RestaurantFoodItemValidatorDtoForUpdate());
 
     protected IRestaurantServices GetRestaurantService(DataContext context, IMessageSender msgSender) =>
-        new RestaurantServices(context, msgSender);
+        new RestaurantServices(context, msgSender, new RestaurantValidatorDtoForUpdate());
 
     protected IClientService GetClientService(IRabbitMQService rabbit, IMessageSender tgsender, ISessionService session,
         IDatabaseService database, IJwtService jwt, ICacheService cache) =>

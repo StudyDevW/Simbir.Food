@@ -38,13 +38,13 @@ public static class Generator
         var faker = new Faker<RestaurantTable>();
         faker.RuleFor(x => x.Id, _ => Guid.NewGuid())
             .RuleFor(x => x.user_id, _ => user_id)
-            .RuleFor(x => x.phone_number, f => f.Phone.PhoneNumber())
+            .RuleFor(x => x.phone_number, f => f.Phone.PhoneNumber("7##########"))
             .RuleFor(x => x.imagePath, f => f.Random.Word())
-            .RuleFor(x => x.restaurantName, f => f.Random.Word())
-            .RuleFor(x => x.description, f => f.Random.Words(10))
+            .RuleFor(x => x.restaurantName, f => f.Random.Words(2))
+            .RuleFor(x => x.description, f => f.Random.Words(3))
             .RuleFor(x => x.address, f => f.Address.City())
-            .RuleFor(x => x.close_time, f => f.Date.BetweenTimeOnly(TimeOnly.Parse("7:00"), TimeOnly.Parse("23:59")).ToShortTimeString())
-            .RuleFor(x => x.open_time, (f, x) => f.Date.BetweenTimeOnly(TimeOnly.Parse(x.close_time), TimeOnly.Parse(x.close_time).AddHours(-12)).ToShortTimeString())
+            .RuleFor(x => x.close_time, f => f.Date.BetweenTimeOnly(TimeOnly.Parse("07:00"), TimeOnly.Parse("23:59")).ToString("HH:mm"))
+            .RuleFor(x => x.open_time, (f, x) => f.Date.BetweenTimeOnly(TimeOnly.Parse("07:00"), TimeOnly.Parse("23:59")).ToString("HH:mm"))
             .RuleFor(x => x.status, _ => status);
         
         return faker;

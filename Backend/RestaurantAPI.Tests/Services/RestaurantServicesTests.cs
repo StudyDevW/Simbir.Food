@@ -5,8 +5,9 @@ using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
-using RestaurantAPI.Model.GetRastaurant;
+using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Model.Services;
+using RestaurantAPI.Utility;
 using Telegram_Components.Interfaces;
 using TestsBaseLib.Base;
 
@@ -27,7 +28,7 @@ public class RestaurantServicesTests : UnitTest
             removeRange: x => x.restaurantTable.RemoveRange(any<IEnumerable<RestaurantTable>>()),
             remove: x => x.restaurantTable.Remove(any<RestaurantTable>()));
 
-        _sut = new RestaurantServices(_context.Object, _sender.Object);
+        _sut = new RestaurantServices(_context.Object, _sender.Object, new RestaurantValidatorDtoForUpdate());
     }
 
     [Fact]
@@ -106,7 +107,7 @@ public class RestaurantServicesTests : UnitTest
         Func<Task> act = async() => await _sut.DeleteRestaurant(id);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Ресторан не найден.");
+        await act.Should().ThrowAsync<RestaurantNotFoundException>();
     }
 
     [Fact]
@@ -134,7 +135,7 @@ public class RestaurantServicesTests : UnitTest
         Func<Task> act = async() => await _sut.GetRestaurant(id);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Ресторан не найден.");
+        await act.Should().ThrowAsync<RestaurantNotFoundException>();
     }
 
     [Fact]
@@ -194,7 +195,7 @@ public class RestaurantServicesTests : UnitTest
         Func<Task> act = async () => await _sut.UpdateRestaurant(Guid.NewGuid(), dto);
 
         // arrange
-        await act.Should().ThrowAsync<Exception>().WithMessage("Ресторан не найден.");
+        await act.Should().ThrowAsync<RestaurantNotFoundException>();
     }
 
     [Fact]

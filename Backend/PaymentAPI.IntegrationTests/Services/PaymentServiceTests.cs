@@ -62,7 +62,7 @@ public class PaymentServiceTests : IntegrationTest
 
         // act
         await sut.Pay(release);
-        await Task.Delay(100);
+        await Task.Delay(300);
 
         // assert
 

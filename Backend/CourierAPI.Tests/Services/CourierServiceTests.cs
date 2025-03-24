@@ -11,6 +11,7 @@ using ORM_Components.Interfaces;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
 using ORM_Components.Validators.CourierValidators;
+using RestaurantAPI.Utility;
 using System.Security.Claims;
 using Telegram.Bot.Types;
 using Telegram_Components.Interfaces;
@@ -83,7 +84,7 @@ public class CourierServiceTests : UnitTest
         Func<Task> act = async () => await _sut.AcceptOrder(Guid.NewGuid());
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Заказ не найден.");
+        await act.Should().ThrowAsync<OrderNotFoundException>();
     }
 
     [Fact]
@@ -110,7 +111,7 @@ public class CourierServiceTests : UnitTest
         Func<Task> act = async () => await _sut.AcceptOrder(order.Id);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
+        await act.Should().ThrowAsync<CourierNotFoundException>();
     }
 
     [Fact]
@@ -180,7 +181,7 @@ public class CourierServiceTests : UnitTest
         Func<Task> act = async() => await _sut.OrderDelivered(order.Id);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не назначен на заказ.");
+        await act.Should().ThrowAsync<OrderDeliveryException>();
     }
 
     [Fact]
@@ -249,7 +250,7 @@ public class CourierServiceTests : UnitTest
         Func<Task> act = async() => await _sut.CreateAsync(dto);
 
         // assert
-        await act.Should().ThrowAsync<Exception>("Пользователь не найден.");
+        await act.Should().ThrowAsync<UserNotFoundException>();
     }
 
     [Fact]
@@ -304,7 +305,7 @@ public class CourierServiceTests : UnitTest
         Func<Task> act = async() => await _sut.UpdateAsync(dto);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
+        await act.Should().ThrowAsync<CourierNotFoundException>();
     }
 
     [Fact]
@@ -335,7 +336,7 @@ public class CourierServiceTests : UnitTest
         Func<Task> act = async () => await _sut.DeleteAsync(Guid.NewGuid());
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Курьер не найден.");
+        await act.Should().ThrowAsync<CourierNotFoundException>();
     }
 
     [Fact]

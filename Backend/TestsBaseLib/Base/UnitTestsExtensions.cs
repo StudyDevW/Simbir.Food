@@ -9,6 +9,7 @@ using Moq.Language.Flow;
 using Microsoft.AspNetCore.Mvc;
 using ORM_Components.DTO.ClientAPI;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TestsBaseLib.Base;
 
@@ -103,18 +104,20 @@ public static class UnitTestsExtensions
     /// <summary>
     /// Адаптация RestaurantFoodItemsTable в RestaurantFoodItems_DTO
     /// </summary>
-    public static RestaurantFoodItems_DTO ToDto(this RestaurantFoodItemsTable table)
-    {
-        return new RestaurantFoodItems_DTO
-        {
-            calories = table.calories,
-            image = table.image,
-            name = table.name,
-            price = (int)table.price,
-            restaurant_id = table.restaurant_id,
-            weight = table.weight
-        };
-    }
+    public static RestaurantFoodItemsDtoForCreate ToDto(this RestaurantFoodItemsTable table) =>
+        new RestaurantFoodItemsDtoForCreate(table.restaurant_id, table.name, table.price, table.image, table.weight, table.calories);
+
+    public static RestaurantFoodItemsDtoForCreate ToCreateDto(this RestaurantFoodItemsTable table) =>
+        new RestaurantFoodItemsDtoForCreate(table.restaurant_id, table.name, table.price, table.image, table.weight, table.calories);
+
+    public static RestaurantFoodItemsDtoForCreate ToCreateDto(this RestaurantFoodItemsTable table, int price, int weight, int calories, string name) =>
+        new RestaurantFoodItemsDtoForCreate(table.restaurant_id, name, price, table.image, weight, calories);
+
+    public static RestaurantFoodItemsDtoForUpdate ToUpdateDto(this RestaurantFoodItemsTable table) =>
+        new RestaurantFoodItemsDtoForUpdate(table.name, table.price, table.image, table.weight, table.calories);
+
+    public static RestaurantFoodItemsDtoForUpdate ToUpdateDto(this RestaurantFoodItemsTable table, int price, int weight, int calories, string name) =>
+        new RestaurantFoodItemsDtoForUpdate(name, price, table.image, weight, calories);
 
     /// <summary>
     /// Создает функцию, находящую элемент из списка по его Id

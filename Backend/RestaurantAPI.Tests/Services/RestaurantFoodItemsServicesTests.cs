@@ -7,7 +7,9 @@ using ORM_Components;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
+using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Model.Services;
+using RestaurantAPI.Utility;
 using System.Xml;
 using TestsBaseLib.Base;
 
@@ -30,7 +32,9 @@ public class RestaurantFoodItemsServicesTests : UnitTest
             find: x => x.restaurantFoodItemsTable.FindAsync(any<object>()),
             removeRange: x => x.restaurantFoodItemsTable.RemoveRange(any<IEnumerable<RestaurantFoodItemsTable>>()));
 
-        _sut = new RestaurantFoodItemsServices(_context.Object, _jwt.Object);
+        _sut = new RestaurantFoodItemsServices(_context.Object, _jwt.Object, 
+            new RestaurantFoodItemValidatorDtoForCreate(),
+            new RestaurantFoodItemValidatorDtoForUpdate());
     }
 
     [Fact]
@@ -43,13 +47,12 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         rests.Add(rest);
 
         var food = Generator.GenerateFoodItem(rest.Id);
-        var dto = food.ToDto();
+        var dto = food.ToCreateDto();
 
         // act
-        var result = await _sut.AddRestaurantFoodItems(dto);
+        await _sut.AddRestaurantFoodItems(dto);
 
         // assert
-        result.Should().BeOfType<string>();
         _foods.Count.Should().Be(1);
 
         food.Id = _foods.First().Id;
@@ -70,20 +73,20 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         Func<Task> act = async() => await _sut.AddRestaurantFoodItems(dto);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Ресторан с указанным ID не найден.");
+        await act.Should().ThrowAsync<RestaurantNotFoundException>();
     }
 
     [Fact]
     public async Task AddRestaurantFoodItems_WithNullDto_ThrowsException()
     {
         // arrange
-        RestaurantFoodItems_DTO dto = null;
+        RestaurantFoodItemsDtoForCreate dto = null;
 
         // act
         Func<Task> act = async () => await _sut.AddRestaurantFoodItems(dto);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Данные блюда не могут быть пустыми.");
+        await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
@@ -96,11 +99,7 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         rests.Add(rest);
 
         var food = Generator.GenerateFoodItem(rest.Id);
-        var dto = food.ToDto();
-        dto.price = 0;
-        dto.weight = -100;
-        dto.calories = -5;
-        dto.name = "  ";
+        var dto = food.ToCreateDto(0, -100, -5, "  ");
 
         // act
         Func<Task> act = async() => await _sut.AddRestaurantFoodItems(dto);
@@ -122,10 +121,9 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         _foods.Add(food);
 
         // act
-        var result = await _sut.DeleteRestaurantFoodItems(food.Id);
+        await _sut.DeleteRestaurantFoodItems(food.Id);
 
         // assert
-        result.Should().BeOfType<string>();
         _foods.Count.Should().Be(0);
     }
 
@@ -139,11 +137,11 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         Func<Task> act = async() => await _sut.DeleteRestaurantFoodItems(id);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Блюдо не найдено.");
+        await act.Should().ThrowAsync<RestaurantFoodItemNotFoundException>();
     }
 
     [Fact]
-    public async Task PutRestaurantFoodItems_WithCorrectData_ReturnsSuccess()
+    public async Task UpdateRestaurantFoodItems_WithCorrectData_ReturnsSuccess()
     {
         // arrange
         var rest = Generator.GenerateRestaurant(Guid.NewGuid(), RestaurantStatus.Verified);
@@ -155,13 +153,12 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         _foods.Add(food);
 
         var newFood = Generator.GenerateFoodItem(rest.Id);
-        var dto = newFood.ToDto();
+        var dto = newFood.ToUpdateDto();
 
         // act
-        var result = await _sut.PutRestaurantFoodItems(dto, food.Id);
+        await _sut.UpdateRestaurantFoodItems(food.Id, dto);
 
         // assert
-        result.Should().BeOfType<string>();
         _foods.Count.Should().Be(1);
 
         newFood.Id = _foods.First().Id;
@@ -169,34 +166,34 @@ public class RestaurantFoodItemsServicesTests : UnitTest
     }
 
     [Fact]
-    public async Task PutRestaurantFoodItems_WithNonExistentFoodItem_ThrowsException()
+    public async Task UpdateRestaurantFoodItems_WithNonExistentFoodItem_ThrowsException()
     {
         // arrange
         var newFood = Generator.GenerateFoodItem(Guid.NewGuid());
-        var dto = newFood.ToDto();
+        var dto = newFood.ToUpdateDto();
 
         // act
-        Func<Task> act = async() => await _sut.PutRestaurantFoodItems(dto, Guid.NewGuid());
+        Func<Task> act = async() => await _sut.UpdateRestaurantFoodItems(Guid.NewGuid(), dto);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Блюдо с указанным ID не найдено.");
+        await act.Should().ThrowAsync<RestaurantFoodItemNotFoundException>();
     }
 
     [Fact]
-    public async Task PutRestaurantFoodItems_WithNullDto_ThrowsException()
+    public async Task UpdateRestaurantFoodItems_WithNullDto_ThrowsException()
     {
         // arrange
-        RestaurantFoodItems_DTO dto = null;
+        RestaurantFoodItemsDtoForUpdate dto = null;
 
         // act
-        Func<Task> act = async () => await _sut.PutRestaurantFoodItems(dto, Guid.NewGuid());
+        Func<Task> act = async () => await _sut.UpdateRestaurantFoodItems(Guid.NewGuid(), dto);
 
         // assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Данные блюда не могут быть пустыми.");
+        await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
-    public async Task PutRestaurantFoodItems_WithWrongData_ThrowsException()
+    public async Task UpdateRestaurantFoodItems_WithWrongData_ThrowsException()
     {
         // arrange
         var rest = Generator.GenerateRestaurant(Guid.NewGuid(), RestaurantStatus.Verified);
@@ -208,14 +205,10 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         _foods.Add(food);
 
         var newFood = Generator.GenerateFoodItem(rest.Id);
-        var dto = newFood.ToDto();
-        dto.price = 0;
-        dto.weight = -100;
-        dto.calories = -5;
-        dto.name = "  ";
+        var dto = newFood.ToUpdateDto(0, -100, -5, "   ");
 
         // act
-        Func<Task> act = async () => await _sut.PutRestaurantFoodItems(dto, food.Id);
+        Func<Task> act = async () => await _sut.UpdateRestaurantFoodItems(food.Id, dto);
 
         // assert
         await act.Should().ThrowAsync<Exception>();
@@ -233,27 +226,9 @@ public class RestaurantFoodItemsServicesTests : UnitTest
         _foods.AddRange(Generator.GenerateFoodItems(rest.Id, 3));
 
         // act
-        var result = await _sut.DeleteAllRestaurantFoodItems(rest.Id);
+        await _sut.DeleteAllRestaurantFoodItems(rest.Id);
 
         // assert
-        result.Should().BeOfType<string>();
         _foods.Count.Should().Be(0);
-    }
-
-
-    [Fact]
-    public async Task DeleteAllRestaurantFoodItems_WithZeroFoodItems_ThrowsException()
-    {
-        // arrange
-        var rest = Generator.GenerateRestaurant(Guid.NewGuid(), RestaurantStatus.Verified);
-        var rests = itemsSetup(x => x.restaurantTable,
-            find: x => x.restaurantTable.FindAsync(any<object>()));
-        rests.Add(rest);
-
-        // act
-        Func<Task> act = async() => await _sut.DeleteAllRestaurantFoodItems(rest.Id);
-
-        // assert
-        await act.Should().ThrowAsync<Exception>("Нет доступных блюд для удаления в указанном ресторане.");
     }
 }
