@@ -145,6 +145,52 @@ const MainPage: React.FC = () => {
 
                   <div className="app_maincontent">
                     <div className="app_maincontent_title">Рестораны</div>
+
+                    <div className="app_maincontent_restaurant_block_area">
+
+                      <div className="app_maincontent_restaurant_block">
+                        <div className="app_maincontent_restaurant_block_image"></div>
+
+                        <div className="app_maincontent_restaurant_block_title">Restaurant_name</div>
+
+                        <div className="app_maincontent_restaurant_block_subtitle_area">
+                          <div className="app_maincontent_restaurant_block_subtitle_mark">4.0</div>
+                          <div className="app_maincontent_restaurant_block_subtitle_markimg"></div>
+
+                          <div className="app_maincontent_restaurant_block_subtitle_opened">Открыто</div>
+                        </div>
+
+                      </div>
+
+                      {/* <div className="app_maincontent_restaurant_block">
+                        <div className="app_maincontent_restaurant_block_image"></div>
+
+                        <div className="app_maincontent_restaurant_block_title">Restaurant_name</div>
+
+                        <div className="app_maincontent_restaurant_block_subtitle_area">
+                          <div className="app_maincontent_restaurant_block_subtitle_mark">4.0</div>
+                          <div className="app_maincontent_restaurant_block_subtitle_markimg"></div>
+                          
+                          <div className="app_maincontent_restaurant_block_subtitle_opened">Открыто</div>
+                        </div>
+
+                      </div>
+
+                      <div className="app_maincontent_restaurant_block">
+                        <div className="app_maincontent_restaurant_block_image"></div>
+
+                        <div className="app_maincontent_restaurant_block_title">Restaurant_name</div>
+
+                        <div className="app_maincontent_restaurant_block_subtitle_area">
+                          <div className="app_maincontent_restaurant_block_subtitle_mark">4.0</div>
+                          <div className="app_maincontent_restaurant_block_subtitle_markimg"></div>
+                          
+                          <div className="app_maincontent_restaurant_block_subtitle_opened">Открыто</div>
+                        </div>
+
+                      </div> */}
+                    </div>
+
                   </div>
                 </>}
              
