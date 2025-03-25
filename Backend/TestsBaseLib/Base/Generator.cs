@@ -33,6 +33,27 @@ public static class Generator
     public static List<UserTable> GenerateUsers(int count, string roles = "Client") =>
         _GetUserFaker(roles).Generate(count);
 
+    private static Faker<ReviewTable> _GetReviewFaker(Guid client_id, Guid courier_id, Guid restaurant_id, Guid order_id)
+    {
+        var faker = new Faker<ReviewTable>();
+        faker.RuleFor(x => x.comment, f => f.Random.Words(3))
+            .RuleFor(x => x.review_date, _ => DateTime.UtcNow)
+            .RuleFor(x => x.Id, _ => Guid.NewGuid())
+            .RuleFor(x => x.rating, f => f.Random.Int(0, 5))
+            .RuleFor(x => x.client_id, _ => client_id)
+            .RuleFor(x => x.courier_id, _ => courier_id)
+            .RuleFor(x => x.restaurant_id, _ => restaurant_id)
+            .RuleFor(x => x.order_id, _ => order_id);
+
+        return faker;
+    }
+
+    public static ReviewTable GenReview(Guid client_id, Guid courier_id, Guid restaurant_id, Guid order_id) =>
+        _GetReviewFaker(client_id, courier_id, restaurant_id, order_id).Generate();
+
+    public static ReviewTable GenReview() =>
+        _GetReviewFaker(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()).Generate();
+
     private static Faker<RestaurantTable> _GetRestaurantFaker(Guid user_id, RestaurantStatus status)
     {
         var faker = new Faker<RestaurantTable>();

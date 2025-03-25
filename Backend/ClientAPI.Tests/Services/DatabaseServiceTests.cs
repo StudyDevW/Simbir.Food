@@ -9,6 +9,7 @@ using ORM_Components.Tables.Helpers;
 using Telegram.Bot.Types;
 using System.Diagnostics.Metrics;
 using StackExchange.Redis;
+using ORM_Components.DTO.ClientAPI.Review;
 
 namespace ClientAPI.Tests.Services;
 
@@ -1673,5 +1674,54 @@ public class DatabaseServiceTests : UnitTest
 
         // assert
         result.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task UpdateReview_WithCorrectData_UpdatesReview()
+    {
+        // arrange
+        var review = Generator.GenReview();
+        itemsSetup(x => x.reviewTable).AddItem(review);
+
+        var dto = new ReviewDtoForUpdate(4, "greet");
+
+        // act
+        await _sut.UpdateReview(review.Id, dto);
+
+        // assert
+        review.rating.Should().Be(4);
+        review.comment.Should().Be("greet");
+    }
+
+    [Fact]
+    public async Task UpdateReview_WithNonExistentReview_ThrowsException()
+    {
+        // arrange
+        itemsSetup(x => x.reviewTable);
+
+        var dto = new ReviewDtoForUpdate(4, "greet");
+
+        // act
+        Func<Task> act = async () => await _sut.UpdateReview(Guid.NewGuid(), dto);
+
+        // assert
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task CreateReview_WithCorrectData_AddsReviewToDb()
+    {
+        // arrange
+        var reviews = itemsSetup(x => x.reviewTable);
+        _context.Setup(x => x.Add(any<ReviewTable>()))
+            .Callback<ReviewTable>(x => reviews.Add(x));
+
+        var review = Generator.GenReview();
+
+        // act
+        await _sut.CreateReview(review);
+
+        // assert
+        reviews.First().Should().BeEquivalentTo(review);
     }
 }

@@ -13,6 +13,7 @@ using ORM_Components.Validators.CourierValidators;
 using System.Security.Claims;
 using Telegram_Components.Interfaces;
 using TestsBaseLib.Base;
+using RabbitMQListenerServiceClient = ClientAPI.Services.RabbitMQListenerService;
 
 namespace CourierAPI.IntegrationTests.Services;
 
@@ -69,6 +70,8 @@ public class CourierServicesTests : IntegrationTest
         var orderItem4 = new OrderItemsTable { order_id = order.Id, restaraunt_food_item = item1.Id };
 
         var listener = new RabbitMQListenerService(_mail, _rabbit);
+        var clientListener = new RabbitMQListenerServiceClient(GetDataService(_context),
+            _sender, _rabbit);
 
         _context.userTable.AddRange(courierUser, client, owner);
         _context.courierTable.Add(courier);
@@ -79,6 +82,7 @@ public class CourierServicesTests : IntegrationTest
         _context.SaveChanges();
 
         await listener.StartAsync(new CancellationToken());
+        await clientListener.StartAsync(new CancellationToken());
 
         // act
         await _sut.OrderDelivered(order.Id);
@@ -87,6 +91,7 @@ public class CourierServicesTests : IntegrationTest
         // assert
 
         await listener.StopAsync(new CancellationToken());
+        await clientListener.StopAsync(new CancellationToken());
 
         var expectedOrder = _context.orderTable.First();
         expectedOrder.status.Should().Be(OrderStatus.Delivered);
@@ -94,5 +99,7 @@ public class CourierServicesTests : IntegrationTest
         var history = _context.orderHistory.First();
         history.status.Should().Be(OrderStatus.Delivered);
         history.order_id.Should().Be(order.Id);
+
+        _context.reviewTable.Count().Should().Be(1);
     }
 }
