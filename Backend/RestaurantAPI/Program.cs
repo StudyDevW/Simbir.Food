@@ -10,7 +10,6 @@ using Middleware_Components.Cache;
 using Middleware_Components.JWT;
 using Middleware_Components.Services;
 using ORM_Components;
-using ORM_Components.Validators.CourierValidators;
 using RestaurantAPI.Model.Interface;
 using RestaurantAPI.Model.Services;
 using RestaurantAPI.Services;
@@ -20,6 +19,7 @@ using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Utility;
+using RestaurantAPI.Interface;
 
 namespace RestaurantAPI
 {
@@ -137,6 +137,8 @@ namespace RestaurantAPI
             builder.Services.AddScoped<IRestaurantFoodItemsServices, RestaurantFoodItemsServices>();
 
             builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+
+            builder.Services.AddSingleton<IFileSystemHandler, FileSystemHandler>();
 
             builder.Services.AddHostedService<RabbitMQListenerService>();
 
