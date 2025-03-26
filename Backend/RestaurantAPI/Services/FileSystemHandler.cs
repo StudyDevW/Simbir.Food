@@ -9,9 +9,6 @@ public class FileSystemHandler : IFileSystemHandler
 
     public async Task<string> AddPhoto(IFormFile file)
     {
-        if (file == null || file.Length == 0)
-            throw new Exception("file_incorrect");
-
         var uploads = Path.GetFullPath(FOLDER_NAME);
         var filePath = Path.Combine(uploads, file.FileName);
 
