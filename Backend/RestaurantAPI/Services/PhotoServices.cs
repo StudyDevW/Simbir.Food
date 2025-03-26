@@ -25,6 +25,9 @@ namespace RestaurantAPI.Model.Services
             if (restaurantSelected == null)
                 throw new Exception("restaurant_not_found");
 
+            if (photo_DTO.File == null || photo_DTO.File.Length == 0)
+                throw new Exception("file_incorrect");
+
             var filePath = await _fileSystem.AddPhoto(photo_DTO.File);
 
             restaurantSelected.imagePath = filePath;
@@ -39,6 +42,9 @@ namespace RestaurantAPI.Model.Services
             if (foodItemSelected == null)
                 throw new Exception("fooditem_not_found");
 
+            if (photo_DTO.File == null || photo_DTO.File.Length == 0)
+                throw new Exception("file_incorrect");
+
             var filePath = await _fileSystem.AddPhoto(photo_DTO.File);
 
             foodItemSelected.image = filePath;
@@ -51,7 +57,10 @@ namespace RestaurantAPI.Model.Services
                 .Where(c => c.Id == restaurantId).FirstOrDefaultAsync();
 
             if (imageItem == null)
-                throw new Exception("Фото не найдено.");
+                throw new Exception("restaurant_not_found");
+
+            if (string.IsNullOrWhiteSpace(imageItem.imagePath))
+                throw new Exception("restaurant_has_no_image");
 
             _fileSystem.DeletePhoto(imageItem.imagePath);
 
@@ -66,7 +75,10 @@ namespace RestaurantAPI.Model.Services
                 .Where(c => c.Id == fooditemId).FirstOrDefaultAsync();
 
             if (imageItem == null)
-                throw new Exception("Фото не найдено.");
+                throw new Exception("fooditem_not_found");
+
+            if (string.IsNullOrWhiteSpace(imageItem.image))
+                throw new Exception("fooditem_has_no_image");
 
             _fileSystem.DeletePhoto(imageItem.image);
 
