@@ -1558,7 +1558,7 @@ public class DatabaseServiceTests : UnitTest
         Func<Task> act = async () => await _sut.InsertMoney(user.Id, -250);
 
         // assert
-        await act.Should().ThrowAsync<Exception>();
+        await act.Should().ThrowAsync<Exception>().WithMessage("inane_money_value");
     }
 
     [Fact]
@@ -1618,7 +1618,7 @@ public class DatabaseServiceTests : UnitTest
         Func<Task> act = async() => await _sut.DecreaseMoney(user.Id, 350);
 
         // assert
-        await act.Should().ThrowAsync<Exception>();
+        await act.Should().ThrowAsync<Exception>().WithMessage("inane_money_value");
     }
 
     [Fact]
