@@ -2,7 +2,7 @@
 
 
 export interface GetMeInfo {
-    Id: string,
+    id: string,
     telegram_id: number,
     first_name: string,
     last_name: string | null,
@@ -78,4 +78,12 @@ export interface OrderInfo {
         weight: number,
         calories: number
     }[]
+}
+
+export interface PaymentInfo {
+    user_id: string,
+    card_number: string,
+    cvv: string,
+    money_value: number,
+    link_card: boolean
 }

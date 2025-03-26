@@ -1269,45 +1269,44 @@ namespace ClientAPI.Services
 
         public async Task InsertMoney(Guid userGUID, long money_value)
         {
-            _logger.LogError(money_value.ToString());
-
             var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
 
-            if (selectedUser != null)
-            {
-                selectedUser.money_value += money_value;
-                await _dbcontext.SaveChangesAsync();
-            }
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
+
+            if (money_value <= 0)
+                throw new Exception("inane_money_value");
+
+            selectedUser.money_value += money_value;
+            await _dbcontext.SaveChangesAsync();
         }
 
         public bool ExistMoney(Guid userGUID, long money_value)
         {
             var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
-           
 
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
 
-            if (selectedUser != null)
-            {
-                if (selectedUser.money_value >= money_value)
-                    return true;
-            }
-
-            return false;
+            return selectedUser.money_value >= money_value;
         }
 
-        public async Task DecreaseMoney(Guid userGUID, long money_value) {
+        public async Task DecreaseMoney(Guid userGUID, long money_value) 
+        {
             var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
 
-            if (selectedUser != null)
-            {
-                selectedUser.money_value -= money_value;
-                await _dbcontext.SaveChangesAsync();
-            }
+            if (selectedUser == null)
+                throw new Exception("user_not_found");
+
+            if (selectedUser.money_value - money_value < 0)
+                throw new Exception("inane_money_value");
+
+            selectedUser.money_value -= money_value;
+            await _dbcontext.SaveChangesAsync();
         }
 
         public string GetTelegramChatId(Guid userGUID)
         {
-       
             var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
 
             if (selectedUser != null)

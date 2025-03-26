@@ -1,5 +1,5 @@
 import WebApp from "@twa-dev/sdk";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation, data } from 'react-router-dom';
 import { GetMeInfo } from "../api-integrations/Interfaces/API_Interfaces";
 
@@ -32,12 +32,30 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
     const [closedProfile, setClosedProfile] = useState<boolean>(false);
 
+    const [balanceUp, setBalanceUp] = useState<boolean>(false);
+
+    const [balanceValue, setBalanceValue] = useState<number>(100);
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleFocusInput = () => {
+        if (inputRef.current && isMobile) {
+          inputRef.current.focus();
+        }
+    };
+
     const navigate = useNavigate();
 
     useEffect(() => {
         WebApp.disableVerticalSwipes();
     }, [])
     
+    useEffect(()=>{
+        if (balanceUp) {
+            handleFocusInput();
+        }
+    }, [balanceUp])
+
     const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
 
         if (!isMobile)
@@ -103,6 +121,7 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
         }
     };
       
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
     return (<>
 
@@ -127,7 +146,7 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                     <div className="app_profile_area_panel" style={isMobile ? {
                     height: `calc(100vh - 100px - 48px)`
                 } : {height: `calc(100vh - 5px)`}}  
-                onMouseLeave={()=>setClosedProfile(true)}>
+                onMouseLeave={()=> { if (!balanceUp) setClosedProfile(true) }}>
                         <div className="app_profile_info_area">
                             <div className="app_profile_info_avatar" style={{
                                 backgroundImage: `url(${info.photo_url})`
@@ -173,7 +192,7 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                                 {`${info.money_value} руб.`}
                             </div>
 
-                            <div className="app_profile_elements_desc" onClick={()=>navigate("/payment")}>{`Пополнить`}</div>
+                            <div className="app_profile_elements_desc"  onClick={()=> { handleFocusInput(); setBalanceUp(true); }}>{`Пополнить`}</div>
                         </div>
 
                         <div className="app_profile_elements_separator">{`Основное`}</div>
@@ -204,7 +223,9 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                                     WebApp.showAlert("Здесь будут отображаться заказы")
                                 }}/>
 
-                        {info.restaurant_own !== null && <>
+                      
+
+                        {info.restaurant_own !== null && info.restaurant_own?.length > 0 && <>
                         
                             <div className="app_profile_elements_separator">{`Ресторанам`}</div>
 
@@ -258,8 +279,59 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
                         </>}
 
+                        <div className="app_profile_elements_separator">{`Дополнительно`}</div>
+
+                        <ElementMenu 
+                            is_mobile={isMobile} 
+                            name_element="Открыть точку" 
+                            description="" 
+                            icon_url="./images/request_icon_rest.png"/>
+                        
+
+                        {!info.roles.includes("Courier") && <> 
+                            <ElementMenu 
+                                is_mobile={isMobile} 
+                                name_element="Стать курьером" 
+                                description="" 
+                                icon_url="./images/request_icon_courier.png"/>
+                        </>}
+
                     </div>
                 </div>
+
+                {balanceUp && <>
+                    <div className="balance_popup_area" style={isMobile ? { animation: 'none', bottom: '430px' } : {}} onMouseLeave={()=>setBalanceUp(false)}>
+                        <div className="app_maincontent_title">Укажите сумму</div>
+
+                        <div className="app_maincontent_searchbar_decor" style={{marginBottom: "20px"}}>
+                                <input className='app_maincontent_searchbar'
+                                    onBlur={isMobile? () => handleFocusInput() : () => {}}
+                                    type="number"
+                                    value={balanceValue}
+                                    ref={inputRef}
+                                    // onFocus={() => setKeyboardFocused(true)}
+                                    // onBlur={() => 
+                                    // { 
+                                    //     if (inputValue === "")
+                                    //         setKeyboardFocused(false);
+                                    // }}
+                                    onChange={(e) => setBalanceValue(Number(e.target.value))}
+                                    placeholder={'Сумма для пополнения'}
+                                /> 
+
+                                <div className="app_maincontent_bar_ruble" 
+                                style={{backgroundImage: './images/icon-ruble.png'}}></div>
+
+                                
+                        </div>
+
+                        <div className="app_balance_up_button" onClick={()=>navigate("/payment", { state: { money_to_up: balanceValue } })}>
+                            Перейти к оплате
+                        </div>
+                      
+                    </div>
+                    
+                </>}
             </>
         }
     </>)

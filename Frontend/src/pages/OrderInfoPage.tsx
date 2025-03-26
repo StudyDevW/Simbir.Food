@@ -12,8 +12,6 @@ import { handleLoadImage } from '../api-integrations/ImageAPI';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
-let orderInfoGlobal: OrderInfo[];
-
 const BasketItem: React.FC<{imageLink: string, name: string, price: number }> = ({imageLink, name, price}) => {
 
     const [imageRendered, setImageRendered] = useState<string | null>(null);
@@ -55,18 +53,18 @@ const BasketItem: React.FC<{imageLink: string, name: string, price: number }> = 
 const OrderItem: React.FC<{info: OrderInfo, onClick: () => void }> = ({info, onClick}) => {
 
 
-    const getProductLabel = (count: number): string => {
-        if (count % 10 === 1 && count % 100 !== 11) {
-          return `${count} товар`;
-        } else if (
-          (count % 10 >= 2 && count % 10 <= 4) &&
-          (count % 100 < 10 || count % 100 >= 20)
-        ) {
-          return `${count} товара`;
-        } else {
-          return `${count} товаров`;
-        }
-    };
+    // const getProductLabel = (count: number): string => {
+    //     if (count % 10 === 1 && count % 100 !== 11) {
+    //       return `${count} товар`;
+    //     } else if (
+    //       (count % 10 >= 2 && count % 10 <= 4) &&
+    //       (count % 100 < 10 || count % 100 >= 20)
+    //     ) {
+    //       return `${count} товара`;
+    //     } else {
+    //       return `${count} товаров`;
+    //     }
+    // };
 
     const DatePrint = (dateFrom: string) => {
         const date = new Date(dateFrom);
@@ -80,6 +78,9 @@ const OrderItem: React.FC<{info: OrderInfo, onClick: () => void }> = ({info, onC
 
     return (<>
          <div className="app_order_item" onClick={onClick}>
+
+                <div className="app_preorder_box_image"></div>
+
                 <div className="app_order_item_title">
                     {`${DatePrint(info.order_date)}`}
                 </div>
@@ -178,7 +179,7 @@ const OrderWithMap: React.FC<{localaddress: string, info: OrderInfo}> = ({locala
                 // Options. You must specify this type of layout.
                 iconLayout: 'default#image',
                 // Custom image for the placemark icon.
-                iconImageHref: "../../images/location.png",
+                iconImageHref: "../../images/location_rest.png",
                 // The size of the placemark.
                 iconImageSize: [40, 40],
                 // The offset of the upper left corner of the icon relative
@@ -217,6 +218,11 @@ const OrderWithMap: React.FC<{localaddress: string, info: OrderInfo}> = ({locala
                                 {`Статус заказа`}
                             </div>
                         </div>
+                    </div>
+
+
+                    <div className="app_order_items_separator_info">
+                        {`Блюда в заказе`}
                     </div>
 
                     {info.food_items.map((item, index) => <>

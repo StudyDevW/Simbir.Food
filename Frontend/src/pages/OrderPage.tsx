@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import '../styles/AppStyle.sass'
 import WebApp from '@twa-dev/sdk';
 import { useNavigate, useLocation, data } from 'react-router-dom';
@@ -24,6 +24,19 @@ const OrderPage: React.FC = () => {
     const [basketInfo, setBasketInfo] = useState<GetBasketInfo | null>(null);
 
     const [location, setLocation] = useState<[number, number] | null>(null);
+
+    const [balanceUp, setBalanceUp] = useState<boolean>(false);
+
+    const [balanceValue, setBalanceValue] = useState<number>(100);
+    
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleFocusInput = () => {
+        if (inputRef.current && isMobile) {
+          inputRef.current.focus();
+        }
+    };
+
 
     useEffect(()=>{
         WebApp.setHeaderColor('#EAEAEA');
@@ -242,7 +255,7 @@ const OrderPage: React.FC = () => {
                     }
 
                     {basketInfo !== null && userInfo.money_value < basketInfo.basketInfo.totalPrice &&
-                      <div className="app_preorder_paybutton">
+                      <div className="app_preorder_paybutton" onClick={()=> setBalanceUp(true) }>
                           {`Пополнить баланс`}
                       </div>
                     }
@@ -250,6 +263,40 @@ const OrderPage: React.FC = () => {
 
                 </div>
             
+                {balanceUp && <>
+                    <div className="balance_popup_area" style={isMobile ? { animation: 'none', bottom: '430px' } : {}} onMouseLeave={()=>setBalanceUp(false)}>
+                        <div className="app_maincontent_title">Укажите сумму</div>
+
+                        <div className="app_maincontent_searchbar_decor" style={{marginBottom: "20px"}}>
+                                <input className='app_maincontent_searchbar'
+                                    onBlur={isMobile? () => handleFocusInput() : () => {}}
+                                    type="number"
+                                    value={balanceValue}
+                                    ref={inputRef}
+                                    // onFocus={() => setKeyboardFocused(true)}
+                                    // onBlur={() => 
+                                    // { 
+                                    //     if (inputValue === "")
+                                    //         setKeyboardFocused(false);
+                                    // }}
+                                    onChange={(e) => setBalanceValue(Number(e.target.value))}
+                                    placeholder={'Сумма для пополнения'}
+                                /> 
+
+                                <div className="app_maincontent_bar_ruble" 
+                                style={{backgroundImage: './images/icon-ruble.png'}}></div>
+
+                                
+                        </div>
+
+                        <div className="app_balance_up_button" onClick={()=>navigate("/payment", { state: { money_to_up: balanceValue, redirect_to_order: true } })}>
+                            Перейти к оплате
+                        </div>
+                      
+                    </div>
+                    
+                </>}
+
             </>}
 
             </div>        
