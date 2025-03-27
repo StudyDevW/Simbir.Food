@@ -87,3 +87,17 @@ export interface PaymentInfo {
     money_value: number,
     link_card: boolean
 }
+
+export interface RestaurantInfo {
+    id: string,
+    userId: string,
+    restaurantName: string,
+    address: string,
+    phone_number: string,
+    status: number,
+    description: string,
+    imagePath: string,
+    open_time: string,
+    close_time: string,
+    average_mark: number
+}

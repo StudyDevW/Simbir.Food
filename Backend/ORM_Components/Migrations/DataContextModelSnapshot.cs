@@ -270,7 +270,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("4e37119d-878c-41c4-b632-9e87e99b45ab"),
+                            Id = new Guid("9c3862fe-26e5-4aa6-933f-b7d38969baea"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
@@ -280,7 +280,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0dcfbe90-6964-4064-af66-280920c81943"),
+                            Id = new Guid("75a0e998-9e16-494f-8dce-77f5af1621ae"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
@@ -341,23 +341,23 @@ namespace ORM_Components.Migrations
                             address = "ул. Шолмова 5",
                             close_time = "21:00",
                             description = "Отличный тестовый ресторан",
-                            imagePath = "NONE",
+                            imagePath = "/app/migrate_images/vkusno.jpg",
                             open_time = "10:00",
                             phone_number = "+78005555535",
-                            restaurantName = "Тестовый ресторан",
+                            restaurantName = "Вкусно и точка",
                             status = 1,
                             user_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47")
                         },
                         new
                         {
-                            Id = new Guid("e25ca427-7d35-49d3-8793-ce9a2975c53a"),
+                            Id = new Guid("40efbe18-d067-4dfc-9988-2e3b2cf68422"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",
-                            imagePath = "NONE",
+                            imagePath = "/app/migrate_images/burgerking.jpg",
                             open_time = "10:00",
                             phone_number = "+78004444434",
-                            restaurantName = "Тестовый ресторан 2",
+                            restaurantName = "Бургер Кинг",
                             status = 1,
                             user_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47")
                         });
@@ -375,7 +375,7 @@ namespace ORM_Components.Migrations
                     b.Property<string>("comment")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("courier_id")
+                    b.Property<Guid>("courier_id")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("order_id")
@@ -384,7 +384,7 @@ namespace ORM_Components.Migrations
                     b.Property<int>("rating")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("restaurant_id")
+                    b.Property<Guid>("restaurant_id")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("review_date")

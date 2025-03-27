@@ -12,7 +12,8 @@ namespace ORM_Components.DTO.RestaurantAPI
          string restaurantName, string address,
          string phone_number, RestaurantStatus status,
          string description, string imagePath,
-         string open_time, string close_time)
+         string open_time, string close_time,
+         float average_mark)
     { }
 
     public record RestaurantCreate_DTO(

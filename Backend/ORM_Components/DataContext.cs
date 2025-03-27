@@ -61,26 +61,26 @@ namespace ORM_Components
                 new RestaurantTable() {
                     Id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
                     user_id = Guid.Parse("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
-                    restaurantName = "Тестовый ресторан",
+                    restaurantName = "Вкусно и точка",
                     address = "ул. Шолмова 5",
                     close_time = "21:00",
                     open_time = "10:00",
                     phone_number = "+78005555535",
                     description = "Отличный тестовый ресторан",
-                    imagePath = "NONE",
+                    imagePath = "/app/migrated_images/vkusno.jpg",
                     status = RestaurantStatus.Verified
                 },
                 new RestaurantTable()
                 {
                     Id = Guid.NewGuid(),
                     user_id = Guid.Parse("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
-                    restaurantName = "Тестовый ресторан 2",
+                    restaurantName = "Бургер Кинг",
                     address = "ул. Шолмова 3",
                     close_time = "20:00",
                     open_time = "10:00",
                     phone_number = "+78004444434",
                     description = "Хороший тестовый ресторан",
-                    imagePath = "NONE",
+                    imagePath = "/app/migrated_images/burgerking.jpg",
                     status = RestaurantStatus.Verified
                 }
             );

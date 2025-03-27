@@ -1,22 +1,30 @@
 import axios from 'axios';
 import { StorageGetItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { TokenNeedUpdate } from './TokenObserver.ts';
+import { RestaurantInfo } from './Interfaces/API_Interfaces.ts';
 
 var RESTAURANT_API_URL = import.meta.env.VITE_RESTAURANT_API;
 
-const handleLoadImage = async (accessToken: string, filePath: string, retry: boolean = true): Promise<any> => {
+const handleRestaurantsInfo = async (accessToken: string, retry: boolean = true) : Promise<any> => {
+
     try {
-        const response = await axios.get(`${RESTAURANT_API_URL}/api/Photos/Image`, {
-            responseType: 'blob',
+        const response = await axios.get(`${RESTAURANT_API_URL}/api/Restaurant/GetAllRestaurant`,
+        {
             headers: {
-                Authorization: `Bearer ${accessToken}`,
-                filePath: filePath
+                Authorization: `Bearer ${accessToken}`
             },
         });
 
-        return URL.createObjectURL(response.data);
+        if (response.status === 200) {
 
-    } catch (error) {
+            const result: RestaurantInfo[] = response.data;
+           
+            return result;
+        }
+
+        return null;
+    }
+    catch (error) {
         if (axios.isAxiosError(error)) {
             if (error.response) {
                 if (error.response.status === 401 && retry) {
@@ -28,7 +36,7 @@ const handleLoadImage = async (accessToken: string, filePath: string, retry: boo
                         const accessTokens: string = await StorageGetItem("AccessToken");
 
                         if (accessTokens !== "empty")
-                            return handleLoadImage(accessTokens, filePath, false);
+                            return handleRestaurantsInfo(accessTokens, false);
                     }
                 }
                 else {
@@ -41,8 +49,8 @@ const handleLoadImage = async (accessToken: string, filePath: string, retry: boo
             }
         }
 
-        return null
-    } 
+        return null;
+    }
 }
 
-export { handleLoadImage }
+export { handleRestaurantsInfo }

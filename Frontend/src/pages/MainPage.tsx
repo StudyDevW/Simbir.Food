@@ -7,12 +7,118 @@ import { handleGetInfoMe } from '../api-integrations/ClientInfoAPI.ts';
 import { handleUserAuth } from '../api-integrations/AuthAPI.ts';
 import { telegramUser } from '../telegram-integrations/InitData.ts';
 import ProfilePage from './ProfilePage.tsx';
-import { AuthComponent, GetMeInfo } from '../api-integrations/Interfaces/API_Interfaces.ts';
+import { AuthComponent, GetMeInfo, RestaurantInfo } from '../api-integrations/Interfaces/API_Interfaces.ts';
+import { handleRestaurantsInfo } from '../api-integrations/RestaurantAPI.ts';
+import { handleLoadImage } from '../api-integrations/ImageAPI.ts';
+import { loadingComponent } from '../LoadingComponent.ts';
 
 var userData = new telegramUser(
   WebApp.initDataUnsafe.user, 
   (WebApp.platform === 'ios' || WebApp.platform === 'android')
 );
+
+var loadingInformation = new loadingComponent();
+
+const RestaurantItemComponent: React.FC<{info: RestaurantInfo, isMobile: boolean, onClick: () => void}> = ({info, isMobile, onClick}) => {
+  
+  //TODO: сделать рендер изображения
+  const [imageRendered, setImageRendered] = useState<string | null>(null);
+  
+  const [runningA, setRunningA] = useState<boolean>(false);
+
+  const renderImage = async () => {
+
+    const accessToken: string = await StorageGetItem('AccessToken');
+
+    if (accessToken !== "empty") {
+      const imageItem = await handleLoadImage(accessToken, info.imagePath);
+
+      if (imageItem !== null)
+          setImageRendered(imageItem);
+    }
+  }
+
+  useEffect(() => {
+
+    loadingInformation.startLoading();
+    loadingInformation.startLoadingAnimation();
+
+    renderImage();
+  }, [])
+
+
+  const AnimationChecker = () => {
+    if (loadingInformation.getStatusLoadingAnimation().isCompleted) {
+        setRunningA(true);
+    }
+  }
+
+  useEffect(()=>{
+      if (!runningA) { 
+          const intervalId = setInterval(()=>AnimationChecker(), 2000); 
+
+          return () => clearInterval(intervalId);    
+      }
+  }, [runningA])
+
+
+  useEffect(()=> {
+    if (imageRendered !== null) {
+      loadingInformation.endLoading();
+    }
+  }, [imageRendered])
+
+  const isTimeInRange = (startTime: string, endTime: string): boolean => {
+    const currentTime = new Date();
+    const start = new Date();
+    const end = new Date();
+    
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+    start.setHours(startHours, startMinutes, 0, 0);
+    end.setHours(endHours, endMinutes, 0, 0);
+    
+    return currentTime >= start && currentTime <= end;
+  }
+
+  return (<>
+    {(!runningA || loadingInformation.getLoading()) && <>
+      <div className="app_maincontent_restaurant_block loading" style={isMobile ? {height: '250px'} : {}}>
+        <div className="app_maincontent_restaurant_block_image loading"></div>
+
+        <div className="app_maincontent_restaurant_block_title loading"></div>
+
+      </div>
+    </>}
+
+    {(runningA && !loadingInformation.getLoading()) && <>
+      <div className="app_maincontent_restaurant_block" style={isMobile ? {height: '250px'} : {}}>
+        <div className="app_maincontent_restaurant_block_image" style={{
+          backgroundImage: `url(${imageRendered})`
+        }}></div>
+
+        <div className="app_maincontent_restaurant_block_title">{`${info.restaurantName}`}</div>
+
+        <div className="app_maincontent_restaurant_block_subtitle_area">
+          <div className="app_maincontent_restaurant_block_subtitle_mark">{`${info.average_mark}`}</div>
+          <div className="app_maincontent_restaurant_block_subtitle_markimg"></div>
+
+          {isTimeInRange(info.open_time, info.close_time) && <>
+            <div className="app_maincontent_restaurant_block_subtitle_opened">{'Открыто'}</div>
+          </>}
+
+          {!isTimeInRange(info.open_time, info.close_time) && <>
+            <div className="app_maincontent_restaurant_block_subtitle_closed">{'Закрыто'}</div>
+            <div className="app_maincontent_restaurant_block_subtitle_closed info">{`Открытие в ${info.open_time}`}</div>
+          </>}
+
+        </div>
+      </div>
+    </>}
+
+  </>)
+}
 
 const MainPage: React.FC = () => {
 
@@ -26,6 +132,9 @@ const MainPage: React.FC = () => {
 
   const [profileOpened, setProfileOpened] = useState<boolean>(false);
 
+  const [restaurants, setRestaurantsInfo] = useState<RestaurantInfo[] | null>(null);
+
+
   const GetUserRequestAPI = async (accessToken: string) => {
     
     const getuser = await handleGetInfoMe(accessToken);
@@ -33,6 +142,16 @@ const MainPage: React.FC = () => {
     if (getuser !== null) {
       setUserInfo(getuser);
     }
+  }
+
+  const GetRestaurantsRequestAPI = async (accessToken: string) => {
+
+    const restaurantsinfo = await handleRestaurantsInfo(accessToken);
+
+    if (restaurantsinfo !== null) {
+      setRestaurantsInfo(restaurantsinfo);
+    }
+
   }
 
   const UserAuthRequestAPI = async (authvars: AuthComponent) => {
@@ -54,6 +173,13 @@ const MainPage: React.FC = () => {
     }
   }
 
+  const RestaurantsGet = async () => {
+    const accessToken: string = await StorageGetItem('AccessToken');
+
+    if (accessToken !== "empty") {
+      await GetRestaurantsRequestAPI(accessToken);
+    }
+  }
 
   useEffect(() => {
     WebApp.setHeaderColor('#EAEAEA');
@@ -70,12 +196,15 @@ const MainPage: React.FC = () => {
     userData.SetAddress("NO_CHANGE");
 
     UserAuthRequestAPI(userData.AuthData());
-    
+
+
   }, []);
+
 
   useEffect(() => {
     if (logined) {
       ProfileGet();
+      RestaurantsGet();
     }
   }, [logined])
 
@@ -146,49 +275,14 @@ const MainPage: React.FC = () => {
                   <div className="app_maincontent">
                     <div className="app_maincontent_title">Рестораны</div>
 
-                    <div className="app_maincontent_restaurant_block_area">
+                    <div className="app_maincontent_restaurant_block_area" style={isMobile ? {height: 'calc(100% - 200px)'} : {}}>
 
-                      <div className="app_maincontent_restaurant_block">
-                        <div className="app_maincontent_restaurant_block_image"></div>
+                      {restaurants !== null && restaurants.map((restaurant, index) => <>
 
-                        <div className="app_maincontent_restaurant_block_title">Restaurant_name</div>
+                        <RestaurantItemComponent key={index} info={restaurant} isMobile={isMobile} onClick={() => null}/>
 
-                        <div className="app_maincontent_restaurant_block_subtitle_area">
-                          <div className="app_maincontent_restaurant_block_subtitle_mark">4.0</div>
-                          <div className="app_maincontent_restaurant_block_subtitle_markimg"></div>
+                      </>)}
 
-                          <div className="app_maincontent_restaurant_block_subtitle_opened">Открыто</div>
-                        </div>
-
-                      </div>
-
-                      {/* <div className="app_maincontent_restaurant_block">
-                        <div className="app_maincontent_restaurant_block_image"></div>
-
-                        <div className="app_maincontent_restaurant_block_title">Restaurant_name</div>
-
-                        <div className="app_maincontent_restaurant_block_subtitle_area">
-                          <div className="app_maincontent_restaurant_block_subtitle_mark">4.0</div>
-                          <div className="app_maincontent_restaurant_block_subtitle_markimg"></div>
-                          
-                          <div className="app_maincontent_restaurant_block_subtitle_opened">Открыто</div>
-                        </div>
-
-                      </div>
-
-                      <div className="app_maincontent_restaurant_block">
-                        <div className="app_maincontent_restaurant_block_image"></div>
-
-                        <div className="app_maincontent_restaurant_block_title">Restaurant_name</div>
-
-                        <div className="app_maincontent_restaurant_block_subtitle_area">
-                          <div className="app_maincontent_restaurant_block_subtitle_mark">4.0</div>
-                          <div className="app_maincontent_restaurant_block_subtitle_markimg"></div>
-                          
-                          <div className="app_maincontent_restaurant_block_subtitle_opened">Открыто</div>
-                        </div>
-
-                      </div> */}
                     </div>
 
                   </div>

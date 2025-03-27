@@ -78,6 +78,7 @@ services:
       TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
     volumes:
       - uploads:/app/uploads
+      - ./migrate_images:/app/migrated_images
     ports:
        - "8082:80"
     restart: unless-stopped

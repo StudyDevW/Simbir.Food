@@ -185,8 +185,8 @@ namespace ORM_Components.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     client_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    courier_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    restaurant_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    courier_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    restaurant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     rating = table.Column<int>(type: "integer", nullable: false),
                     comment = table.Column<string>(type: "text", nullable: true),
                     review_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -227,8 +227,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "calories", "image", "name", "price", "restaurant_id", "weight" },
                 values: new object[,]
                 {
-                    { new Guid("0dcfbe90-6964-4064-af66-280920c81943"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
-                    { new Guid("4e37119d-878c-41c4-b632-9e87e99b45ab"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
+                    { new Guid("75a0e998-9e16-494f-8dce-77f5af1621ae"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
+                    { new Guid("9c3862fe-26e5-4aa6-933f-b7d38969baea"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
                 });
 
             migrationBuilder.InsertData(
@@ -236,8 +236,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "address", "close_time", "description", "imagePath", "open_time", "phone_number", "restaurantName", "status", "user_id" },
                 values: new object[,]
                 {
-                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "NONE", "10:00", "+78005555535", "Тестовый ресторан", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
-                    { new Guid("e25ca427-7d35-49d3-8793-ce9a2975c53a"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "NONE", "10:00", "+78004444434", "Тестовый ресторан 2", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
+                    { new Guid("40efbe18-d067-4dfc-9988-2e3b2cf68422"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "/app/migrate_images/burgerking.jpg", "10:00", "+78004444434", "Бургер Кинг", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
+                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "/app/migrate_images/vkusno.jpg", "10:00", "+78005555535", "Вкусно и точка", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
                 });
 
             migrationBuilder.InsertData(

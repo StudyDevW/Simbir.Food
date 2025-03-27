@@ -9,6 +9,7 @@ using ORM_Components.Tables.Helpers;
 using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Model.Interface;
 using RestaurantAPI.Utility;
+using System.Collections.Generic;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
 
@@ -80,25 +81,85 @@ namespace RestaurantAPI.Model.Services
 
         public async Task<List<Restaurants_DTO>> GetAllRestaurant()
         {
-            return await _dataContext.restaurantTable
-                .Select(x => new Restaurants_DTO(
-                    x.Id, x.user_id, x.restaurantName,
-                    x.address, x.phone_number, x.status,
-                    x.description, x.imagePath, x.open_time,
-                    x.close_time))
-                .ToListAsync();
+            var selectedRestaurants = await _dataContext.restaurantTable.ToListAsync();
+
+            List<Restaurants_DTO> allRestaurants = new List<Restaurants_DTO>();
+
+            foreach (var selectedRestaurant in selectedRestaurants)
+            {
+                var selectedReviews = await _dataContext.reviewTable.Where(c => c.restaurant_id == selectedRestaurant.Id).ToListAsync();
+
+                var averageMarkCounts = 0f;
+
+                var averageMark = 0f;
+
+                if (selectedReviews.Count > 0)
+                {
+                    foreach (var review in selectedReviews)
+                    {
+                        averageMarkCounts += review.rating;
+                    }
+
+                    averageMark = averageMarkCounts / selectedReviews.Count;
+                }
+
+                Restaurants_DTO restaurantCompile = new Restaurants_DTO(
+                    selectedRestaurant.Id,
+                    selectedRestaurant.user_id,
+                    selectedRestaurant.restaurantName,
+                    selectedRestaurant.address,
+                    selectedRestaurant.phone_number,
+                    selectedRestaurant.status,
+                    selectedRestaurant.description,
+                    selectedRestaurant.imagePath,
+                    selectedRestaurant.open_time,
+                    selectedRestaurant.close_time,
+                    averageMark
+                );
+
+                allRestaurants.Add(restaurantCompile);
+            }
+
+            return allRestaurants;
         }
 
         public async Task<Restaurants_DTO> GetRestaurant(Guid restaurantId)
         {
-            return await _dataContext.restaurantTable
-                .Where(x => x.Id == restaurantId)
-                .Select(x => new Restaurants_DTO(
-                    x.Id, x.user_id, x.restaurantName,
-                    x.address, x.phone_number, x.status,
-                    x.description, x.imagePath, x.open_time,
-                    x.close_time))
-                .FirstOrDefaultAsync() ?? throw new RestaurantNotFoundException(restaurantId);
+            var selectedRestaurant = await _dataContext.restaurantTable.Where(c => c.Id == restaurantId).FirstOrDefaultAsync();
+
+            var selectedReviews = await _dataContext.reviewTable.Where(c => c.restaurant_id == restaurantId).ToListAsync();
+
+            var averageMarkCounts = 0f;
+
+            var averageMark = 0f;
+
+            if (selectedReviews.Count > 0)
+            {
+                foreach (var review in selectedReviews)
+                {
+                    averageMarkCounts += review.rating;
+                }
+
+                averageMark = averageMarkCounts / selectedReviews.Count;
+            }
+
+            if (selectedRestaurant == null)
+                throw new RestaurantNotFoundException(restaurantId);
+
+            return new Restaurants_DTO
+            (
+                selectedRestaurant.Id,
+                selectedRestaurant.user_id,
+                selectedRestaurant.restaurantName,
+                selectedRestaurant.address,
+                selectedRestaurant.phone_number,
+                selectedRestaurant.status,
+                selectedRestaurant.description,
+                selectedRestaurant.imagePath,
+                selectedRestaurant.open_time,
+                selectedRestaurant.close_time,
+                averageMark
+            );
         }
 
         public async Task UpdateRestaurant(Guid restaurantId, RestaurantUpdate_DTO restaurantsUpdate_DTO)

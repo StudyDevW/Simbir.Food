@@ -75,7 +75,7 @@ namespace RestaurantAPI.Model.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest("image_not_found");
+                return BadRequest(e.Message);
             }
         }
 

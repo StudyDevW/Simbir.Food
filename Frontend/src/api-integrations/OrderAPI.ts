@@ -75,8 +75,6 @@ const handleOrdersGet = async (accessToken: string, retry: boolean = true): Prom
 
                     if (await TokenNeedUpdate()) {
 
-                     
-
                         const accessTokens: string = await StorageGetItem("AccessToken");
 
                         if (accessTokens !== "empty")
