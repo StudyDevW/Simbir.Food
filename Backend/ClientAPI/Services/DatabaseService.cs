@@ -330,30 +330,30 @@ namespace ClientAPI.Services
             }
         }
 
-        public async Task AddBasketItem(Basket_Add dtoObj)
+        public async Task AddBasketItem(Guid fooditemId, Guid userGUID)
         {
-            var selectedUser = _dbcontext.userTable.Where(c => c.Id == dtoObj.user_id).FirstOrDefault();
+            var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
 
             if (selectedUser == null)
                 throw new Exception("user_not_found");
 
-            var selectedFoodItem = _dbcontext.restaurantFoodItemsTable.Where(c => c.Id == dtoObj.food_item_id).FirstOrDefault();
+            var selectedFoodItem = _dbcontext.restaurantFoodItemsTable.Where(c => c.Id == fooditemId).FirstOrDefault();
 
             if (selectedFoodItem == null)
                 throw new Exception("food_item_not_found");
 
-            await CheckExistItemBasket(dtoObj.user_id, dtoObj.food_item_id);
+            await CheckExistItemBasket(userGUID, fooditemId);
 
             BasketTable basket = new BasketTable()
             {
-                user_id = dtoObj.user_id,
-                food_item_id = dtoObj.food_item_id,
+                user_id = userGUID,
+                food_item_id = fooditemId,
             };
 
             _dbcontext.basketTable.Add(basket);
             await _dbcontext.SaveChangesAsync();
 
-            _logger.LogInformation($"AddBasketItem: Товар {dtoObj.food_item_id} был добавлен в корзину пользователя {dtoObj.user_id}");
+            _logger.LogInformation($"AddBasketItem: Товар {fooditemId} был добавлен в корзину пользователя {userGUID}");
 
         }
 

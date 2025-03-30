@@ -101,3 +101,13 @@ export interface RestaurantInfo {
     close_time: string,
     average_mark: number
 }
+
+export interface FoodItemInfo {
+    id: string,
+    restaurant_id: string,
+    name: string,
+    price: number,
+    image: string,
+    weight: number,
+    calories: number
+}

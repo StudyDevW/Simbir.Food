@@ -48,6 +48,49 @@ const handleGetBasketInfo = async (accessToken: string, retry: boolean = true): 
     }
 }
 
+const handleBasketAddItem = async (fooditemId: string, accessToken: string, retry: boolean = true): Promise<any> => {
+    try {
+        const response = await axios.post(`${CLIENT_API_URL}/api/Basket/`, { food_item_id: fooditemId },
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+            return true;
+        }
+
+        return false;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleBasketAddItem(fooditemId, accessTokens, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return false;
+            }
+        }
+
+        return false;
+    }
+}
+
 const handleBasketDeleteItem = async (basketItemId: string, accessToken: string, retry: boolean = true): Promise<any> => {
     try {
         const response = await axios.delete(`${CLIENT_API_URL}/api/Basket/${basketItemId}`,
@@ -92,4 +135,4 @@ const handleBasketDeleteItem = async (basketItemId: string, accessToken: string,
 }
 
 
-export { handleGetBasketInfo, handleBasketDeleteItem }
+export { handleGetBasketInfo, handleBasketDeleteItem, handleBasketAddItem }

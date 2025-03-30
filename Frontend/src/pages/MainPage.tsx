@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import '../styles/AppStyle.sass'
+import { useEffect, useState } from 'react';
+import '../styles/AppStyle.sass';
 import WebApp from '@twa-dev/sdk';
 import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { useNavigate, useLocation, data } from 'react-router-dom';
@@ -93,7 +93,7 @@ const RestaurantItemComponent: React.FC<{info: RestaurantInfo, isMobile: boolean
     </>}
 
     {(runningA && !loadingInformation.getLoading()) && <>
-      <div className="app_maincontent_restaurant_block" style={isMobile ? {height: '250px'} : {}}>
+      <div className="app_maincontent_restaurant_block" onClick={onClick} style={isMobile ? {height: '250px'} : {}}>
         <div className="app_maincontent_restaurant_block_image" style={{
           backgroundImage: `url(${imageRendered})`
         }}></div>
@@ -279,7 +279,13 @@ const MainPage: React.FC = () => {
 
                       {restaurants !== null && restaurants.map((restaurant, index) => <>
 
-                        <RestaurantItemComponent key={index} info={restaurant} isMobile={isMobile} onClick={() => null}/>
+                        <RestaurantItemComponent 
+                          key={index} 
+                          info={restaurant} 
+                          isMobile={isMobile} 
+                          onClick={() => navigate("/fooditems",  
+                            { state: { restaurantInfo: restaurant } }
+                          )}/>
 
                       </>)}
 

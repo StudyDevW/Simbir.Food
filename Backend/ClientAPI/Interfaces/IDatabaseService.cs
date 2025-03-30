@@ -20,7 +20,7 @@ namespace ClientAPI.Interfaces
 
         public ClientGetAll GetAllClients(int _from, int _count);
 
-        public Task AddBasketItem(Basket_Add dtoObj);
+        public Task AddBasketItem(Guid fooditemId, Guid userGUID);
 
         public Task<Basket_GetAll> GetBasketItems(Guid userGUID);
 

@@ -452,7 +452,7 @@ namespace ClientAPI.Services
             }
             else if (validation.TokenHasSuccess())
             {
-                await _database.AddBasketItem(dtoObj);
+                await _database.AddBasketItem(dtoObj.food_item_id, validation.token_success.Id);
             }
         }
 

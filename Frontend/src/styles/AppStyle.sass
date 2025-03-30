@@ -16,6 +16,8 @@ body
 @font-face 
     font-family: "MUSEOSANS"
     src: url(./fonts/MuseoSansCyrl-900.woff) format("woff")
+    font-weight: normal
+    font-style: normal
 
 
 .app_layout_area
@@ -1155,8 +1157,6 @@ input::-webkit-inner-spin-button
   background-color: #EAEAEA
   border-radius: 15px
 
-.app_maincontent_restaurant_block
-
 .app_maincontent_restaurant_block_area::-webkit-scrollbar
   display: none
 
@@ -1249,6 +1249,115 @@ input::-webkit-inner-spin-button
   font-size: 13px
   min-width: 120px
   color: rgb(136, 136, 136)
+
+.app_fooditem_header
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  position: absolute
+  margin-left: 15px
+  width: calc(100% - 15px * 2)
+  height: 70px
+  background-color: white
+  border-radius: 15px
+
+.app_fooditem_header_title
+  position: relative
+  align-content: flex-end
+  font-family: MUSEOSANS
+  font-size: 20px
+  padding-left: 15px
+  margin-bottom: 5px
+  width: calc(100% - 15px)
+  height: 35px
+
+.app_fooditem_content
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  position: absolute
+  width: calc(100% - 15px * 2)
+  margin-left: 15px
+  margin-top: 80px
+  height: calc(100vh - 100px)
+  background-color: white
+  border-radius: 15px
+
+.app_fooditem_content_item
+  display: flex
+  flex-direction: column
+  margin-top: 10px
+  margin-left: 10px
+  width: calc(50% - 15px)
+  min-height: 238px
+  height: 250px
+  background-color: #EAEAEA
+  border-radius: 10px
+
+.app_fooditem_content_item_image
+  flex: none
+  position: relative
+  margin-top: 5px
+  margin-left: 5px
+  width: calc(100% - 10px)
+  height: 140px
+  background-color: white
+  border-radius: 7px
+  
+
+.app_fooditem_content_item_price
+  flex: none
+  font-family: MUSEOSANS
+  align-content: center
+  position: relative
+  color: #004681
+  padding-left: 10px
+  margin-top: 5px
+  width: calc(100% - 10px)
+  height: 20px
+  font-size: 15px
+
+.app_fooditem_content_item_name
+  flex: none
+  font-family: MUSEOSANS
+  position: relative
+  white-space: nowrap
+  overflow: hidden
+  color: black
+  margin-left: 10px
+  margin-right: 10px
+  width: calc(100% - 15px)
+  height: 20px
+
+.app_fooditem_content_item_weight
+  flex: none
+  align-content: center
+  font-family: MUSEOSANS
+  font-size: 12px
+  position: relative
+  color: #484848
+  padding-left: 10px
+  width: calc(100% - 10px)
+  height: 20px
+
+.app_fooditem_content_item_basketbutton
+  user-select: none
+  color: white
+  font-size: 14px
+  display: flex
+  justify-content: center
+  font-family: 'MUSEOSANS', sans-serif
+  flex: none
+  
+  margin-top: 5px
+  margin-left: 5px
+  width: calc(100% - 10px)
+  height: 30px
+  background-color: black
+  border-radius: 8px
+
+.textdiv 
+  margin-top: 7px
 
 @keyframes loading_grad
   0% 

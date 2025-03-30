@@ -16,25 +16,26 @@ import BasketPage from './pages/BasketPage.tsx';
 import OrderPage from './pages/OrderPage.tsx';
 import OrderInfoPage from './pages/OrderInfoPage.tsx';
 import PaymentPage from './pages/PaymentPage.tsx';
+import FoodItemsPage from './pages/FoodItemsPage.tsx';
 
 const router = createBrowserRouter([
   {
-      path: '/',
-      element: (
-          <MainPage/>
-      ),
+    path: '/',
+    element: (
+        <MainPage/>
+    ),
   },
   {
-      path: '/onboarding',
-      element: (
-          <OnBoardingMain/>
-      ),
+    path: '/onboarding',
+    element: (
+        <OnBoardingMain/>
+    ),
   },
   {
-      path: '/address_select',
-      element: (
-          <AddressPage/>
-      ),
+    path: '/address_select',
+    element: (
+        <AddressPage/>
+    ),
   },
   {
     path: '/basket',
@@ -61,10 +62,16 @@ const router = createBrowserRouter([
     ),
   },
   {
-      path: '/login',
-      element: (
-          <LoginPage/>
-      ),
+    path: '/login',
+    element: (
+        <LoginPage/>
+    ),
+  },
+  {
+    path: '/fooditems',
+    element: (
+        <FoodItemsPage/>
+    ),
   }
 ]);
 
