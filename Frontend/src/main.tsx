@@ -17,6 +17,8 @@ import OrderPage from './pages/OrderPage.tsx';
 import OrderInfoPage from './pages/OrderInfoPage.tsx';
 import PaymentPage from './pages/PaymentPage.tsx';
 import FoodItemsPage from './pages/FoodItemsPage.tsx';
+import CourierRequestPage from "./pages/Requests/CourierRequestPage";
+import RestaurantRequestPage from "./pages/Requests/RestaurantRequestPage";
 
 const router = createBrowserRouter([
   {
@@ -72,7 +74,19 @@ const router = createBrowserRouter([
     element: (
         <FoodItemsPage/>
     ),
-  }
+  },
+  {
+    path: '/courier-request',
+    element: (
+        <CourierRequestPage/>
+    ),
+  },
+  {
+    path: '/restaurant-request',
+    element: (
+        <RestaurantRequestPage/>
+    ),
+  },
 ]);
 
 createRoot(document.getElementById('root')!).render(

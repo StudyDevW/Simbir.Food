@@ -1402,6 +1402,75 @@ input::-webkit-inner-spin-button
   100% 
     opacity: 1
 
+.request-page
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    min-height: 100vh
+    background-color: #f8f9fa
+    font-family: MUSEOSANS
+
+    h2
+        font-size: 24px
+        color: #343a40
+        margin-bottom: 20px
+
+    .form-container
+        background: #ffffff
+        padding: 30px
+        border-radius: 10px
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1)
+        width: 100%
+        max-width: 400px
+        display: flex
+        flex-direction: column
+        gap: 15px
+
+    input,
+    textarea
+        width: 100%
+        padding: 10px
+        border: 1px solid #ced4da
+        border-radius: 5px
+        font-size: 16px
+        outline: none
+        transition: border-color 0.3s
+
+        &:focus
+            border-color: #007bff
+
+    textarea
+        resize: none
+        height: 80px
+
+    .button-group
+        display: flex
+        justify-content: space-between
+        margin-top: 15px
+
+        button
+            padding: 10px 15px
+            border: none
+            border-radius: 5px
+            font-size: 16px
+            cursor: pointer
+            transition: background 0.3s
+
+        .back-btn
+            background: #6c757d
+            color: #fff
+
+            &:hover
+                background: #5a6268
+
+        .submit-btn
+            background: #007bff
+            color: #fff
+
+            &:hover
+                background: #0056b3
+
 @keyframes loading_grad
   0% 
     background-position: 0% 50%
