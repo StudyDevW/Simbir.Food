@@ -270,7 +270,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9c3862fe-26e5-4aa6-933f-b7d38969baea"),
+                            Id = new Guid("7fb63668-161c-4601-91ee-df9013339f88"),
                             calories = 2000,
                             image = "NONE",
                             name = "Тестовое блюдо",
@@ -280,7 +280,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("75a0e998-9e16-494f-8dce-77f5af1621ae"),
+                            Id = new Guid("307f3594-e17b-435d-b8dc-488c7409e49a"),
                             calories = 1000,
                             image = "NONE",
                             name = "Тестовое блюдо 2",
@@ -341,7 +341,7 @@ namespace ORM_Components.Migrations
                             address = "ул. Шолмова 5",
                             close_time = "21:00",
                             description = "Отличный тестовый ресторан",
-                            imagePath = "/app/migrate_images/vkusno.jpg",
+                            imagePath = "/app/migrated_images/vkusno.jpg",
                             open_time = "10:00",
                             phone_number = "+78005555535",
                             restaurantName = "Вкусно и точка",
@@ -350,11 +350,11 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("40efbe18-d067-4dfc-9988-2e3b2cf68422"),
+                            Id = new Guid("f64b4882-ebb7-48af-8e3b-4d81771dba80"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",
-                            imagePath = "/app/migrate_images/burgerking.jpg",
+                            imagePath = "/app/migrated_images/burgerking.jpg",
                             open_time = "10:00",
                             phone_number = "+78004444434",
                             restaurantName = "Бургер Кинг",
