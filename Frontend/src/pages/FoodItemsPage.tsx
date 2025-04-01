@@ -9,6 +9,9 @@ import { FoodItemInfo, RestaurantInfo } from '../api-integrations/Interfaces/API
 import { handleFoodItemsInfo } from '../api-integrations/RestaurantAPI.ts';
 import { motion } from "framer-motion";
 import { handleBasketAddItem } from '../api-integrations/BasketAPI.ts';
+import { handleLoadImage } from '../api-integrations/ImageAPI.ts';
+
+var loadingItems = new loadingComponent();
 
 const FoodItemComponent: React.FC<{info: FoodItemInfo}> = ({info}) => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -19,25 +22,69 @@ const FoodItemComponent: React.FC<{info: FoodItemInfo}> = ({info}) => {
     const [duration, setDuration] = useState(5);
     const [addedItem, setAddedItem] = useState(false);
 
-    useEffect(() => {
-        const checkOverflow = () => {
-            if (containerRef.current && textRef.current) {
-                const textW = textRef.current.scrollWidth;
-                const containerW = containerRef.current.clientWidth;
-                setTextWidth(textW);
-                setContainerWidth(containerW);
-                setIsOverflowing(textW > containerW);
+    const [imageRendered, setImageRendered] = useState<string | null>(null);
 
-                if (textW > containerW) {
-                    setDuration(textW / 50); 
-                }
+    const [runningA, setRunningA] = useState<boolean>(false);
+
+    const renderImage = async () => {
+        const accessToken: string = await StorageGetItem('AccessToken');
+
+        if (accessToken !== "empty") {
+            const imageItem = await handleLoadImage(accessToken, info.image);
+
+            if (imageItem !== null)
+                setImageRendered(imageItem);
+        }
+    }
+
+    const checkOverflow = () => {
+        if (containerRef.current && textRef.current) {
+            const textW = textRef.current.scrollWidth;
+            const containerW = containerRef.current.clientWidth;
+            setTextWidth(textW);
+            setContainerWidth(containerW);
+            setIsOverflowing(textW > containerW);
+
+            if (textW > containerW) {
+                setDuration(textW / 50); 
             }
-        };
+        }
+    };
 
+
+    useEffect(() => {
         checkOverflow();
         window.addEventListener("resize", checkOverflow);
         return () => window.removeEventListener("resize", checkOverflow);
     }, []);
+
+    useEffect(() => {
+
+
+
+        loadingItems.startLoading();
+        loadingItems.startLoadingAnimation();
+
+        renderImage();
+    }, [])
+
+    const AnimationChecker = () => {
+        if (loadingItems.getStatusLoadingAnimation().isCompleted) {
+            setRunningA(true);
+        }
+      }
+    
+      useEffect(()=>{
+          if (!runningA) { 
+              const intervalId = setInterval(()=>AnimationChecker(), 2000); 
+    
+              return () => clearInterval(intervalId);    
+          }
+
+          checkOverflow();
+      }, [runningA])
+
+  
 
     const AddBasketItemRequest = async (foodItemId: string, accessToken: string) => {
 
@@ -64,35 +111,55 @@ const FoodItemComponent: React.FC<{info: FoodItemInfo}> = ({info}) => {
         }
     }, [addedItem])
 
+    useEffect(()=> {
+        if (imageRendered !== null) {
+            loadingItems.endLoading();
+         
+        }
+    }, [imageRendered])
+
     return (<>
         <div className="app_fooditem_content_item" >
-            <div className="app_fooditem_content_item_image"></div>
-            <div className="app_fooditem_content_item_price">{`${info.price}Р`}</div>
-            <div className="app_fooditem_content_item_name" ref={containerRef}>
-                <motion.div
-                ref={textRef}
-                animate={isOverflowing ? { x: [0, -(textWidth - containerWidth), -(textWidth - containerWidth), 0, 0] } : {}}
-                transition={isOverflowing ? { 
-                    repeat: Infinity, 
-                    duration: duration + 2 + 1, 
-                    ease: "linear", 
-                    times: [0, 0.45, 0.55, 1, 1], 
-                    repeatDelay: 1
-                } : {}}
-                style={{ display: "inline-block" }}
-                >
-                    {`${info.name}`}
-                </motion.div>
-               
-            </div>
-            <div className="app_fooditem_content_item_weight">{`${info.weight}г`}</div>
 
-            <div className="app_fooditem_content_item_basketbutton" onClick={() => AddBasketItem(info.id)}>
-                <div className="textdiv">
-                {`Добавить`}
+            {(!runningA || loadingItems.getLoading()) && <>
+                <div className="app_fooditem_content_item_image loading"></div>
+                <div className="app_fooditem_content_item_price loading"></div>
+                <div className="app_fooditem_content_item_name loading"></div>
+            </>}
+
+            {(runningA && !loadingItems.getLoading()) && <> 
+                <div className="app_fooditem_content_item_image" style={{backgroundImage: `url(${imageRendered})`}}></div>
+                <div className="app_fooditem_content_item_price">{`${info.price}Р`}</div>
+                <div className="app_fooditem_content_item_name" ref={containerRef}>
+                    <motion.div
+                    ref={textRef}
+                    animate={isOverflowing ? { x: [0, -(textWidth - containerWidth), -(textWidth - containerWidth), 0, 0] } : {}}
+                    transition={isOverflowing ? { 
+                        repeat: Infinity, 
+                        duration: duration + 2 + 1, 
+                        ease: "linear", 
+                        times: [0, 0.45, 0.55, 1, 1], 
+                        repeatDelay: 1
+                    } : {}}
+                    style={{ display: "inline-block" }}
+                    >
+                        {`${info.name}`}
+                    </motion.div>
+                
                 </div>
-       
-            </div>
+
+            
+                <div className="app_fooditem_content_item_weight">{info.weight > 0 ? `${info.weight}г` : ``}</div>
+
+                <div className="app_fooditem_content_item_basketbutton" onClick={() => AddBasketItem(info.id)}>
+                    <div className="textdiv">
+                    {`Добавить`}
+                    </div>
+        
+                </div>
+            </>}
+ 
+           
 
         </div>
     </>)

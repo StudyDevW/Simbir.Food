@@ -270,23 +270,113 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7fb63668-161c-4601-91ee-df9013339f88"),
-                            calories = 2000,
-                            image = "NONE",
-                            name = "Тестовое блюдо",
-                            price = 1000L,
+                            Id = new Guid("df61599f-0933-49b8-9735-be616bb4e4a6"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/chikenburger.png",
+                            name = "Чикенбургер",
+                            price = 82L,
                             restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
-                            weight = 100
+                            weight = 0
                         },
                         new
                         {
-                            Id = new Guid("307f3594-e17b-435d-b8dc-488c7409e49a"),
-                            calories = 1000,
-                            image = "NONE",
-                            name = "Тестовое блюдо 2",
-                            price = 1200L,
+                            Id = new Guid("23e7dfb3-a218-4329-b7b8-588179e6f1d9"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/bighit.png",
+                            name = "Биг Хит",
+                            price = 223L,
                             restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
-                            weight = 100
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("1da2b42e-fac0-4c01-98ad-a0959f1b5d96"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/cheezeburger.png",
+                            name = "Чизбургер",
+                            price = 101L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("81b65cf4-29ff-4110-9d10-1a3753af4593"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/bigspecial.png",
+                            name = "Биг спешиал",
+                            price = 352L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("1cf13caa-6884-4a8d-8a01-5a4caea2619c"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/cezarroll.png",
+                            name = "Цезарь Ролл",
+                            price = 242L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("688113e8-cef7-4b41-b9d6-1b237efef01d"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/doublecheezeburger.png",
+                            name = "Двойной Чизбургер",
+                            price = 195L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("131ad21e-2c19-4bce-afc8-d88b56c1094d"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/chikenpremiere.png",
+                            name = "Чикен Премьер",
+                            price = 214L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("4b52d1e2-4029-460e-bfb2-011b474640ae"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/potatofreesred.png",
+                            name = "Картофель Фри средний",
+                            price = 112L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("65136a23-c7dd-48ae-b17f-a6feb4706924"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/naggets6.png",
+                            name = "Наггетсы (6 шт)",
+                            price = 109L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("984a10cc-b58a-40fb-bc30-6ffa96dbb45d"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/capuchinosred.png",
+                            name = "Капучино (сред.)",
+                            price = 134L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("0983151c-9ba3-4900-b494-07e99a10cb0c"),
+                            calories = 0,
+                            image = "/app/migrated_images/Vkusno/vishnyapirojok.png",
+                            name = "Пирожок Вишневый",
+                            price = 84L,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            weight = 0
                         });
                 });
 
@@ -350,7 +440,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f64b4882-ebb7-48af-8e3b-4d81771dba80"),
+                            Id = new Guid("1d55fc0c-6f29-4980-9855-4a3397d1be20"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",
@@ -393,6 +483,28 @@ namespace ORM_Components.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("reviewTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("9ae9cea3-d065-4c5f-84bf-3485da8295d6"),
+                            client_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
+                            courier_id = new Guid("729d9e64-faf1-439b-95f9-5a29a0e3e969"),
+                            order_id = new Guid("871c8f7f-c4b1-46b3-b959-a6ccfbee534b"),
+                            rating = 5,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            review_date = new DateTime(2025, 3, 31, 18, 27, 4, 335, DateTimeKind.Utc).AddTicks(3064)
+                        },
+                        new
+                        {
+                            Id = new Guid("acc48a14-1e54-49df-89d7-54be073758ce"),
+                            client_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
+                            courier_id = new Guid("bbcad18c-4e90-4541-9b33-d661cec2fc5a"),
+                            order_id = new Guid("dd932e2a-972b-4517-9c64-30e48b0bd052"),
+                            rating = 4,
+                            restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                            review_date = new DateTime(2025, 3, 31, 18, 27, 4, 335, DateTimeKind.Utc).AddTicks(3069)
+                        });
                 });
 
             modelBuilder.Entity("ORM_Components.Tables.UserTable", b =>

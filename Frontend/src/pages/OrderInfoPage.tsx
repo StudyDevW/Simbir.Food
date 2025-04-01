@@ -17,10 +17,14 @@ const BasketItem: React.FC<{imageLink: string, name: string, price: number }> = 
     const [imageRendered, setImageRendered] = useState<string | null>(null);
 
     const renderImage = async () => {
-        const imageItem = await handleLoadImage(imageLink);
+        const accessToken: string = await StorageGetItem('AccessToken');
 
-        if (imageItem !== null)
-            setImageRendered(imageItem);
+        if (accessToken !== "empty") {
+            const imageItem = await handleLoadImage(accessToken, imageLink);
+
+            if (imageItem !== null)
+                setImageRendered(imageItem);
+        }
     }
 
     useEffect(() => {
