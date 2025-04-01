@@ -85,26 +85,141 @@ namespace ORM_Components
                 }
             );
 
+            modelBuilder.Entity<ReviewTable>().HasData(
+                new ReviewTable()
+                {
+                    Id = Guid.NewGuid(),
+                    client_id = Guid.Parse("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
+                    courier_id = Guid.Parse("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
+                    order_id = Guid.NewGuid(),
+                    rating = 5,
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    review_date = DateTime.UtcNow,
+                    comment = null
+                },
+                new ReviewTable()
+                {
+                    Id = Guid.NewGuid(),
+                    client_id = Guid.Parse("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
+                    courier_id = Guid.Parse("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
+                    order_id = Guid.NewGuid(),
+                    rating = 4,
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    review_date = DateTime.UtcNow,
+                    comment = null
+                }
+            );
+
             modelBuilder.Entity<RestaurantFoodItemsTable>().HasData(
                 new RestaurantFoodItemsTable()
                 {
                     Id = Guid.NewGuid(),
                     restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
-                    name = "Тестовое блюдо",
-                    calories = 2000,
-                    image = "NONE",
-                    price = 1000,
-                    weight = 100
+                    name = "Чикенбургер",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/chikenburger.png",
+                    price = 82,
+                    weight = 0
                 },
                 new RestaurantFoodItemsTable()
                 {
                     Id = Guid.NewGuid(),
                     restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
-                    name = "Тестовое блюдо 2",
-                    calories = 1000,
-                    image = "NONE",
-                    price = 1200,
-                    weight = 100
+                    name = "Биг Хит",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/bighit.png",
+                    price = 223,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Чизбургер",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/cheezeburger.png",
+                    price = 101,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Биг спешиал",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/bigspecial.png",
+                    price = 352,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Цезарь Ролл",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/cezarroll.png",
+                    price = 242,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Двойной Чизбургер",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/doublecheezeburger.png",
+                    price = 195,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Чикен Премьер",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/chikenpremiere.png",
+                    price = 214,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Картофель Фри средний",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/potatofreesred.png",
+                    price = 112,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Наггетсы (6 шт)",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/naggets6.png",
+                    price = 109,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Капучино (сред.)",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/capuchinosred.png",
+                    price = 134,
+                    weight = 0
+                },
+                new RestaurantFoodItemsTable()
+                {
+                    Id = Guid.NewGuid(),
+                    restaurant_id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
+                    name = "Пирожок Вишневый",
+                    calories = 0,
+                    image = "/app/migrated_images/Vkusno/vishnyapirojok.png",
+                    price = 84,
+                    weight = 0
                 }
             );
 

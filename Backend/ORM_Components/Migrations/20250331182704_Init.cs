@@ -227,8 +227,17 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "calories", "image", "name", "price", "restaurant_id", "weight" },
                 values: new object[,]
                 {
-                    { new Guid("75a0e998-9e16-494f-8dce-77f5af1621ae"), 1000, "NONE", "Тестовое блюдо 2", 1200L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 },
-                    { new Guid("9c3862fe-26e5-4aa6-933f-b7d38969baea"), 2000, "NONE", "Тестовое блюдо", 1000L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 100 }
+                    { new Guid("0983151c-9ba3-4900-b494-07e99a10cb0c"), 0, "/app/migrated_images/Vkusno/vishnyapirojok.png", "Пирожок Вишневый", 84L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("131ad21e-2c19-4bce-afc8-d88b56c1094d"), 0, "/app/migrated_images/Vkusno/chikenpremiere.png", "Чикен Премьер", 214L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("1cf13caa-6884-4a8d-8a01-5a4caea2619c"), 0, "/app/migrated_images/Vkusno/cezarroll.png", "Цезарь Ролл", 242L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("1da2b42e-fac0-4c01-98ad-a0959f1b5d96"), 0, "/app/migrated_images/Vkusno/cheezeburger.png", "Чизбургер", 101L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("23e7dfb3-a218-4329-b7b8-588179e6f1d9"), 0, "/app/migrated_images/Vkusno/bighit.png", "Биг Хит", 223L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("4b52d1e2-4029-460e-bfb2-011b474640ae"), 0, "/app/migrated_images/Vkusno/potatofreesred.png", "Картофель Фри средний", 112L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("65136a23-c7dd-48ae-b17f-a6feb4706924"), 0, "/app/migrated_images/Vkusno/naggets6.png", "Наггетсы (6 шт)", 109L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("688113e8-cef7-4b41-b9d6-1b237efef01d"), 0, "/app/migrated_images/Vkusno/doublecheezeburger.png", "Двойной Чизбургер", 195L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("81b65cf4-29ff-4110-9d10-1a3753af4593"), 0, "/app/migrated_images/Vkusno/bigspecial.png", "Биг спешиал", 352L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("984a10cc-b58a-40fb-bc30-6ffa96dbb45d"), 0, "/app/migrated_images/Vkusno/capuchinosred.png", "Капучино (сред.)", 134L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("df61599f-0933-49b8-9735-be616bb4e4a6"), 0, "/app/migrated_images/Vkusno/chikenburger.png", "Чикенбургер", 82L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -236,8 +245,17 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "address", "close_time", "description", "imagePath", "open_time", "phone_number", "restaurantName", "status", "user_id" },
                 values: new object[,]
                 {
-                    { new Guid("40efbe18-d067-4dfc-9988-2e3b2cf68422"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "/app/migrate_images/burgerking.jpg", "10:00", "+78004444434", "Бургер Кинг", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
-                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "/app/migrate_images/vkusno.jpg", "10:00", "+78005555535", "Вкусно и точка", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
+                    { new Guid("1d55fc0c-6f29-4980-9855-4a3397d1be20"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "/app/migrated_images/burgerking.jpg", "10:00", "+78004444434", "Бургер Кинг", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
+                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "/app/migrated_images/vkusno.jpg", "10:00", "+78005555535", "Вкусно и точка", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
+                });
+
+            migrationBuilder.InsertData(
+                table: "reviewTable",
+                columns: new[] { "Id", "client_id", "comment", "courier_id", "order_id", "rating", "restaurant_id", "review_date" },
+                values: new object[,]
+                {
+                    { new Guid("9ae9cea3-d065-4c5f-84bf-3485da8295d6"), new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), null, new Guid("729d9e64-faf1-439b-95f9-5a29a0e3e969"), new Guid("871c8f7f-c4b1-46b3-b959-a6ccfbee534b"), 5, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), new DateTime(2025, 3, 31, 18, 27, 4, 335, DateTimeKind.Utc).AddTicks(3064) },
+                    { new Guid("acc48a14-1e54-49df-89d7-54be073758ce"), new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), null, new Guid("bbcad18c-4e90-4541-9b33-d661cec2fc5a"), new Guid("dd932e2a-972b-4517-9c64-30e48b0bd052"), 4, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), new DateTime(2025, 3, 31, 18, 27, 4, 335, DateTimeKind.Utc).AddTicks(3069) }
                 });
 
             migrationBuilder.InsertData(

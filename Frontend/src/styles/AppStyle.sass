@@ -1162,6 +1162,7 @@ input::-webkit-inner-spin-button
 
 .app_maincontent_restaurant_block_image
   flex: none
+  animation: increase_up_opacity 0.5s forwards normal
   position: relative
   margin-left: 10px
   margin-top: 10px
@@ -1199,6 +1200,7 @@ input::-webkit-inner-spin-button
   background-size: 400% 400%
 
 .app_maincontent_restaurant_block_subtitle_area
+  animation: increase_up_opacity 1s forwards normal
   align-items: flex-end
   flex: none
   display: flex
@@ -1270,6 +1272,7 @@ input::-webkit-inner-spin-button
   margin-bottom: 5px
   width: calc(100% - 15px)
   height: 35px
+  animation: increase_up_opacity 1s forwards normal
 
 .app_fooditem_content
   display: flex
@@ -1282,8 +1285,14 @@ input::-webkit-inner-spin-button
   height: calc(100vh - 100px)
   background-color: white
   border-radius: 15px
+  padding-bottom: 10px
+  overflow-y: scroll
+
+.app_fooditem_content::-webkit-scrollbar
+  display: none
 
 .app_fooditem_content_item
+  animation: increase_up_opacity 2s forwards normal
   display: flex
   flex-direction: column
   margin-top: 10px
@@ -1303,7 +1312,16 @@ input::-webkit-inner-spin-button
   height: 140px
   background-color: white
   border-radius: 7px
-  
+  background-size: contain
+  background-position: center
+  background-repeat: no-repeat
+  animation: increase_up_opacity 0.5s forwards normal
+
+.app_fooditem_content_item_image.loading 
+  animation: loading_grad 5s forwards infinite
+  background-image: none  
+  background: linear-gradient(to right, rgb(128, 128, 128),rgb(206, 206, 206), rgb(128, 128, 128))
+  background-size: 400% 400%
 
 .app_fooditem_content_item_price
   flex: none
@@ -1317,6 +1335,15 @@ input::-webkit-inner-spin-button
   height: 20px
   font-size: 15px
 
+.app_fooditem_content_item_price.loading
+  animation: loading_grad 5s forwards infinite
+  background-image: none  
+  background: linear-gradient(to right, rgb(128, 128, 128),rgb(206, 206, 206), rgb(128, 128, 128))
+  background-size: 400% 400%
+  margin-left: 5px
+  width: calc(100% - 20px)
+  border-radius: 5px
+
 .app_fooditem_content_item_name
   flex: none
   font-family: MUSEOSANS
@@ -1328,6 +1355,16 @@ input::-webkit-inner-spin-button
   margin-right: 10px
   width: calc(100% - 15px)
   height: 20px
+
+.app_fooditem_content_item_name.loading
+  margin-top: 5px
+  margin-left: 5px
+  width: calc(100% - 25px)
+  animation: loading_grad 5s forwards infinite
+  background-image: none  
+  background: linear-gradient(to right, rgb(128, 128, 128),rgb(206, 206, 206), rgb(128, 128, 128))
+  background-size: 400% 400%
+  border-radius: 5px
 
 .app_fooditem_content_item_weight
   flex: none
@@ -1358,6 +1395,12 @@ input::-webkit-inner-spin-button
 
 .textdiv 
   margin-top: 7px
+
+@keyframes increase_up_opacity
+  0%
+    opacity: 0
+  100% 
+    opacity: 1
 
 @keyframes loading_grad
   0% 
