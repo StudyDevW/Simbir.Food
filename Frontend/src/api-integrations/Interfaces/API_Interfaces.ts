@@ -149,3 +149,24 @@ export interface RequestsGetAll {
     restaurant_requests: RequestInfo_Restaurants[];
     courier_requests: RequestInfo_Couriers[];
 }
+
+export interface ClientInfo {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
+    photo_url: string;
+    roles: string[];
+    orders_count: number;
+    money_value: number;
+}
+
+export interface ClientSelectionSettings {
+    from: number;
+    count: number;
+}
+
+export interface ClientGetAll {
+    settings: ClientSelectionSettings;
+    content: ClientInfo[];
+}

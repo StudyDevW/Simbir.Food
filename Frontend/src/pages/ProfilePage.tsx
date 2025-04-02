@@ -277,7 +277,8 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                                 is_mobile={isMobile} 
                                 name_element="Пользователи" 
                                 description="Перейти" 
-                                icon_url="./images/users_icon.png"/>
+                                icon_url="./images/users_icon.png"
+                                onClickEx={() => navigate('/users')}/>
 
                             <ElementMenu 
                                 is_mobile={isMobile} 
