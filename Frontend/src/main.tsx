@@ -19,6 +19,7 @@ import PaymentPage from './pages/PaymentPage.tsx';
 import FoodItemsPage from './pages/FoodItemsPage.tsx';
 import CourierRequestPage from "./pages/Requests/CourierRequestPage";
 import RestaurantRequestPage from "./pages/Requests/RestaurantRequestPage";
+import RequestsPage from './pages/Requests/RequestsPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -85,6 +86,12 @@ const router = createBrowserRouter([
     path: '/restaurant-request',
     element: (
         <RestaurantRequestPage/>
+    ),
+  },
+  {
+    path: '/requests',
+    element: (
+        <RequestsPage/>
     ),
   },
 ]);

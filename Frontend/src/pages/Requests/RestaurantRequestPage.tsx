@@ -4,6 +4,7 @@ import WebApp from "@twa-dev/sdk";
 import { StorageGetItem } from "../../telegram-integrations/cloudstorage/CloudStorage";
 import { handleRestaurantRequest } from "../../api-integrations/RequestAPI";
 import { YMaps, Map, Placemark } from '@pbe/react-yandex-maps';
+import { BackButton } from '@twa-dev/sdk/react';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
@@ -148,8 +149,8 @@ const RestaurantRequestPage: React.FC = () => {
         }
     };
         
-    return (
-
+    return (<>
+        <BackButton onClick={()=>navigate("/")}/>
         <div className="app_background_area">
         
             <div className="app_layout_area" style={ isMobile ? { marginTop: '100px' } : {}}>
@@ -272,7 +273,7 @@ const RestaurantRequestPage: React.FC = () => {
         
         </div>
 
-    );
+    </>);
 };
 
 export default RestaurantRequestPage;

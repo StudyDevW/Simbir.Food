@@ -1534,6 +1534,81 @@ input::-webkit-inner-spin-button
             &:hover
                 background: #0056b3
 
+.requests-container
+  list-style: none
+  padding: 0
+  margin: 0
+
+.request-item
+  background: #ffffff
+  border: 1px solid #eaeaea
+  border-radius: 8px
+  padding: 16px
+  margin-bottom: 16px
+  transition: all 0.3s ease
+
+  &:hover
+    box-shadow: 0 4px 12px rgba(0, 70, 129, 0.1)
+    transform: translateY(-2px)
+
+.request-info
+  h3
+    color: #004681
+    margin: 0 0 8px 0
+    font-size: 1.2rem
+
+  p
+    color: #555
+    margin: 4px 0
+    font-size: 0.95rem
+
+.request-actions
+  display: flex
+  gap: 10px
+  margin-top: 12px
+  justify-content: flex-end
+
+.approve-btn
+  background-color: #4CAF50
+  color: white
+  border: none
+  padding: 8px 16px
+  border-radius: 4px
+  cursor: pointer
+  font-size: 0.9rem
+  transition: background-color 0.2s
+
+  &:hover:not(:disabled)
+    background-color: #3d8b40
+
+  &:disabled
+    background-color: #a5d6a7
+    cursor: not-allowed
+
+.reject-btn
+  background-color: #f44336
+  color: white
+  border: none
+  padding: 8px 16px
+  border-radius: 4px
+  cursor: pointer
+  font-size: 0.9rem
+  transition: background-color 0.2s
+
+  &:hover:not(:disabled)
+    background-color: #d32f2f
+
+  &:disabled
+    background-color: #ef9a9a
+    cursor: not-allowed
+
+.error-message
+  color: #f44336
+  padding: 12px
+  background: #ffebee
+  border-radius: 4px
+  text-align: center
+
 @keyframes loading_grad
   0% 
     background-position: 0% 50%

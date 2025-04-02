@@ -283,7 +283,10 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                                 is_mobile={isMobile} 
                                 name_element="Заявки" 
                                 description="Перейти" 
-                                icon_url="./images/cv-form_icon.png"/>
+                                icon_url="./images/cv-form_icon.png"
+                                onClickEx={() => navigate('/requests')}
+                                />
+                              
 
                             <ElementMenu 
                                 is_mobile={isMobile} 

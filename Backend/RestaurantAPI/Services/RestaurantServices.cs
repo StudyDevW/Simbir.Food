@@ -81,7 +81,9 @@ namespace RestaurantAPI.Model.Services
 
         public async Task<List<Restaurants_DTO>> GetAllRestaurant()
         {
-            var selectedRestaurants = await _dataContext.restaurantTable.ToListAsync();
+            var selectedRestaurants = await _dataContext.restaurantTable
+                .Where(x => x.status == RestaurantStatus.Verified)
+                .ToListAsync();
 
             List<Restaurants_DTO> allRestaurants = new List<Restaurants_DTO>();
 

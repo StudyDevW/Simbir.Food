@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import WebApp from "@twa-dev/sdk";
 import { handleCourierRequest } from "../../api-integrations/RequestAPI";
 import { StorageGetItem } from "../../telegram-integrations/cloudstorage/CloudStorage";
+import { BackButton } from '@twa-dev/sdk/react';
 
 const CourierRequestPage: React.FC = () => {
     const [carNumber, setCarNumber] = useState<string>("");
@@ -41,7 +42,8 @@ const CourierRequestPage: React.FC = () => {
         }
     };
 
-    return (
+    return (<>
+        <BackButton onClick={()=>navigate("/")}/>
         <div className="app_background_area">
         
             <div className="app_layout_area" style={ isMobile ? { marginTop: '100px' } : {}}>
@@ -71,7 +73,7 @@ const CourierRequestPage: React.FC = () => {
             </div>
         
         </div>
-    );
+    </>);
 };
 
 export default CourierRequestPage;
