@@ -9,9 +9,5 @@
 .vs
 
 .env
-/Backend/ORM_Components/Migrations/20250401140948_ChangedReviewsTable.cs
-/Backend/ORM_Components/Migrations/20250401140948_ChangedReviewsTable.Designer.cs
+/Backend/ORM_Components/Migrations/
 /Backend/ClientAPI/Program.cs
-/Backend/ORM_Components/Migrations/20250401143209_InitialMigration.cs
-/Backend/ORM_Components/Migrations/20250401143209_InitialMigration.Designer.cs
-/Backend/ORM_Components/Migrations/DataContextModelSnapshot.cs
