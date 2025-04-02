@@ -77,7 +77,8 @@ export interface OrderInfo {
         image: string,
         weight: number,
         calories: number
-    }[]
+    }[],
+    client_address: string
 }
 
 export interface PaymentInfo {

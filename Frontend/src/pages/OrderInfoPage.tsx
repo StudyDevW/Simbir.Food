@@ -117,7 +117,7 @@ const OrderWithMap: React.FC<{localaddress: string, info: OrderInfo}> = ({locala
 
         getCoordinates(info.restaurant_info.address, "rest");
 
-        getCoordinates(localaddress, "client");
+        getCoordinates(info.client_address, "client");
     },[])
 
     const getCoordinates = async (address: string, type: string) => {

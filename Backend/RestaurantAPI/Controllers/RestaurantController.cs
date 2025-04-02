@@ -71,7 +71,7 @@ namespace RestaurantAPI.Model.Controllers
         [HttpGet("GetAllRestaurant")]
         public async Task<ActionResult<List<Restaurants_DTO>>> GetAllRestaurant()
         {
-            return await _restaurantService.GetAllRestaurant();
+            return await _restaurantService.GetAllRestaurant(Request.Headers["Authorization"]);
         }
 
         /// <summary>

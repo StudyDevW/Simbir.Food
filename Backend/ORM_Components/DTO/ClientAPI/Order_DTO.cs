@@ -17,5 +17,7 @@ namespace ORM_Components.DTO.ClientAPI
         public long total_price { get; set; }
 
         public DateTime order_date { get; set; }
+
+        public string client_address { get; set; }
     }
 }

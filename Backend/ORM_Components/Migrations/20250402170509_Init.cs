@@ -103,7 +103,8 @@ namespace ORM_Components.Migrations
                     courier_id = table.Column<Guid>(type: "uuid", nullable: true),
                     status = table.Column<int>(type: "integer", nullable: false),
                     total_price = table.Column<long>(type: "bigint", nullable: false),
-                    order_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    order_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    client_address = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -227,17 +228,17 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "calories", "image", "name", "price", "restaurant_id", "weight" },
                 values: new object[,]
                 {
-                    { new Guid("0983151c-9ba3-4900-b494-07e99a10cb0c"), 0, "/app/migrated_images/Vkusno/vishnyapirojok.png", "Пирожок Вишневый", 84L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("131ad21e-2c19-4bce-afc8-d88b56c1094d"), 0, "/app/migrated_images/Vkusno/chikenpremiere.png", "Чикен Премьер", 214L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("1cf13caa-6884-4a8d-8a01-5a4caea2619c"), 0, "/app/migrated_images/Vkusno/cezarroll.png", "Цезарь Ролл", 242L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("1da2b42e-fac0-4c01-98ad-a0959f1b5d96"), 0, "/app/migrated_images/Vkusno/cheezeburger.png", "Чизбургер", 101L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("23e7dfb3-a218-4329-b7b8-588179e6f1d9"), 0, "/app/migrated_images/Vkusno/bighit.png", "Биг Хит", 223L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("4b52d1e2-4029-460e-bfb2-011b474640ae"), 0, "/app/migrated_images/Vkusno/potatofreesred.png", "Картофель Фри средний", 112L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("65136a23-c7dd-48ae-b17f-a6feb4706924"), 0, "/app/migrated_images/Vkusno/naggets6.png", "Наггетсы (6 шт)", 109L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("688113e8-cef7-4b41-b9d6-1b237efef01d"), 0, "/app/migrated_images/Vkusno/doublecheezeburger.png", "Двойной Чизбургер", 195L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("81b65cf4-29ff-4110-9d10-1a3753af4593"), 0, "/app/migrated_images/Vkusno/bigspecial.png", "Биг спешиал", 352L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("984a10cc-b58a-40fb-bc30-6ffa96dbb45d"), 0, "/app/migrated_images/Vkusno/capuchinosred.png", "Капучино (сред.)", 134L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
-                    { new Guid("df61599f-0933-49b8-9735-be616bb4e4a6"), 0, "/app/migrated_images/Vkusno/chikenburger.png", "Чикенбургер", 82L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 }
+                    { new Guid("23ed9a27-a91e-4de3-a86d-17511da3bd63"), 0, "/app/migrated_images/Vkusno/chikenpremiere.png", "Чикен Премьер", 214L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("4b9e24af-0d45-4e4b-8c28-6fa3eb569995"), 0, "/app/migrated_images/Vkusno/cezarroll.png", "Цезарь Ролл", 242L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("576cc2a8-510d-4486-af8b-0e08ab413b20"), 0, "/app/migrated_images/Vkusno/capuchinosred.png", "Капучино (сред.)", 134L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("73976fe1-78a9-4923-95f6-b851f2e4613d"), 0, "/app/migrated_images/Vkusno/potatofreesred.png", "Картофель Фри средний", 112L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("957ab8e0-668d-47c1-8ef4-682034f4203b"), 0, "/app/migrated_images/Vkusno/chikenburger.png", "Чикенбургер", 82L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("9a5b991e-75ae-4f9a-b071-a9c877fc1ea0"), 0, "/app/migrated_images/Vkusno/naggets6.png", "Наггетсы (6 шт)", 109L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("b970779e-6b59-4a63-bc4e-6c23bdc32f37"), 0, "/app/migrated_images/Vkusno/doublecheezeburger.png", "Двойной Чизбургер", 195L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("cd51f618-264d-409b-a590-dd13f68fd081"), 0, "/app/migrated_images/Vkusno/cheezeburger.png", "Чизбургер", 101L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("f395516d-3c48-4f59-a602-9b7dd0525e3e"), 0, "/app/migrated_images/Vkusno/bighit.png", "Биг Хит", 223L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("f39ea95d-c987-4efa-af6b-cc85443f40f4"), 0, "/app/migrated_images/Vkusno/bigspecial.png", "Биг спешиал", 352L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 },
+                    { new Guid("f8546637-d2b5-4eda-b3b6-1cd6235a7d91"), 0, "/app/migrated_images/Vkusno/vishnyapirojok.png", "Пирожок Вишневый", 84L, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -245,8 +246,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "address", "close_time", "description", "imagePath", "open_time", "phone_number", "restaurantName", "status", "user_id" },
                 values: new object[,]
                 {
-                    { new Guid("1d55fc0c-6f29-4980-9855-4a3397d1be20"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "/app/migrated_images/burgerking.jpg", "10:00", "+78004444434", "Бургер Кинг", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
-                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "/app/migrated_images/vkusno.jpg", "10:00", "+78005555535", "Вкусно и точка", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
+                    { new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), "ул. Шолмова 5", "21:00", "Отличный тестовый ресторан", "/app/migrated_images/vkusno.jpg", "10:00", "+78005555535", "Вкусно и точка", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") },
+                    { new Guid("fa0a60fc-85d5-4c4f-b3ae-4703883b61a5"), "ул. Шолмова 3", "20:00", "Хороший тестовый ресторан", "/app/migrated_images/burgerking.jpg", "10:00", "+78004444434", "Бургер Кинг", 1, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47") }
                 });
 
             migrationBuilder.InsertData(
@@ -254,8 +255,8 @@ namespace ORM_Components.Migrations
                 columns: new[] { "Id", "client_id", "comment", "courier_id", "order_id", "rating", "restaurant_id", "review_date" },
                 values: new object[,]
                 {
-                    { new Guid("9ae9cea3-d065-4c5f-84bf-3485da8295d6"), new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), null, new Guid("729d9e64-faf1-439b-95f9-5a29a0e3e969"), new Guid("871c8f7f-c4b1-46b3-b959-a6ccfbee534b"), 5, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), new DateTime(2025, 3, 31, 18, 27, 4, 335, DateTimeKind.Utc).AddTicks(3064) },
-                    { new Guid("acc48a14-1e54-49df-89d7-54be073758ce"), new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), null, new Guid("bbcad18c-4e90-4541-9b33-d661cec2fc5a"), new Guid("dd932e2a-972b-4517-9c64-30e48b0bd052"), 4, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), new DateTime(2025, 3, 31, 18, 27, 4, 335, DateTimeKind.Utc).AddTicks(3069) }
+                    { new Guid("147d7a74-5263-4816-bdab-b4807f7197d2"), new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), null, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), new Guid("6cae7028-857c-49cc-912a-a2ebc451dfae"), 4, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), new DateTime(2025, 4, 2, 17, 5, 9, 188, DateTimeKind.Utc).AddTicks(4175) },
+                    { new Guid("973d7ba0-d039-4713-a175-9ea7599eed0f"), new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), null, new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"), new Guid("bca582ed-61e3-4c6c-b424-8457f0bd23ab"), 5, new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"), new DateTime(2025, 4, 2, 17, 5, 9, 188, DateTimeKind.Utc).AddTicks(4170) }
                 });
 
             migrationBuilder.InsertData(
