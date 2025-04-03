@@ -133,8 +133,8 @@ namespace RestaurantAPI.Model.Services
 
             var selectedRestaurants = 
                 search == null ? 
-                await _dataContext.restaurantTable.ToListAsync() : 
-                await _dataContext.restaurantTable.Where(c => c.restaurantName.ToLower().Contains(search.ToLower()) || c.restaurantName.ToUpper().Contains(search.ToUpper()))
+                await _dataContext.restaurantTable.Where(x => x.status == RestaurantStatus.Verified).ToListAsync() : 
+                await _dataContext.restaurantTable.Where(x => x.status == RestaurantStatus.Verified && (x.restaurantName.ToLower().Contains(search.ToLower()) || x.restaurantName.ToUpper().Contains(search.ToUpper())))
                 .ToListAsync();
 
             var selectedClient = await _dataContext.userTable.Where(c => c.Id == validation.token_success!.Id).FirstOrDefaultAsync();

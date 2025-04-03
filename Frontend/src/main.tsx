@@ -19,7 +19,7 @@ import PaymentPage from './pages/PaymentPage.tsx';
 import FoodItemsPage from './pages/FoodItemsPage.tsx';
 import CourierRequestPage from "./pages/Requests/CourierRequestPage";
 import RestaurantRequestPage from "./pages/Requests/RestaurantRequestPage";
-import RequestsPage from './pages/Requests/RequestsPage.tsx';
+import RequestsPage from './pages/AdminPages/RequestsPage.tsx';
 import UsersPage from './pages/AdminPages/UsersPage.tsx';
 
 const router = createBrowserRouter([

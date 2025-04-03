@@ -32,7 +32,9 @@ const RequestsPage: React.FC = () => {
         }
         
         WebApp.ready();
+        fetchRequests();
     }, []);
+
 
     const fetchRequests = async () => {
         setLoading(true);
