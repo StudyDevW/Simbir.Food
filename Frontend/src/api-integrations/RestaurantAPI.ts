@@ -53,6 +53,55 @@ const handleRestaurantsInfo = async (accessToken: string, retry: boolean = true)
     }
 }
 
+const handleRestaurantsInfoWithSearch = async (accessToken: string, search: string, retry: boolean = true) : Promise<any> => {
+
+    try {
+        const response = await axios.get(`${RESTAURANT_API_URL}/api/Restaurant/GetRestaurants/${search}`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+
+            const result: RestaurantInfo[] = response.data;
+           
+            return result;
+        }
+
+        return null;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleRestaurantsInfoWithSearch(accessTokens, search, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return null;
+            }
+        }
+
+        return null;
+    }
+}
+
+
 const handleFoodItemsInfo = async (accessToken: string, restaurantId: string, retry: boolean = true) : Promise<any> => {
     try {
         const response = await axios.get(`${RESTAURANT_API_URL}/api/RestaurantFoodItems/GetRestaurantFoodItems/${restaurantId}`,
@@ -100,4 +149,53 @@ const handleFoodItemsInfo = async (accessToken: string, restaurantId: string, re
     }
 }
 
-export { handleRestaurantsInfo, handleFoodItemsInfo }
+
+const handleFoodItemsInfoWithSearch = async (accessToken: string, restaurantId: string, search: string, retry: boolean = true) : Promise<any> => {
+    try {
+        const response = await axios.get(`${RESTAURANT_API_URL}/api/RestaurantFoodItems/GetRestaurantFoodItems/${restaurantId}/${search}`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+
+            const result: FoodItemInfo[] = response.data;
+           
+            return result;
+        }
+
+        return null;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleFoodItemsInfoWithSearch(accessTokens, restaurantId, search, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return null;
+            }
+        }
+
+        return null;
+    }
+}
+
+
+export { handleRestaurantsInfo, handleRestaurantsInfoWithSearch, handleFoodItemsInfo, handleFoodItemsInfoWithSearch }

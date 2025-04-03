@@ -71,7 +71,17 @@ namespace RestaurantAPI.Model.Controllers
         [HttpGet("GetAllRestaurant")]
         public async Task<ActionResult<List<Restaurants_DTO>>> GetAllRestaurant()
         {
-            return await _restaurantService.GetAllRestaurant();
+            return await _restaurantService.GetAllRestaurant(Request.Headers["Authorization"], null);
+        }
+
+        /// <summary>
+        /// Получает данные о ресторанах по поиску.
+        /// </summary>
+        /// <returns>Информация о всех ресторанах по поиску.</returns>
+        [HttpGet("GetRestaurants/{searchText}")]
+        public async Task<ActionResult<List<Restaurants_DTO>>> GetAllRestaurantWithSearch(string searchText)
+        {
+            return await _restaurantService.GetAllRestaurant(Request.Headers["Authorization"], searchText);
         }
 
         /// <summary>

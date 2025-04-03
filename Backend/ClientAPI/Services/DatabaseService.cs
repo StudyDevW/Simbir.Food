@@ -1011,6 +1011,11 @@ namespace ClientAPI.Services
             if (selectedBasketItems.Count == 0)
                 throw new Exception("basket_was_empty");
 
+            var selectedClient = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            if (selectedClient == null)
+                throw new Exception("user_not_found");
+
             var tupleBasket = GetPriceAndRestaurantIdFromBasket(selectedBasketItems);
 
             //Проверка, хватает ли денег на балансе или нет. Если хватает то списываем
@@ -1024,7 +1029,8 @@ namespace ClientAPI.Services
                 restaurant_id = tupleBasket.restaurantId,
                 order_date = DateTime.UtcNow,
                 total_price = tupleBasket.price,
-                status = OrderStatus.AfterPay
+                status = OrderStatus.AfterPay,
+                client_address = selectedClient.address!
             };
 
             //Создание заказа
@@ -1056,7 +1062,8 @@ namespace ClientAPI.Services
                 order_date = orderRelease.order_date,
                 restaurant_id = orderRelease.restaurant_id,
                 status = orderRelease.status,
-                total_price = orderRelease.total_price
+                total_price = orderRelease.total_price,
+                client_address = orderRelease.client_address
             };
         }
 
@@ -1171,7 +1178,8 @@ namespace ClientAPI.Services
                 restaurant_info = orderRestaurant,
                 status_order = status_order_now,
                 last_status_change = selectedHistoryOrder.status_datetime,
-                food_items = orderFoodItems
+                food_items = orderFoodItems,
+                client_address = selectedOrder.client_address
             };
 
             return orderFinal;

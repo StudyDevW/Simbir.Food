@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Middleware_Components.DTO.YandexDTO;
+using Middleware_Components.Services;
 using ORM_Components;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.RestaurantAPI;
@@ -12,6 +14,7 @@ using RestaurantAPI.Utility;
 using System.Collections.Generic;
 using Telegram_Components.Interfaces;
 using Telegram_Components.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace RestaurantAPI.Model.Services
 {
@@ -20,13 +23,20 @@ namespace RestaurantAPI.Model.Services
         private readonly DataContext _dataContext;
         private readonly IMessageSender _tgmessageSender;
         private readonly IValidator<RestaurantUpdate_DTO> _restaurantUpdateValidator;
+        private readonly IYandexIntegrationService _yandexIntegration;
+        private readonly IJwtService _jwt;
+        private readonly ICacheService _cache;
 
-        public RestaurantServices(DataContext dataContext, IMessageSender messageSender
-            , IValidator<RestaurantUpdate_DTO> restaurantUpdateValidator)
+        public RestaurantServices(DataContext dataContext, IMessageSender messageSender,
+            IValidator<RestaurantUpdate_DTO> restaurantUpdateValidator, IYandexIntegrationService yandexIntegration,
+            IJwtService jwt, ICacheService cache)
         {
             _dataContext = dataContext;
             _tgmessageSender = messageSender;
             _restaurantUpdateValidator = restaurantUpdateValidator;
+            _yandexIntegration = yandexIntegration;
+            _jwt = jwt;
+            _cache = cache;
         }
 
         private async Task<long> GetUserChatId(Guid clientId)
@@ -79,11 +89,58 @@ namespace RestaurantAPI.Model.Services
             await _dataContext.SaveChangesAsync();
         }
 
-        public async Task<List<Restaurants_DTO>> GetAllRestaurant()
+        private void YandexOptimizationInit(Guid userGUID, Guid restaurantId, YandexCoords clientCoords, YandexCoords restaurantCoords)
         {
-            var selectedRestaurants = await _dataContext.restaurantTable
-                .Where(x => x.status == RestaurantStatus.Verified)
+            YandexInfoCached yandexCached = new YandexInfoCached()
+            {
+                coordsClient = clientCoords,
+                coordsRestaurant = restaurantCoords
+            };
+
+            _cache.WriteKeyInStorage(userGUID, $"cached_yandex_address_info_{restaurantId}", yandexCached, DateTime.UtcNow.AddDays(1));
+        }
+
+        private bool ChangedClientAddress(Guid userGUID, Guid restaurantId)
+        {
+            var selectedClient = _dataContext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
+
+            var currentCached = _cache.GetKeyFromStorage<YandexInfoCached>(userGUID, $"cached_yandex_address_info_{restaurantId}");
+
+            if (currentCached.coordsClient.address != selectedClient!.address)
+                return true;
+
+            return false;
+        }
+
+        private bool ChangedRestaurantAddress(Guid userGUID, Guid restaurantId)
+        {
+            var selectedRestaurant = _dataContext.restaurantTable.Where(c => c.Id == restaurantId).FirstOrDefault();
+
+            var currentCached = _cache.GetKeyFromStorage<YandexInfoCached>(userGUID, $"cached_yandex_address_info_{restaurantId}");
+
+            if (currentCached.coordsRestaurant.address != selectedRestaurant!.address)
+                return true;
+
+            return false;
+        }
+
+        public async Task<List<Restaurants_DTO>> GetAllRestaurant(string bearerKey, string? search)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearerKey);
+
+            if (validation.TokenHasError())
+                throw new Exception("token_invalid");
+
+            var selectedRestaurants = 
+                search == null ? 
+                await _dataContext.restaurantTable.ToListAsync() : 
+                await _dataContext.restaurantTable.Where(c => c.restaurantName.ToLower().Contains(search.ToLower()) || c.restaurantName.ToUpper().Contains(search.ToUpper()))
                 .ToListAsync();
+
+            var selectedClient = await _dataContext.userTable.Where(c => c.Id == validation.token_success!.Id).FirstOrDefaultAsync();
+
+            if (selectedClient == null)
+                throw new Exception("user_not_found");
 
             List<Restaurants_DTO> allRestaurants = new List<Restaurants_DTO>();
 
@@ -105,6 +162,46 @@ namespace RestaurantAPI.Model.Services
                     averageMark = averageMarkCounts / selectedReviews.Count;
                 }
 
+                //Если в кэше нет информации о координатах, то достаем их и записываем
+                if (!_cache.CheckExistKeysStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}"))
+                {
+                    var coordinatesRestaurant = await _yandexIntegration.GetCoordinatesFromAddress(selectedRestaurant.address);
+
+                    var coordinatesClient = await _yandexIntegration.GetCoordinatesFromAddress(selectedClient.address!);
+
+                    YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
+                }
+                else //Если в кэше записаны данные о координатах, то проверяем сменился ли адрес
+                {
+                    //Две проверки были сделаны для оптимизации запросов на ключ яндекса
+                    //Если бы была одна проверка, то на изменение одного только адреса клиента, мы бы тратили два запроса
+                    if (ChangedClientAddress(selectedClient.Id, selectedRestaurant.Id))
+                    {
+                        var preCachedInfoCoords = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
+
+                        var coordinatesRestaurant = preCachedInfoCoords.coordsRestaurant;
+
+                        var coordinatesClient = await _yandexIntegration.GetCoordinatesFromAddress(selectedClient.address!);
+
+                        YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
+                    }
+
+                    if (ChangedRestaurantAddress(selectedClient.Id, selectedRestaurant.Id))
+                    {
+                        var preCachedInfoCoords = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
+
+                        var coordinatesRestaurant = await _yandexIntegration.GetCoordinatesFromAddress(selectedRestaurant.address);
+
+                        var coordinatesClient = preCachedInfoCoords.coordsClient;
+
+                        YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
+                    }
+                }
+
+                var cachedInfoCoords = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
+
+                var travelInformation = GetDistanceInfo(cachedInfoCoords.coordsClient, cachedInfoCoords.coordsRestaurant);
+
                 Restaurants_DTO restaurantCompile = new Restaurants_DTO(
                     selectedRestaurant.Id,
                     selectedRestaurant.user_id,
@@ -116,13 +213,14 @@ namespace RestaurantAPI.Model.Services
                     selectedRestaurant.imagePath,
                     selectedRestaurant.open_time,
                     selectedRestaurant.close_time,
-                    averageMark
+                    averageMark,
+                    travelInformation
                 );
 
                 allRestaurants.Add(restaurantCompile);
             }
 
-            return allRestaurants;
+            return allRestaurants.Where(c => c.travelInfo.distanceKM <= 4.0).ToList();
         }
 
         public async Task<Restaurants_DTO> GetRestaurant(Guid restaurantId)
@@ -148,6 +246,8 @@ namespace RestaurantAPI.Model.Services
             if (selectedRestaurant == null)
                 throw new RestaurantNotFoundException(restaurantId);
 
+            var coordinates = await _yandexIntegration.GetCoordinatesFromAddress(selectedRestaurant.address);
+
             return new Restaurants_DTO
             (
                 selectedRestaurant.Id,
@@ -160,7 +260,8 @@ namespace RestaurantAPI.Model.Services
                 selectedRestaurant.imagePath,
                 selectedRestaurant.open_time,
                 selectedRestaurant.close_time,
-                averageMark
+                averageMark,
+                null
             );
         }
 
@@ -241,5 +342,31 @@ namespace RestaurantAPI.Model.Services
             }
         }
 
+        private static double CalculateHaversineDistance(double lat1, double lon1, double lat2, double lon2)
+        {
+            const double EarthRadiusKm = 6371.0;
+            double dLat = DegreesToRadians(lat2 - lat1);
+            double dLon = DegreesToRadians(lon2 - lon1);
+
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) *
+                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            return EarthRadiusKm * c;
+        }
+
+        private static double DegreesToRadians(double degrees)
+        {
+            return degrees * Math.PI / 180.0;
+        }
+
+        private YandexDistance GetDistanceInfo(YandexCoords coordsFrom, YandexCoords coordsTo)
+        {
+            double distance = CalculateHaversineDistance(coordsFrom.lat, coordsFrom.lon, coordsTo.lat, coordsTo.lon);
+            double timeHours = distance / 15;
+
+            return new YandexDistance() { distanceKM = distance, timeHours = timeHours };
+        }
     }
 }

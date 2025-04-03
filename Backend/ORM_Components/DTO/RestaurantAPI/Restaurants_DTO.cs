@@ -1,4 +1,5 @@
-﻿using ORM_Components.Tables.Helpers;
+﻿using Middleware_Components.DTO.YandexDTO;
+using ORM_Components.Tables.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace ORM_Components.DTO.RestaurantAPI
 {
+
     public record Restaurants_DTO(
          Guid Id, Guid userId,
          string restaurantName, string address,
          string phone_number, RestaurantStatus status,
          string description, string imagePath,
          string open_time, string close_time,
-         float average_mark)
+         float average_mark, YandexDistance travelInfo)
     { }
 
     public record RestaurantCreate_DTO(

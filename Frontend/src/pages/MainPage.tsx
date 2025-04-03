@@ -8,7 +8,7 @@ import { handleUserAuth } from '../api-integrations/AuthAPI.ts';
 import { telegramUser } from '../telegram-integrations/InitData.ts';
 import ProfilePage from './ProfilePage.tsx';
 import { AuthComponent, GetMeInfo, RestaurantInfo } from '../api-integrations/Interfaces/API_Interfaces.ts';
-import { handleRestaurantsInfo } from '../api-integrations/RestaurantAPI.ts';
+import { handleRestaurantsInfo, handleRestaurantsInfoWithSearch } from '../api-integrations/RestaurantAPI.ts';
 import { handleLoadImage } from '../api-integrations/ImageAPI.ts';
 import { loadingComponent } from '../LoadingComponent.ts';
 
@@ -39,7 +39,6 @@ const RestaurantItemComponent: React.FC<{info: RestaurantInfo, isMobile: boolean
   }
 
   useEffect(() => {
-
     loadingInformation.startLoading();
     loadingInformation.startLoadingAnimation();
 
@@ -134,6 +133,9 @@ const MainPage: React.FC = () => {
 
   const [restaurants, setRestaurantsInfo] = useState<RestaurantInfo[] | null>(null);
 
+  const [inputValue, setInputValue] = useState('');
+
+  const [keyboardFocused, setKeyboardFocused] = useState<boolean>(false);
 
   const GetUserRequestAPI = async (accessToken: string) => {
     
@@ -147,6 +149,16 @@ const MainPage: React.FC = () => {
   const GetRestaurantsRequestAPI = async (accessToken: string) => {
 
     const restaurantsinfo = await handleRestaurantsInfo(accessToken);
+
+    if (restaurantsinfo !== null && inputValue === '') {
+      setRestaurantsInfo(restaurantsinfo);
+    }
+
+  }
+
+  const GetRestaurantsWithSearchRequestAPI = async (accessToken: string) => {
+
+    const restaurantsinfo = await handleRestaurantsInfoWithSearch(accessToken, inputValue);
 
     if (restaurantsinfo !== null) {
       setRestaurantsInfo(restaurantsinfo);
@@ -181,6 +193,14 @@ const MainPage: React.FC = () => {
     }
   }
 
+  const RestaurantsGetSearched = async () => {
+    const accessToken: string = await StorageGetItem('AccessToken');
+
+    if (accessToken !== "empty") {
+      await GetRestaurantsWithSearchRequestAPI(accessToken);
+    }
+  }
+
   useEffect(() => {
     WebApp.setHeaderColor('#EAEAEA');
 
@@ -200,6 +220,16 @@ const MainPage: React.FC = () => {
 
   }, []);
 
+  useEffect(()=> {
+    if (inputValue !== '') {
+      setRestaurantsInfo(null);
+      RestaurantsGetSearched();
+    }
+    else {
+      setRestaurantsInfo(null);
+      RestaurantsGet();
+    }
+  }, [inputValue])
 
   useEffect(() => {
     if (logined) {
@@ -275,7 +305,21 @@ const MainPage: React.FC = () => {
                   <div className="app_maincontent">
                     <div className="app_maincontent_title">Рестораны</div>
 
+                    <div className="app_maincontent_searchbar_decor restaurants" style={{marginBottom: "20px"}}>
+                      <input className='app_maincontent_searchbar'
+                          type="text"
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          placeholder={'Поиск'}
+                          style={{backgroundColor: '#EAEAEA'}}
+                      /> 
+
+                      <div className="app_maincontent_searchbar_icon"></div>
+                    </div>
+
                     <div className="app_maincontent_restaurant_block_area" style={isMobile ? {height: 'calc(100% - 200px)'} : {}}>
+
+
 
                       {restaurants !== null && restaurants.map((restaurant, index) => <>
 

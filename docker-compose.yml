@@ -76,6 +76,7 @@ services:
       DATABASE_CONNECT: ${DATABASE_CONNECT}
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
+      YANDEX_BACKEND_API_KEY: ${YANDEX_BACKEND_API_KEY}
     volumes:
       - uploads:/app/uploads
       - ./migrate_images:/app/migrated_images

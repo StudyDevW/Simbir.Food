@@ -87,8 +87,20 @@ namespace RestaurantAPI.Model.Controllers
         [Route("GetRestaurantFoodItems/{id}")]
         public async Task<IActionResult> GetRestaurantFoodItems(Guid id)
         {
-            return Ok(await _restaurantFoodItemsServices.GetRestaurantFoodItems(id));
+            return Ok(await _restaurantFoodItemsServices.GetRestaurantFoodItems(id, null));
         }
+
+        /// <summary>
+        /// Получает данные о всех блюдах из ресторана с поиском.
+        /// </summary>
+        /// <returns>Получает все данные обо всех блюдах доступных в ресторане с поиском</returns>
+        [HttpGet]
+        [Route("GetRestaurantFoodItems/{id}/{searchText}")]
+        public async Task<IActionResult> GetRestaurantFoodItemsWithSearch(Guid id, string searchText)
+        {
+            return Ok(await _restaurantFoodItemsServices.GetRestaurantFoodItems(id, searchText));
+        }
+
 
         /// <summary>
         /// Изменяет данные блюда.

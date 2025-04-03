@@ -17,5 +17,7 @@
         public OrderInfo_Restaurant restaurant_info { get; set; }
 
         public List<OrderInfo_Items> food_items { get; set; }
+
+        public string client_address { get; set; }  
     }
 }

@@ -20,6 +20,7 @@ using Telegram_Components.Services;
 using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Utility;
 using RestaurantAPI.Interface;
+using Middleware_Components.Yandex;
 
 namespace RestaurantAPI
 {
@@ -141,6 +142,8 @@ namespace RestaurantAPI
             builder.Services.AddSingleton<IFileSystemHandler, FileSystemHandler>();
 
             builder.Services.AddHostedService<RabbitMQListenerService>();
+
+            builder.Services.AddHttpClient<IYandexIntegrationService, YandexIntegration>();
 
             builder.Services.AddFluentValidationAutoValidation();
 

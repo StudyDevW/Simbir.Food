@@ -6,7 +6,7 @@ import { useNavigate, useLocation, data } from 'react-router-dom';
 import { loadingComponent } from '../LoadingComponent.ts';
 import { BackButton } from '@twa-dev/sdk/react';
 import { FoodItemInfo, RestaurantInfo } from '../api-integrations/Interfaces/API_Interfaces.ts';
-import { handleFoodItemsInfo } from '../api-integrations/RestaurantAPI.ts';
+import { handleFoodItemsInfo, handleFoodItemsInfoWithSearch } from '../api-integrations/RestaurantAPI.ts';
 import { motion } from "framer-motion";
 import { handleBasketAddItem } from '../api-integrations/BasketAPI.ts';
 import { handleLoadImage } from '../api-integrations/ImageAPI.ts';
@@ -59,8 +59,6 @@ const FoodItemComponent: React.FC<{info: FoodItemInfo}> = ({info}) => {
     }, []);
 
     useEffect(() => {
-
-
 
         loadingItems.startLoading();
         loadingItems.startLoadingAnimation();
@@ -177,6 +175,8 @@ const FoodItemsPage: React.FC = () => {
 
     const [isMobile, setIsMobile] = useState<boolean>(false);
 
+    const [inputValue, setInputValue] = useState('');
+
     const isTimeInRange = (startTime: string, endTime: string): boolean => {
         const currentTime = new Date();
         const start = new Date();
@@ -224,7 +224,7 @@ const FoodItemsPage: React.FC = () => {
 
         const fooditemsinfo = await handleFoodItemsInfo(accessToken, restaurantInfo.id);
     
-        if (fooditemsinfo !== null) {
+        if (fooditemsinfo !== null && inputValue === '') {
             setFoodItemsInfo(fooditemsinfo);
         }
     
@@ -237,6 +237,36 @@ const FoodItemsPage: React.FC = () => {
           await GetFoodItemsAPI(accessToken);
         }
     }
+
+
+    const GetFoodItemsWithSearchAPI = async (accessToken: string) => {
+
+        const fooditemsinfo = await handleFoodItemsInfoWithSearch(accessToken, restaurantInfo.id, inputValue);
+    
+        if (fooditemsinfo !== null) {
+            setFoodItemsInfo(fooditemsinfo);
+        }
+    
+    }
+
+    const FoodItemsGetSearched = async () => {
+        const accessToken: string = await StorageGetItem('AccessToken');
+    
+        if (accessToken !== "empty") {
+          await GetFoodItemsWithSearchAPI(accessToken);
+        }
+    }
+
+    useEffect(()=> {
+        if (inputValue !== '') {
+          setFoodItemsInfo(null);
+          FoodItemsGetSearched();
+        }
+        else {
+          setFoodItemsInfo(null);
+          FoodItemsGet();
+        }
+    }, [inputValue])
 
     return (<>
         <BackButton onClick={()=>navigate("/")}/>
@@ -265,11 +295,23 @@ const FoodItemsPage: React.FC = () => {
 
             <div className="app_fooditem_content" style={isMobile ? {height: `calc(100vh - 240px)`} : {}}>
                
-                
-                {fooditems !== null && fooditems.map((item, index) => <>
-                    <FoodItemComponent key={index} info={item}/>
-                </>)}
-              
+                <div className="app_maincontent_searchbar_decor restaurants fooditems" style={{marginBottom: "5px"}}>
+                      <input className='app_maincontent_searchbar'
+                          type="text"
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          placeholder={'Поиск'}
+                          style={{backgroundColor: '#EAEAEA'}}
+                      /> 
+
+                      <div className="app_maincontent_searchbar_icon"></div>
+                </div>
+
+                <div className="app_fooditem_content_area">
+                    {fooditems !== null && fooditems.map((item, index) => <>
+                        <FoodItemComponent key={index} info={item}/>
+                    </>)}
+                </div>
             </div>
 
             

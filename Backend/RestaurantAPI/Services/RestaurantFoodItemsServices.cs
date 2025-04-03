@@ -67,16 +67,26 @@ namespace RestaurantAPI.Model.Services
         }
 
 
-        public async Task<List<RestaurantFoodItemsDto>> GetRestaurantFoodItems(Guid restaurantId)
+        public async Task<List<RestaurantFoodItemsDto>> GetRestaurantFoodItems(Guid restaurantId, string? search)
         {
-            var restaurantFoodItems = await _dbcontext.restaurantFoodItemsTable
+            var restaurantFoodItems = search == null ? await _dbcontext.restaurantFoodItemsTable
                 .Where(c => c.restaurant_id == restaurantId)
                 .Select(x => new RestaurantFoodItemsDto(
                     x.Id, x.restaurant_id,
                     x.name, x.price,
                     x.image, x.weight, 
                     x.calories))
+                .ToListAsync() :
+                 await _dbcontext.restaurantFoodItemsTable
+                .Where(c => c.restaurant_id == restaurantId && 
+                            (c.name.ToLower().Contains(search.ToLower()) || c.name.ToUpper().Contains(search.ToUpper())))
+                .Select(x => new RestaurantFoodItemsDto(
+                    x.Id, x.restaurant_id,
+                    x.name, x.price,
+                    x.image, x.weight,
+                    x.calories))
                 .ToListAsync();
+
             return restaurantFoodItems;
         }
 
@@ -89,6 +99,8 @@ namespace RestaurantAPI.Model.Services
                     x.image, x.weight,
                     x.calories))
                 .ToListAsync();
+
+
             return restaurantFoodItems;
         }
 
