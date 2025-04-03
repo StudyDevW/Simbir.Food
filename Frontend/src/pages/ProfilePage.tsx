@@ -245,9 +245,10 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
                             <ElementMenu 
                                 is_mobile={isMobile} 
-                                name_element="Управление" 
+                                name_element="Рестораны во владении" 
                                 description="" 
-                                icon_url=""/>
+                                icon_url=""
+                                onClickEx={() => navigate('/restaurantsOwner')}/>
 
 
                             <ElementMenu 

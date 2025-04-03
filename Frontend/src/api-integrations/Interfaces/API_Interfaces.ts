@@ -171,3 +171,11 @@ export interface ClientGetAll {
     settings: ClientSelectionSettings;
     content: ClientInfo[];
 }
+
+export interface RestaurantsInfoForOwner {
+    id: string,
+    restaurantName: string,
+    address: string,
+    status: number,
+    imagePath: string
+}

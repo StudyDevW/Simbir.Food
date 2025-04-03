@@ -6,6 +6,7 @@ using ORM_Components.DTO.ClientAPI.FrozenAll;
 using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
 using ORM_Components.DTO.ClientAPI.Review;
+using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 
 namespace ClientAPI.Interfaces
@@ -85,5 +86,9 @@ namespace ClientAPI.Interfaces
         public Task CreateReview(ReviewTable review);
 
         public Task UpdateReview(Guid reviewId, ReviewDtoForUpdate reviewDtoUpdate);
+
+        public Task<List<RestaurantDTOForOwnerList>> GetAllUserRestaurants(Guid userId);
+
+        public Task<List<OrderInfo>> GetAllOrdersFromRestaurant(Guid restaurantId, bool isNeedAllOrders);
     }
 }

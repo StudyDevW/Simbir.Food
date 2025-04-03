@@ -2,6 +2,7 @@ import axios from 'axios';
 import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { TokenNeedUpdate } from './TokenObserver.ts';
 import { GetMeInfo, ClientGetAll } from './Interfaces/API_Interfaces.ts';
+import { RestaurantsInfoForOwner } from './Interfaces/API_Interfaces.ts';
 
 var CLIENT_API_URL = import.meta.env.VITE_CLIENT_API;
 
@@ -55,10 +56,6 @@ const handleGetInfoForAllUsers = async (
     count: number = 10
 ): Promise<ClientGetAll | null> => {
     const accessToken = await StorageGetItem("AccessToken");
-    if (accessToken === "empty") {
-        console.error('Access token is empty');
-        return null;
-    }
 
     try {
         const response = await axios.get<ClientGetAll>(
@@ -87,4 +84,52 @@ const handleGetInfoForAllUsers = async (
     }
 };
 
-export { handleGetInfoMe, handleGetInfoForAllUsers }
+const handleRestaurantsForUser = async (accessToken: string, retry: boolean = true) : Promise<RestaurantsInfoForOwner[] | null> => {
+
+    try {
+        const response = await axios.get(`${CLIENT_API_URL}/api/Clients/Restaurants`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+
+            const result: RestaurantsResponse = response.data;
+           
+            return result;
+        }
+
+        return null;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleRestaurantsForUser(accessTokens, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return null;
+            }
+        }
+
+        return null;
+    }
+}
+
+export { handleGetInfoMe, handleGetInfoForAllUsers, handleRestaurantsForUser }

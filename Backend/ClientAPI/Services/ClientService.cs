@@ -12,6 +12,7 @@ using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
 using ORM_Components.DTO.ClientAPI.Review;
 using ORM_Components.DTO.PaymentAPI;
+using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using Telegram_Components.Interfaces;
 
@@ -137,7 +138,7 @@ namespace ClientAPI.Services
                         return pair_tokens;
                     }
                 }
-              
+
             }
 
             return null;
@@ -514,14 +515,14 @@ namespace ClientAPI.Services
                 if (validation.token_success.userRoles.Contains("Admin"))
                 {
                     var requests = _database.GetAllRequestsForAdmin();
-                        
+
                     if (requests != null)
                     {
                         return requests;
                     }
                     else
                         throw new Exception("not_founded");
-                  
+
                 }
                 else
                 {
@@ -884,7 +885,7 @@ namespace ClientAPI.Services
                     throw new Exception("role_invalid");
                 }
 
-             
+
             }
 
             return null;
@@ -966,6 +967,37 @@ namespace ClientAPI.Services
             {
                 await _database.UpdateReview(reviewId, reviewUpdateDto);
             }
+        }
+
+        public async Task<List<RestaurantDTOForOwnerList>> GetAllUserRestaurants(string bearer_key)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                Guid userId = validation.token_success.Id;
+                return await _database.GetAllUserRestaurants(userId);
+            }
+            return new List<RestaurantDTOForOwnerList>();
+        }
+
+        public async Task<List<OrderInfo>> GetAllOrdersForRestaurant(string bearer_key, Guid restaurantId, bool isNeedAllOrders)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                return await _database.GetAllOrdersFromRestaurant(restaurantId, isNeedAllOrders);
+            }
+            return new List<OrderInfo>();
         }
     }
 }

@@ -49,26 +49,31 @@ namespace RestaurantAPI.Model.Services
             return chatId;
         }
 
-        public async Task OrderRejections(Order_DTO order)
+        public async Task OrderRejections(Guid orderId)
         {
-            var orderRejections = await _dataContext.orderTable.FindAsync(order.id);
+            var orderRejections = await _dataContext.orderTable.FindAsync(orderId);
 
             if (orderRejections == null)
             {
-                throw new OrderNotFoundException(order.id);
+                throw new OrderNotFoundException(orderId);
             }
 
             if (orderRejections.status == OrderStatus.Delivered)
             {
-                throw new OrderAlreadyDelivered(order.id);
+                throw new OrderAlreadyDelivered(orderId);
             }
 
             orderRejections.status = OrderStatus.Denied;
 
             await _dataContext.SaveChangesAsync();
 
-            var userChatId = await GetUserChatId(order.client_id);
-            var messageToClient = $"Ваш заказ с ID: {order.id} был отклонён.";
+            Guid client_id = await _dataContext.orderTable
+                .Where(x => x.Id == orderId)
+                .Select(x => x.client_id)
+                .FirstAsync();
+
+            var userChatId = await GetUserChatId(client_id);
+            var messageToClient = $"Ваш заказ с ID: {orderId} был отклонён.";
             await _tgmessageSender.Send(userChatId.ToString(), messageToClient);
         }
 
@@ -219,7 +224,7 @@ namespace RestaurantAPI.Model.Services
 
                 allRestaurants.Add(restaurantCompile);
             }
-
+            Console.WriteLine("Посмотри " + allRestaurants.Count);
             return allRestaurants.Where(c => c.travelInfo.distanceKM <= 4.0).ToList();
         }
 

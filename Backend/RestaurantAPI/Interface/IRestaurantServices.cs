@@ -12,7 +12,7 @@ namespace RestaurantAPI.Model.Interface
         Task DeleteAllRestaurant();
         Task<List<RestaurantMark_DTO>> GetRestaurantMark();
         Task SetReadyStatusForOrder(Guid orderId);
-        Task OrderRejections(Order_DTO order);
+        Task OrderRejections(Guid orderId);
 
     }
 

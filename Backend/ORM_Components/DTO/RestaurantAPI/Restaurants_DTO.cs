@@ -18,6 +18,12 @@ namespace ORM_Components.DTO.RestaurantAPI
          float average_mark, YandexDistance travelInfo)
     { }
 
+    public record RestaurantDTOForOwnerList(
+         Guid Id, 
+         string restaurantName, string address,
+         RestaurantStatus status, string imagePath)
+    { }
+
     public record RestaurantCreate_DTO(
         Guid userId, string restaurantName,
         string address, string phone_number,

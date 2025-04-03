@@ -1709,12 +1709,340 @@ input::-webkit-inner-spin-button
   font-size: 0.9rem
   transition: background 0.2s
 
+.restaurantOwner-page
+  font-family: MUSEOSANS
+  h2
+    color: #004681
+    text-align: center
+    margin-bottom: 1.5rem
+    font-size: 1.5rem
+    padding-bottom: 0.5rem
+    border-bottom: 1px solid #eaeaea
+
+.scrollable-container
+  height: 100%
+  overflow: hidden
+  display: flex
+  flex-direction: column
+
+.restaurantsOwner-list.with-scroll
+  flex: 1
+  overflow-y: auto
+  overflow-x: hidden
+  scroll-behavior: smooth
+  -webkit-overflow-scrolling: touch
+  padding-right: 8px 
+  margin-right: -8px
+
+.restaurantsOwner-list
+  display: grid
+  grid-template-columns: 1fr
+  gap: 1.2rem
+  margin-top: 1.5rem
+
+
+.restaurantOwner-card
+  background: #fff
+  border-radius: 8px
+  overflow: hidden
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1)
+  transition: all 0.2s ease
+  position: relative
+  transform: translateZ(0)
+  backface-visibility: hidden
+  margin: 8px
+
+  &:hover
+    transform: translateY(-3px)
+    box-shadow: 0 4px 12px rgba(0, 70, 129, 0.15)
+
+  &:active
+    transform: translateY(-1px)
+
+
+.restaurantOwner-image
+  width: 100%
+  height: 180px
+  object-fit: cover
+  display: block
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%)
+  transition: opacity 0.3s ease
+  opacity: 1
+
+  &[src*="default-restaurant.jpg"]
+    object-fit: contain
+    padding: 1rem
+    background: #f5f5f5
+
+  .restaurantOwner-card.loading &
+    opacity: 0
+
+.restaurantOwner-info
+  padding: 1.2rem
+
+  h3
+    margin: 0 0 0.5rem 0
+    color: #004681
+    font-size: 1.2rem
+    font-weight: 600
+
+  p
+    margin: 0.3rem 0
+    color: #555
+    font-size: 0.95rem
+    line-height: 1.4
+
+    &:last-of-type
+      margin-bottom: 0
+
   &:hover:not(:disabled)
     background: #003366
 
   &:disabled
     background: #cccccc
     cursor: not-allowed
+
+.status
+  margin: 0.3rem 0
+  font-size: 0.95rem
+  padding: 0.2rem 0.5rem
+  border-radius: 4px
+  display: inline-block
+
+.status-active
+  background-color: #e8f5e9
+  color: #2e7d32
+  border: 1px solid #c8e6c9
+
+.status-inactive
+  background-color: #ffebee
+  color: #c62828
+  border: 1px solid #ffcdd2
+
+.status-frozen
+  background-color: #e3f2fd
+  color: #1565c0
+  border: 1px solid #bbdefb
+
+.orders-page
+  padding: 20px
+  max-width: 1200px
+  margin: 0 auto
+  font-family: MUSEOSANS
+  
+  h2
+    color: #2d3748
+    font-size: 24px
+    margin-bottom: 25px
+    font-weight: 600
+    text-align: center
+    position: relative
+    
+    &::after
+      content: ''
+      display: block
+      width: 60px
+      height: 3px
+      background: #4299e1
+      margin: 10px auto 0
+
+.order-card
+  background: white
+  border-radius: 12px
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)
+  margin-bottom: 25px
+  overflow: hidden
+  transition: all 0.3s ease
+  
+  &:hover
+    transform: translateY(-2px)
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)
+
+.order-header
+  display: flex
+  justify-content: space-between
+  align-items: center
+  padding: 16px 20px
+  background: #f7fafc
+  border-bottom: 1px solid #e2e8f0
+  
+  h3
+    margin: 0
+    font-size: 18px
+    color: #2d3748
+    font-weight: 600
+  
+  .status
+    padding: 6px 12px
+    border-radius: 20px
+    font-size: 14px
+    font-weight: 500
+    text-transform: capitalize
+    
+    &.new, &.pending
+      background: #bee3f8
+      color: #2b6cb0
+    
+    &.processing, &.preparing
+      background: #feebc8
+      color: #b7791f
+    
+    &.delivered, &.completed
+      background: #c6f6d5
+      color: #276749
+    
+    &.cancelled, &.rejected
+      background: #fed7d7
+      color: #9b2c2c
+
+.order-details
+  padding: 20px
+  
+  > div
+    margin-bottom: 20px
+    
+    &:last-child
+      margin-bottom: 0
+  
+  h4
+    color: #4a5568
+    font-size: 16px
+    margin: 0 0 12px 0
+    font-weight: 600
+    display: flex
+    align-items: center
+    
+    &::before
+      content: ''
+      display: inline-block
+      width: 4px
+      height: 16px
+      background: #4299e1
+      margin-right: 8px
+      border-radius: 2px
+  
+  p
+    margin: 6px 0
+    color: #4a5568
+    font-size: 14px
+    
+    strong
+      color: #2d3748
+      font-weight: 500
+
+/* Состав заказа */
+.food-items
+  ul
+    list-style: none
+    padding: 0
+    margin: 0
+    border: 1px solid #edf2f7
+    border-radius: 8px
+    overflow: hidden
+  
+  .food-item
+    display: flex
+    gap: 15px
+    padding: 12px
+    border-bottom: 1px solid #edf2f7
+    transition: background 0.2s
+    
+    &:last-child
+      border-bottom: none
+    
+    &:hover
+      background: #f8fafc
+    
+    .food-item-image
+      img
+        width: 70px
+        height: 70px
+        border-radius: 8px
+        object-fit: cover
+        border: 1px solid #e2e8f0
+    
+    .food-item-info
+      flex: 1
+      
+      p:first-child
+        font-weight: 500
+        margin-bottom: 6px
+        color: #2d3748
+      
+      p:last-child
+        font-size: 13px
+        color: #718096
+        display: flex
+        gap: 15px
+        
+        span
+          display: inline-flex
+          align-items: center
+          
+          &::before
+            content: '·'
+            margin-right: 5px
+
+.scrollable-content
+  overflow-y: auto
+
+.order-actions
+  display: flex
+  gap: 10px
+  margin-top: 20px
+  padding-top: 15px
+  border-top: 1px solid #e2e8f0
+
+.action-button
+  flex: 1
+  padding: 10px 15px
+  border: none
+  border-radius: 8px
+  font-weight: 500
+  cursor: pointer
+  transition: all 0.2s ease
+  font-size: 14px
+
+  &.ready-button
+    background: #48bb78
+    color: white
+    
+    &:hover
+      background: #38a169
+
+  &.reject-button
+    background: #f56565
+    color: white
+    
+    &:hover
+      background: #e53e3e
+
+.orders-tabs
+  display: flex
+  margin-bottom: 20px
+  border-bottom: 1px solid #e2e8f0
+
+.tab-button
+  padding: 10px 20px
+  background: none
+  border: none
+  border-bottom: 2px solid transparent
+  cursor: pointer
+  font-size: 16px
+  transition: all 0.3s ease
+  
+  &.active
+    border-bottom-color: #4299e1
+    color: #4299e1
+    font-weight: 500
+
+  &:hover
+    background: #f7fafc
+
+@media (max-width: 768px)
+  .order-actions
+    flex-direction: column
+    gap: 8px
 
 @keyframes loading_grad
   0% 

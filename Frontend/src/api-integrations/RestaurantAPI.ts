@@ -197,5 +197,92 @@ const handleFoodItemsInfoWithSearch = async (accessToken: string, restaurantId: 
     }
 }
 
+const handleOrderMarkAsReadyByRestaurant = async (accessToken: string, orderId: string, retry: boolean = true): Promise<any> => {
+    try {
+        const response = await axios.post(`${RESTAURANT_API_URL}/api/Restaurant/SetReadyStatusForOrder?orderId=${orderId}`,
+            {},
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
 
-export { handleRestaurantsInfo, handleRestaurantsInfoWithSearch, handleFoodItemsInfo, handleFoodItemsInfoWithSearch }
+        if (response.status === 200) {
+            return true;
+        }
+
+        return false;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleOrderMarkAsReadyByRestaurant(accessTokens, orderId, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return false;
+            }
+        }
+
+        return false;
+    }
+}
+
+const handleOrderRejectByRestaurant = async (accessToken: string, orderId: string, retry: boolean = true): Promise<any> => {
+    try {
+        const response = await axios.post(`${RESTAURANT_API_URL}/api/Restaurant/OrderRejections?orderId=${orderId}`,
+            {},
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+            return true;
+        }
+
+        return false;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleOrderRejectByRestaurant(accessTokens, orderId, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return false;
+            }
+        }
+
+        return false;
+    }
+}
+
+export { handleRestaurantsInfo, handleRestaurantsInfoWithSearch, handleFoodItemsInfo, handleFoodItemsInfoWithSearch, handleOrderMarkAsReadyByRestaurant, handleOrderRejectByRestaurant }
