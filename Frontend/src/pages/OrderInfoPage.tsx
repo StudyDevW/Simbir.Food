@@ -96,7 +96,7 @@ const OrderItem: React.FC<{info: OrderInfo, onClick: () => void }> = ({info, onC
     </>)
 }
 
-const OrderWithMap: React.FC<{localaddress: string, info: OrderInfo}> = ({localaddress, info}) => {
+const OrderWithMap: React.FC<{info: OrderInfo}> = ({info}) => {
 
     const [imageAvatar, setImageAvatar] = useState<string>("");
     const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -158,10 +158,10 @@ const OrderWithMap: React.FC<{localaddress: string, info: OrderInfo}> = ({locala
             <div className="app_delivery_header_image"></div>
 
 
-            {localaddress !== null && 
+            {info.client_address !== null && 
             <>
                 <div className="app_delivery_header_title_area">
-                    <div className="app_delivery_header_title">{localaddress}</div>
+                    <div className="app_delivery_header_title">{info.client_address}</div>
                     <div className="app_delivery_header_title big">Адрес доставки</div>
                 </div>
             </>}
@@ -355,7 +355,7 @@ const OrderInfoPage: React.FC = () => {
                 </>}
 
                 {(userInfo !== null && detailsClicked) && <>
-                    <OrderWithMap info={orderInformation.find(index => index.order_id === selectedOrderId)!} localaddress={userInfo.address!}/>
+                    <OrderWithMap info={orderInformation.find(index => index.order_id === selectedOrderId)!}/>
                 </>}
 
             </div>

@@ -124,14 +124,18 @@ namespace RestaurantAPI.Model.Services
             return false;
         }
 
-        public async Task<List<Restaurants_DTO>> GetAllRestaurant(string bearerKey)
+        public async Task<List<Restaurants_DTO>> GetAllRestaurant(string bearerKey, string? search)
         {
             var validation = await _jwt.AccessTokenValidation(bearerKey);
 
             if (validation.TokenHasError())
                 throw new Exception("token_invalid");
 
-            var selectedRestaurants = await _dataContext.restaurantTable.ToListAsync();
+            var selectedRestaurants = 
+                search == null ? 
+                await _dataContext.restaurantTable.ToListAsync() : 
+                await _dataContext.restaurantTable.Where(c => c.restaurantName.ToLower().Contains(search.ToLower()) || c.restaurantName.ToUpper().Contains(search.ToUpper()))
+                .ToListAsync();
 
             var selectedClient = await _dataContext.userTable.Where(c => c.Id == validation.token_success!.Id).FirstOrDefaultAsync();
 

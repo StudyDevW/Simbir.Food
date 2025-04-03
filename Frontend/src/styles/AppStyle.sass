@@ -207,6 +207,7 @@ body
     bottom: 0
 
 
+
 .app_maincontent.maps
     position: fixed
     bottom: 0
@@ -557,6 +558,17 @@ input::-webkit-inner-spin-button
     height: 35px
     background-color: #D9D9D9
     border-radius: 10px
+    
+
+.app_maincontent_searchbar_decor.restaurants
+    margin-left: 15px
+    width: calc(100% - 15px * 2)
+    background-color: #EAEAEA
+
+.app_maincontent_searchbar_decor.restaurants.fooditems
+    margin-left: 10px
+    width: calc(100% - 10px * 2)
+    margin-top: 12px
 
 .app_maincontent_title
     font-family: MUSEOSANS
@@ -1133,9 +1145,9 @@ input::-webkit-inner-spin-button
   align-content: flex-start
   justify-content: left
   position: absolute
-  margin-top: 55px
+  margin-top: 105px
   width: calc(100%)
-  height: calc(100% - 55px)
+  height: calc(100% - 105px)
   overflow-y: auto
 
 @media (min-width: 620px) 
@@ -1145,6 +1157,7 @@ input::-webkit-inner-spin-button
 
 .app_maincontent_restaurant_block
   display: flex
+  animation: increase_up_opacity 0.5s forwards normal
   flex: none
   flex-direction: row
   flex-wrap: wrap
@@ -1153,7 +1166,7 @@ input::-webkit-inner-spin-button
   margin-bottom: 10px
   width: calc(100% - 30px)
   height: 38vh
-  max-height: 300px
+  max-height: 270px
   background-color: #EAEAEA
   border-radius: 15px
 
@@ -1275,10 +1288,8 @@ input::-webkit-inner-spin-button
   animation: increase_up_opacity 1s forwards normal
 
 .app_fooditem_content
-  display: flex
-  flex-direction: row
-  flex-wrap: wrap
   position: absolute
+  flex: none
   width: calc(100% - 15px * 2)
   margin-left: 15px
   margin-top: 80px
@@ -1286,9 +1297,18 @@ input::-webkit-inner-spin-button
   background-color: white
   border-radius: 15px
   padding-bottom: 10px
+
+.app_fooditem_content_area
+  position: absolute
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  width: 100%
+  height: calc(100% - 55px)
   overflow-y: scroll
 
-.app_fooditem_content::-webkit-scrollbar
+
+.app_fooditem_content_area::-webkit-scrollbar
   display: none
 
 .app_fooditem_content_item

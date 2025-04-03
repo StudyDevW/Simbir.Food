@@ -9,7 +9,7 @@ namespace RestaurantAPI.Model.Interface
         Task AddRestaurantFoodItems(RestaurantFoodItemsDtoForCreate restaurantFoodItemsDtoForCreate);
         Task DeleteRestaurantFoodItems(Guid id);
         Task DeleteAllRestaurantFoodItems(Guid restaurantId);
-        Task<List<RestaurantFoodItemsDto>> GetRestaurantFoodItems(Guid restaurantId);
+        Task<List<RestaurantFoodItemsDto>> GetRestaurantFoodItems(Guid restaurantId, string? search);
         Task<List<RestaurantFoodItemsDto>> GetAllRestaurantFoodItems();
         Task UpdateRestaurantFoodItems(Guid food_Id, RestaurantFoodItemsDtoForUpdate restaurantFoodItemsDtoForUpdate);
     }
