@@ -24,6 +24,7 @@ import UsersPage from './pages/AdminPages/UsersPage.tsx';
 import RestaurantsOwnerPage from './pages/RestaurantPages/RestaurantsOwnerPage.tsx';
 import RestaurantsOrdersOwnerPage from './pages/RestaurantPages/RestaurantsOrdersOwnerPage.tsx';
 import AvailableOrdersPage from './pages/CourierPages/AvailableOrdersPage.tsx';
+import AddressPageCourier from './pages/CourierPages/CourierOrderMapPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -122,6 +123,12 @@ const router = createBrowserRouter([
         <AvailableOrdersPage/>
     ),
   },
+  {
+    path: '/couriermap',
+    element: (
+        <AddressPageCourier/>
+    ),
+  }
 ]);
 
 createRoot(document.getElementById('root')!).render(

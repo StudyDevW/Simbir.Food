@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import WebApp from "@twa-dev/sdk";
 import { BackButton } from '@twa-dev/sdk/react';
 import { handleOrdersGetInRestaurant, handleAllOrdersGetForRestaurantOfAllTime } from '../../api-integrations/OrderAPI';
@@ -17,6 +17,10 @@ const RestaurantsOrdersOwnerPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const restaurantId = searchParams.get('restaurantId');
+    
+    const locationReact = useLocation();
+    
+    const nameRestaurant = locationReact.state?.nameRest || '';
 
     useEffect(() => {
         WebApp.setHeaderColor('#EAEAEA');
@@ -131,9 +135,17 @@ const RestaurantsOrdersOwnerPage: React.FC = () => {
                     marginTop: '100px',
                     height: 'calc(100vh - 100px)'
                 } : { height: '100vh' }}>
+
+
+
+
                     <div className="scrollable-content">
                         <div className="orders-page">
-                            <h2>Заказы ресторана {orders[0]?.restaurant_info?.restaurantName || restaurantId}</h2>
+                            <div className="app_fooditem_header" style={{marginTop: `0px`,position: "relative", marginLeft: '0px', width: '100%', marginBottom: '15px'}}>
+                                <div className="app_fooditem_header_title" style={{marginBottom: '0px'}}>{`${nameRestaurant}`}</div>
+
+                                <div className="app_fooditem_header_title" style={{marginTop: '5px', alignContent: "flex-start", fontSize: '15px'}}>{`Заказы ресторана`}</div>
+                            </div>
                             
                             <div className="orders-tabs">
                                 <button 
@@ -159,8 +171,8 @@ const RestaurantsOrdersOwnerPage: React.FC = () => {
                                     {orders.map(order => (
                                         <div key={order.order_id} className="order-card">
                                             <div className="order-header">
-                                                <h3>Заказ #{order.order_id.substring(0, 8)}</h3>
-                                                <span className={`status ${getStatusClass(order.status_order)}`}>
+                                                <div className="order-header-font">Заказ #{order.order_id.substring(0, 8)}</div>
+                                                <span className={`status ${getStatusClass(order.status_order)}`} style={{color: "white"}}>
                                                     {order.status_order}
                                                 </span>
                                             </div>

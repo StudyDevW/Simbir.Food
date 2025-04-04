@@ -67,22 +67,22 @@ const AvailableOrdersPage: React.FC = () => {
         return new Date(dateString).toLocaleDateString('ru-RU', options);
     };
 
-    const handleAcceptOrder = async (orderId: string) => {
-        if (window.confirm("Вы уверены, что хотите принять этот заказ?")) {
-            try {
-                const accessToken = await StorageGetItem("AccessToken");
-                if (accessToken === "empty") return;
+    // const handleAcceptOrder = async (orderId: string) => {
+    //     if (window.confirm("Вы уверены, что хотите принять этот заказ?")) {
+    //         try {
+    //             const accessToken = await StorageGetItem("AccessToken");
+    //             if (accessToken === "empty") return;
                 
-                // Здесь должен быть вызов API для принятия заказа
-                // await acceptOrderApiCall(orderId, accessToken);
-                alert(`Заказ ${orderId} принят!`);
-                fetchOrders(); // Обновляем список
-            } catch (error) {
-                console.error("Ошибка при принятии заказа:", error);
-                alert("Не удалось принять заказ");
-            }
-        }
-    };
+    //             // Здесь должен быть вызов API для принятия заказа
+    //             // await acceptOrderApiCall(orderId, accessToken);
+    //             alert(`Заказ ${orderId} принят!`);
+    //             fetchOrders(); // Обновляем список
+    //         } catch (error) {
+    //             console.error("Ошибка при принятии заказа:", error);
+    //             alert("Не удалось принять заказ");
+    //         }
+    //     }
+    // };
 
     return (
         <>
@@ -91,7 +91,7 @@ const AvailableOrdersPage: React.FC = () => {
                 <div className="app_layout_area" style={isMobile ? { marginTop: '100px' } : {}}>
                     <div className="scrollable-content">
                         <div className="orders-page">
-                            <h2>Доступные заказы</h2>
+                            <div className="order-page-font">Доступные заказы</div>
                             
                             {loading ? (
                                 <div className="loading">Загрузка...</div>
@@ -102,8 +102,8 @@ const AvailableOrdersPage: React.FC = () => {
                                     {orders.map(order => (
                                         <div key={order.orderId} className="order-card">
                                             <div className="order-header">
-                                                <h3>Заказ #{order.orderId.substring(0, 8)}</h3>
-                                                <span className="order-date">
+                                                <div className="order-header-font">Заказ #{order.orderId.substring(0, 8)}</div>
+                                                <span style={{color: "white"}} className="order-date">
                                                     {formatDate(order.orderDate)}
                                                 </span>
                                             </div>
@@ -116,9 +116,9 @@ const AvailableOrdersPage: React.FC = () => {
                                                 
                                                 <button 
                                                     className="accept-button"
-                                                    onClick={() => handleAcceptOrder(order.orderId)}
+                                                    onClick={() => navigate('/couriermap', {state: { orderInfo: order }})}
                                                 >
-                                                    Принять заказ
+                                                    Детали
                                                 </button>
                                             </div>
                                         </div>

@@ -5,15 +5,15 @@ import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-i
 import { useNavigate, useLocation, data } from 'react-router-dom';
 import { loadingComponent } from '../LoadingComponent.ts';
 import { BackButton } from '@twa-dev/sdk/react';
-import { FoodItemInfo, RestaurantInfo } from '../api-integrations/Interfaces/API_Interfaces.ts';
+import { FoodItemInfo, GetBasketInfo, RestaurantInfo } from '../api-integrations/Interfaces/API_Interfaces.ts';
 import { handleFoodItemsInfo, handleFoodItemsInfoWithSearch } from '../api-integrations/RestaurantAPI.ts';
 import { motion } from "framer-motion";
-import { handleBasketAddItem } from '../api-integrations/BasketAPI.ts';
+import { handleBasketAddItem, handleGetBasketInfo } from '../api-integrations/BasketAPI.ts';
 import { handleLoadImage } from '../api-integrations/ImageAPI.ts';
 
 var loadingItems = new loadingComponent();
 
-const FoodItemComponent: React.FC<{info: FoodItemInfo}> = ({info}) => {
+const FoodItemComponent: React.FC<{info: FoodItemInfo, onClickInner: () => void}> = ({info, onClickInner}) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const textRef = useRef<HTMLDivElement>(null);
     const [isOverflowing, setIsOverflowing] = useState(false);
@@ -104,7 +104,6 @@ const FoodItemComponent: React.FC<{info: FoodItemInfo}> = ({info}) => {
 
     useEffect(() => {
         if (addedItem) {
-           WebApp.showConfirm("Товар успешно добавлен в корзину");
            setAddedItem(false);
         }
     }, [addedItem])
@@ -149,7 +148,7 @@ const FoodItemComponent: React.FC<{info: FoodItemInfo}> = ({info}) => {
             
                 <div className="app_fooditem_content_item_weight">{info.weight > 0 ? `${info.weight}г` : ``}</div>
 
-                <div className="app_fooditem_content_item_basketbutton" onClick={() => AddBasketItem(info.id)}>
+                <div className="app_fooditem_content_item_basketbutton" onClick={() => { AddBasketItem(info.id); onClickInner(); }}>
                     <div className="textdiv">
                     {`Добавить`}
                     </div>
@@ -174,6 +173,8 @@ const FoodItemsPage: React.FC = () => {
     const [fooditems, setFoodItemsInfo] = useState<FoodItemInfo[] | null>(null);
 
     const [isMobile, setIsMobile] = useState<boolean>(false);
+
+    const [basketInfo, setBasketInfo] = useState<GetBasketInfo | null>(null);
 
     const [inputValue, setInputValue] = useState('');
 
@@ -202,7 +203,15 @@ const FoodItemsPage: React.FC = () => {
           setIsMobile(false);
 
       WebApp.ready();
+
+
     }, [])
+
+    useEffect(()=>{
+      if (basketInfo === null) {
+        BasketGet();
+      }
+    }, [basketInfo])
 
     useEffect(()=>{
       if (isMobile) {
@@ -226,6 +235,23 @@ const FoodItemsPage: React.FC = () => {
         }
     
     }
+
+    const GetBasketRequestAPI = async (accessToken: string) => {
+        const getbasket = await handleGetBasketInfo(accessToken);
+
+        if (getbasket !== null) {
+            setBasketInfo(getbasket);
+        }
+    }
+
+    const BasketGet = async () => {
+        const accessToken: string = await StorageGetItem('AccessToken');
+    
+        if (accessToken !== "empty") {
+          await GetBasketRequestAPI(accessToken);
+        }
+    }
+
 
     const FoodItemsGet = async () => {
         const accessToken: string = await StorageGetItem('AccessToken');
@@ -304,14 +330,25 @@ const FoodItemsPage: React.FC = () => {
                       <div className="app_maincontent_searchbar_icon"></div>
                 </div>
 
-                <div className="app_fooditem_content_area">
+                <div className="app_fooditem_content_area" style={basketInfo !== null && basketInfo.basketInfo.count > 0 ? {paddingBottom: '70px', height: 'calc(100% - 55px - 70px)'} : {}}>
                     {fooditems !== null && fooditems.map((item, index) => <>
-                        <FoodItemComponent key={index} info={item}/>
+                        <FoodItemComponent key={index} info={item} onClickInner={() => setBasketInfo(null)}/>
                     </>)}
                 </div>
             </div>
 
-            
+      
+            {basketInfo !== null && basketInfo.basketInfo.count > 0 && <>
+                <div className="app_basket_order_complete_area" style={
+                    isMobile ? {marginBottom: 'calc(100px + 45px)'} : {}
+                    }>
+                    <div className="app_basket_order_complete_button" onClick={()=>navigate("/basket")}>
+                        {`Корзина на ${basketInfo.basketInfo.totalPrice} руб`}
+                    </div>
+                </div>
+                </>
+            }
+     
             
             {(isMobile) && <div className="app_mobile_footer">Симбир Еда</div>}
             </div>
