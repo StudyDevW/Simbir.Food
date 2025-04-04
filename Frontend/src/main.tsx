@@ -23,6 +23,7 @@ import RequestsPage from './pages/AdminPages/RequestsPage.tsx';
 import UsersPage from './pages/AdminPages/UsersPage.tsx';
 import RestaurantsOwnerPage from './pages/RestaurantPages/RestaurantsOwnerPage.tsx';
 import RestaurantsOrdersOwnerPage from './pages/RestaurantPages/RestaurantsOrdersOwnerPage.tsx';
+import AvailableOrdersPage from './pages/CourierPages/AvailableOrdersPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -113,6 +114,12 @@ const router = createBrowserRouter([
     path: '/restaurantsOwner-orders',
     element: (
         <RestaurantsOrdersOwnerPage/>
+    ),
+  },
+  {
+    path: '/ordersForCourier',
+    element: (
+        <AvailableOrdersPage/>
     ),
   },
 ]);

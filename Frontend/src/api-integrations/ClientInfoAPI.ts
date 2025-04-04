@@ -96,7 +96,7 @@ const handleRestaurantsForUser = async (accessToken: string, retry: boolean = tr
 
         if (response.status === 200) {
 
-            const result: RestaurantsResponse = response.data;
+            const result: RestaurantsInfoForOwner[] = response.data;
            
             return result;
         }

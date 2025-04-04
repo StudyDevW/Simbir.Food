@@ -263,12 +263,13 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
                         {info.roles.includes("Courier") && <>
                             <div className="app_profile_elements_separator">{`Курьеру`}</div>
-
+                            
                             <ElementMenu 
                                 is_mobile={isMobile} 
                                 name_element="Заказы" 
                                 description="Отсутствуют" 
-                                icon_url="./images/orders_icon_courier.png"/>
+                                icon_url="./images/orders_icon_courier.png"
+                                onClickEx={() => navigate('/ordersForCourier')}/>
                         </>}
 
                         {info.roles.includes("Admin") && <>

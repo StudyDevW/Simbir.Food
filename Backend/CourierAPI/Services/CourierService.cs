@@ -81,9 +81,33 @@ namespace CourierAPI.Service
                     .Where(x => x.restaurant_id == restaurantId);
             }
 
-            return await query
-                .Select(x => new OrderForCourierDto(x.Id, x.restaurant_id, x.status, x.order_date))
+            List<OrderForCourierDtoShort> orderData = await query
+                .Select(x => new OrderForCourierDtoShort(x.Id, x.restaurant_id, x.client_id, x.status, x.order_date))
                 .ToListAsync();
+
+            List<OrderForCourierDto> data = new();
+
+            foreach (var order in orderData)
+            {
+                var restaurantInfo = await _dataContext.restaurantTable
+                    .Where(x => x.Id == order.restaurantId)
+                    .Select(x => new
+                    {
+                        x.restaurantName,
+                        x.address
+                    })
+                    .FirstOrDefaultAsync();
+
+                var clientInfo = await _dataContext.userTable
+                    .Where(x => x.Id == order.clientId)
+                    .Select(x => new { x.address })
+                    .FirstOrDefaultAsync();
+
+                data.Add(new OrderForCourierDto(order.orderId, restaurantId, 
+                    restaurantInfo.restaurantName, restaurantInfo.address,
+                    clientInfo.address, order.orderDate));
+            }
+            return data;
         }
 
         public async Task AcceptOrder(Guid orderId)

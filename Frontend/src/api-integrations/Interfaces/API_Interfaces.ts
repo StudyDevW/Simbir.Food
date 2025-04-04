@@ -179,3 +179,12 @@ export interface RestaurantsInfoForOwner {
     status: number,
     imagePath: string
 }
+
+export interface OrderForCourierDto
+{
+    orderId: string,
+    restaurantId: string,
+    restaurantName: string,
+    restaurantAddress: string,
+    orderDate: string
+}
