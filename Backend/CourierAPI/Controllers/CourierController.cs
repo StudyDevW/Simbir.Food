@@ -31,6 +31,17 @@ namespace CourierAPI.Controllers
         }
 
         /// <summary>
+        /// Получает заказ курьера в доставке.
+        /// </summary>
+        /// <returns>Заказ курьера.</returns>
+        /// <response code="200">Возвращает список заказов</response>
+        [HttpGet("ActiveOrderForCourier/{orderId}")]
+        public async Task<ActionResult<OrderForCourierDto>> GetOrder(Guid orderId)
+        {
+            return await _courierService.GetActiveOrder(orderId);
+        }
+
+        /// <summary>
         /// Получает список активных заказов, которые этот курьер доставляет.
         /// </summary>
         /// <returns>Список заказов курьера.</returns>
