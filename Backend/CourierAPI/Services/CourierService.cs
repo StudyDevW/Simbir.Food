@@ -128,7 +128,7 @@ namespace CourierAPI.Service
 
             List<OrderForCourierDtoShort> orderData = await _dataContext.orderTable
                 .Where(x => x.courier_id == courierId && x.status != OrderStatus.Delivered)
-                .Select(x => new OrderForCourierDtoShort(x.Id, x.restaurant_id, x.client_id, x.status, x.order_date))
+                .Select(x => new OrderForCourierDtoShort(x.Id, x.restaurant_id, x.client_id, x.status, x.order_date, x.client_address))
                 .ToListAsync();
 
             List<OrderForCourierDto> data = new();
@@ -155,7 +155,7 @@ namespace CourierAPI.Service
                     restaurantInfo.restaurantName, restaurantInfo.address,
                     restaurantInfo.phone_number, clientInfo.address,
                     clientInfo.photo_url, clientInfo.first_name,
-                    clientInfo.last_name, order.orderDate));
+                    clientInfo.last_name, order.orderDate, order.status));
             }
             return data;
         }

@@ -9,7 +9,7 @@ import { BackButton } from '@twa-dev/sdk/react';
 import { AuthComponent, OrderForCourierDto } from '../../api-integrations/Interfaces/API_Interfaces.ts';
 import { handleOrdersGet } from '../../api-integrations/OrderAPI.ts';
 import { StorageGetItem } from '../../telegram-integrations/cloudstorage/CloudStorage.ts';
-import { handleOrderAccept } from '../../api-integrations/CourierAPI.ts';
+import { handleOrderAccept, handleOrderCourierInPlace, handleOrderDelivered } from '../../api-integrations/CourierAPI.ts';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
@@ -166,13 +166,11 @@ const AddressPageCourier: React.FC = () => {
                 const accessToken = await StorageGetItem("AccessToken");
                 if (accessToken === "empty") return;
                 
-                // Здесь должен быть вызов API для принятия заказа
-                // await acceptOrderApiCall(orderId, accessToken);
-
                 await handleOrderAccept(accessToken, orderId);
 
                 alert(`Заказ ${orderId} принят!`);
-                navigate("/");
+
+                setButtonUpdate(true);
             } catch (error) {
                 console.error("Ошибка при принятии заказа:", error);
                 alert("Не удалось принять заказ");
@@ -180,7 +178,34 @@ const AddressPageCourier: React.FC = () => {
         }
     };
 
-    
+    const handlePlaceOrder = async (orderId: string) => {
+        try {
+            const accessToken = await StorageGetItem("AccessToken");
+            if (accessToken === "empty") return;
+
+            await handleOrderCourierInPlace(accessToken, orderId);
+
+            setButtonUpdate(true);
+        } catch (error) {
+            console.error("Ошибка при принятии заказа:", error);
+            alert("Не удалось принять заказ");
+        }
+    };
+
+    const handleDelivered = async (orderId: string) => {
+        try {
+            const accessToken = await StorageGetItem("AccessToken");
+            if (accessToken === "empty") return;
+
+            await handleOrderDelivered(accessToken, orderId);
+
+            setButtonUpdate(true);
+        } catch (error) {
+            console.error("Ошибка при принятии заказа:", error);
+            alert("Не удалось принять заказ");
+        }
+    };
+
 
     useEffect(() => {
         if (buttonUpdate) {
@@ -289,18 +314,54 @@ const AddressPageCourier: React.FC = () => {
                         
                             </div>
 
-                            <div className="app_maincontent_address_button_complete" 
-                                style={{
-                                    position: 'absolute', 
-                                    marginLeft: '10px', 
-                                    width: 'calc(100% - 20px)', 
-                                    height: '50px', 
-                                    bottom: '10px',
-                                    borderRadius: '15px'
-                                }}
-                                onClick={() => handleAcceptOrder(orderInfo.orderId)}>
-                                    Принять       
-                            </div>
+                            {orderInfo.statusOrder === 3 && <>
+                            
+                                <div className="app_maincontent_address_button_complete" 
+                                    style={{
+                                        position: 'absolute', 
+                                        marginLeft: '10px', 
+                                        width: 'calc(100% - 20px)', 
+                                        height: '50px', 
+                                        bottom: '10px',
+                                        borderRadius: '15px'
+                                    }}
+                                    onClick={() => handleAcceptOrder(orderInfo.orderId)}>
+                                        Принять       
+                                </div>
+                            </>}
+
+                            {orderInfo.statusOrder === 4 && <>
+                            
+                                <div className="app_maincontent_address_button_complete" 
+                                    style={{
+                                        position: 'absolute', 
+                                        marginLeft: '10px', 
+                                        width: 'calc(100% - 20px)', 
+                                        height: '50px', 
+                                        bottom: '10px',
+                                        borderRadius: '15px'
+                                    }}
+                                    onClick={() => handlePlaceOrder(orderInfo.orderId)}>
+                                        Прибыл   
+                                </div>
+                            </>}
+
+                            {orderInfo.statusOrder === 5 && <>
+                            
+                                <div className="app_maincontent_address_button_complete" 
+                                    style={{
+                                        position: 'absolute', 
+                                        marginLeft: '10px', 
+                                        width: 'calc(100% - 20px)', 
+                                        height: '50px', 
+                                        bottom: '10px',
+                                        borderRadius: '15px'
+                                    }}
+                                    onClick={() => handleDelivered(orderInfo.orderId)}>
+                                        Заказ у клиента     
+                                </div>
+                            </>}
+                            
                         </div>
                     </>} 
                 </>}
