@@ -154,7 +154,7 @@ namespace RestaurantAPI
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
-                    builder => builder.WithOrigins("http://localhost:4001", "http://localhost", "https://impressively-confident-puffin.cloudpub.ru")
+                    builder => builder.WithOrigins("http://localhost:4001", "http://localhost", "https://shockingly-unique-walleye.cloudpub.ru")
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });

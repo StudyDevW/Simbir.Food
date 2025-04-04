@@ -42,11 +42,11 @@ namespace RestaurantAPI.Model.Controllers
         /// </summary>
         /// <response code="204">Заказ успешно отменён.</response>
         [HttpPost("OrderRejections")]
-        public async Task<IActionResult> OrderReject(Order_DTO order_DTO)
+        public async Task<IActionResult> OrderReject([FromQuery] Guid orderId)
         {
             try
             {
-                await _restaurantService.OrderRejections(order_DTO);
+                await _restaurantService.OrderRejections(orderId);
                 return Ok("Заказ отменён");
             }
             catch (Exception ex) {
@@ -121,9 +121,10 @@ namespace RestaurantAPI.Model.Controllers
         /// Изменяет статус у заказа.
         /// </summary>
         /// <response code="204">Статус заказа изменён.</response>
-        [HttpPost("{orderId}/SetReadyStatusForOrder")]
-        public async Task<IActionResult> SetReadyStatusForOrder(Guid orderId)
+        [HttpPost("SetReadyStatusForOrder")]
+        public async Task<IActionResult> SetReadyStatusForOrder([FromQuery] Guid orderId)
         {
+            Console.WriteLine($"Логируем принятие заказа {orderId}.");
             await _restaurantService.SetReadyStatusForOrder(orderId);
             return Ok();
 

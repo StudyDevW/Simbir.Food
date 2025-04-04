@@ -17,6 +17,13 @@ import OrderPage from './pages/OrderPage.tsx';
 import OrderInfoPage from './pages/OrderInfoPage.tsx';
 import PaymentPage from './pages/PaymentPage.tsx';
 import FoodItemsPage from './pages/FoodItemsPage.tsx';
+import CourierRequestPage from "./pages/RequestsPages/CourierRequestPage.tsx";
+import RestaurantRequestPage from "./pages/RequestsPages/RestaurantRequestPage.tsx";
+import RequestsPage from './pages/AdminPages/RequestsPage.tsx';
+import UsersPage from './pages/AdminPages/UsersPage.tsx';
+import RestaurantsOwnerPage from './pages/RestaurantPages/RestaurantsOwnerPage.tsx';
+import RestaurantsOrdersOwnerPage from './pages/RestaurantPages/RestaurantsOrdersOwnerPage.tsx';
+import AvailableOrdersPage from './pages/CourierPages/AvailableOrdersPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -72,7 +79,49 @@ const router = createBrowserRouter([
     element: (
         <FoodItemsPage/>
     ),
-  }
+  },
+  {
+    path: '/courier-request',
+    element: (
+        <CourierRequestPage/>
+    ),
+  },
+  {
+    path: '/restaurant-request',
+    element: (
+        <RestaurantRequestPage/>
+    ),
+  },
+  {
+    path: '/requests',
+    element: (
+        <RequestsPage/>
+    ),
+  },
+  {
+    path: '/users',
+    element: (
+        <UsersPage/>
+    ),
+  },
+  {
+    path: '/restaurantsOwner',
+    element: (
+        <RestaurantsOwnerPage/>
+    ),
+  },
+  {
+    path: '/restaurantsOwner-orders',
+    element: (
+        <RestaurantsOrdersOwnerPage/>
+    ),
+  },
+  {
+    path: '/ordersForCourier',
+    element: (
+        <AvailableOrdersPage/>
+    ),
+  },
 ]);
 
 createRoot(document.getElementById('root')!).render(

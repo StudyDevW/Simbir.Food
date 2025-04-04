@@ -1,6 +1,8 @@
 ﻿using ClientAPI.Interfaces;
+using MailKit.Search;
 using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
+using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using StackExchange.Redis;
 
 namespace ClientAPI.Controllers
@@ -98,6 +100,48 @@ namespace ClientAPI.Controllers
             }
         }
 
+        [HttpGet("InfoForRestaurant")]
+        public async Task<ActionResult<List<OrderInfo>>> GetInfosOrdersFromRestaurant([FromQuery] Guid restaurantId)
+        {
+            try
+            {
+                if (restaurantId == Guid.Empty)
+                    return BadRequest("restaurantId обязателен!");
 
+                if (!Request.Headers.ContainsKey("Authorization"))
+                    return Unauthorized("Не передан токен авторизации!");
+
+                var authToken = Request.Headers["Authorization"].ToString();
+                var info = await _clientService.GetAllOrdersForRestaurant(authToken, restaurantId, false);
+                return Ok(info);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error message: " + ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("InfoForRestaurantOfAllTime")]
+        public async Task<ActionResult<List<OrderInfo>>> GetInfosOrdersFromRestaurantOfAllTime([FromQuery] Guid restaurantId)
+        {
+            try
+            {
+                if (restaurantId == Guid.Empty)
+                    return BadRequest("restaurantId обязателен!");
+
+                if (!Request.Headers.ContainsKey("Authorization"))
+                    return Unauthorized("Не передан токен авторизации!");
+
+                var authToken = Request.Headers["Authorization"].ToString();
+                var info = await _clientService.GetAllOrdersForRestaurant(authToken, restaurantId, true);
+                return Ok(info);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error message: " + ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

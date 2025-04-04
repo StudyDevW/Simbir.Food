@@ -10,4 +10,4 @@
 
 .env
 
-Backend/ORM_Components/Migrations/
+/Backend/ORM_Components/Migrations/

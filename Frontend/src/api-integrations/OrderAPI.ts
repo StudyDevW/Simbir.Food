@@ -95,4 +95,116 @@ const handleOrdersGet = async (accessToken: string, retry: boolean = true): Prom
     }
 }
 
-export { handleOrderCreate, handleOrdersGet } 
+const handleOrdersGetInRestaurant = async (accessToken: string, restaurantId: string, retry: boolean = true): Promise<any> => {
+    try {
+        const response = await axios.get(`${CLIENT_API_URL}/api/Order/InfoForRestaurant`,
+        {
+            params: {
+                restaurantId: restaurantId
+            },
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+
+            console.log('Response:', {
+                status: response.status,
+                data: response.data,
+                headers: response.headers
+            });
+
+            const result: OrderInfo[] = response.data;
+           
+            return result;
+        }
+
+        return null;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleOrdersGetInRestaurant(accessTokens, restaurantId, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return null;
+            }
+        }
+
+        return null;
+    }
+}
+
+const handleAllOrdersGetForRestaurantOfAllTime = async (accessToken: string, restaurantId: string, retry: boolean = true): Promise<any> => {
+    try {
+        const response = await axios.get(`${CLIENT_API_URL}/api/Order/InfoForRestaurantOfAllTime`,
+        {
+            params: {
+                restaurantId: restaurantId
+            },
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+
+            console.log('Response:', {
+                status: response.status,
+                data: response.data,
+                headers: response.headers
+            });
+
+            const result: OrderInfo[] = response.data;
+           
+            return result;
+        }
+
+        return null;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleAllOrdersGetForRestaurantOfAllTime(accessTokens, restaurantId, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return null;
+            }
+        }
+
+        return null;
+    }
+}
+
+export { handleOrderCreate, handleOrdersGet, handleOrdersGetInRestaurant, handleAllOrdersGetForRestaurantOfAllTime } 

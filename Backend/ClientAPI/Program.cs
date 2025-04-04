@@ -1,5 +1,4 @@
-
-using Microsoft.EntityFrameworkCore;
+п»їusing Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Cryptography;
@@ -26,7 +25,6 @@ namespace ClientAPI
 
             builder.Services.AddControllers();
 
-            //Переменные окружения
             builder.Configuration.AddDotNetEnv(".env", LoadOptions.TraversePath());
 
             var securityScheme = new OpenApiSecurityScheme()
@@ -40,19 +38,19 @@ namespace ClientAPI
             };
 
             var securityReq = new OpenApiSecurityRequirement()
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    new string[] {}
-                }
-            };
+             {
+                 {
+                     new OpenApiSecurityScheme
+                     {
+                         Reference = new OpenApiReference
+                         {
+                             Type = ReferenceType.SecurityScheme,
+                             Id = "Bearer"
+                         }
+                     },
+                     new string[] {}
+                 }
+             };
 
             builder.Services.AddEndpointsApiExplorer();
 
@@ -135,15 +133,14 @@ namespace ClientAPI
 
             builder.Services.AddHostedService<RabbitMQListenerService>();
 
-            //Политика Cors для фронта
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin",
                     builder => builder.WithOrigins(
-                        "http://localhost:4001", 
-                        "http://localhost", 
-                        "https://shockingly-unique-walleye.cloudpub.ru",
-                        "https://impressively-confident-puffin.cloudpub.ru")
+                        "http://localhost:4001",
+                        "http://localhost",
+                        "https://strangely-healing-cankerworm.cloudpub.ru",
+                        "https://shockingly-unique-walleye.cloudpub.ru")
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });

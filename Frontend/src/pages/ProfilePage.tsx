@@ -2,6 +2,7 @@ import WebApp from "@twa-dev/sdk";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation, data } from 'react-router-dom';
 import { GetMeInfo } from "../api-integrations/Interfaces/API_Interfaces";
+import { handleRestaurantRequest } from "../api-integrations/RequestAPI";
 
 const ElementMenu: React.FC<{name_element: string, icon_url: string, description?: string, is_mobile: boolean, onClickEx: () => void }> = ({name_element, icon_url, description, is_mobile, onClickEx}) => {
     return (<>
@@ -120,8 +121,21 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
           return `${count} заказов`;
         }
     };
+
+    const RequestRestaurantAPI = async () => {   
+        var requestCreated = await handleRestaurantRequest();
+
+        if (requestCreated) {
+            WebApp.showAlert("Заявка создана!");
+        }
+        else {
+            WebApp.showAlert("Операция прошла неуспешна");
+        }
+    } 
       
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+    const [isModalOpen, setModalOpen] = useState(false);
 
     return (<>
 
@@ -231,9 +245,10 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
                             <ElementMenu 
                                 is_mobile={isMobile} 
-                                name_element="Управление" 
+                                name_element="Рестораны во владении" 
                                 description="" 
-                                icon_url=""/>
+                                icon_url=""
+                                onClickEx={() => navigate('/restaurantsOwner')}/>
 
 
                             <ElementMenu 
@@ -248,12 +263,13 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
                         {info.roles.includes("Courier") && <>
                             <div className="app_profile_elements_separator">{`Курьеру`}</div>
-
+                            
                             <ElementMenu 
                                 is_mobile={isMobile} 
                                 name_element="Заказы" 
                                 description="Отсутствуют" 
-                                icon_url="./images/orders_icon_courier.png"/>
+                                icon_url="./images/orders_icon_courier.png"
+                                onClickEx={() => navigate('/ordersForCourier')}/>
                         </>}
 
                         {info.roles.includes("Admin") && <>
@@ -263,13 +279,17 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                                 is_mobile={isMobile} 
                                 name_element="Пользователи" 
                                 description="Перейти" 
-                                icon_url="./images/users_icon.png"/>
+                                icon_url="./images/users_icon.png"
+                                onClickEx={() => navigate('/users')}/>
 
                             <ElementMenu 
                                 is_mobile={isMobile} 
                                 name_element="Заявки" 
                                 description="Перейти" 
-                                icon_url="./images/cv-form_icon.png"/>
+                                icon_url="./images/cv-form_icon.png"
+                                onClickEx={() => navigate('/requests')}
+                                />
+                              
 
                             <ElementMenu 
                                 is_mobile={isMobile} 
@@ -285,15 +305,18 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                             is_mobile={isMobile} 
                             name_element="Открыть точку" 
                             description="" 
-                            icon_url="./images/request_icon_rest.png"/>
-                        
+                            icon_url="./images/request_icon_rest.png"
+                            onClickEx={() => navigate('/restaurant-request')}/>
+                    
 
                         {!info.roles.includes("Courier") && <> 
-                            <ElementMenu 
-                                is_mobile={isMobile} 
-                                name_element="Стать курьером" 
-                                description="" 
-                                icon_url="./images/request_icon_courier.png"/>
+                            <ElementMenu
+                                is_mobile={isMobile}
+                                name_element="Стать курьером"
+                                description=""
+                                icon_url="./images/request_icon_courier.png"
+                                onClickEx={() => navigate('/courier-request')}
+                            />
                         </>}
 
                     </div>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Middleware_Components.Services;
 using ORM_Components.DTO.ClientAPI;
+using ORM_Components.DTO.RestaurantAPI;
 
 namespace ClientAPI.Controllers
 {
@@ -160,6 +161,23 @@ namespace ClientAPI.Controllers
             }
         }
 
-      
+        /// <summary>
+        /// Получить список ресторанов принадлежащих пользователю
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(AuthenticationSchemes = "Asymmetric")]
+        [HttpGet("Restaurants")]
+        public async Task<ActionResult<List<RestaurantDTOForOwnerList>>> GetAllUserRestaurants()
+        {
+            try
+            {
+                var restaurants = await _clientService.GetAllUserRestaurants(Request.Headers["Authorization"]);
+                return Ok(restaurants);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

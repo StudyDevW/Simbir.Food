@@ -15,6 +15,8 @@ using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using Microsoft.Extensions.Logging;
 using ORM_Components.DTO.ClientAPI.Review;
 using System.Linq;
+using RestaurantAPI.Utility;
+using ORM_Components.DTO.RestaurantAPI;
 
 namespace ClientAPI.Services
 {
@@ -1361,6 +1363,58 @@ namespace ClientAPI.Services
             review.review_date = DateTime.UtcNow;
 
             await _dbcontext.SaveChangesAsync();
+        }
+
+        public async Task<List<OrderInfo>> GetAllOrdersFromRestaurant(Guid restaurantId, bool isNeedAllOrders)
+        {
+            List<OrderInfo> orderInfos = new List<OrderInfo>();
+
+            List<OrderTable> selectedOrders = new();
+            if (isNeedAllOrders)
+            {
+                selectedOrders = await _dbcontext.orderTable
+                    .Where(x => x.restaurant_id == restaurantId)
+                    .ToListAsync();
+            }
+            else
+            {
+                selectedOrders = await _dbcontext.orderTable
+                    .Where(x => x.restaurant_id == restaurantId && x.status == OrderStatus.Accepted)
+                    .ToListAsync();
+            }
+
+            foreach (var order in selectedOrders)
+            {
+                var orderInfo = GetOrderInfoFromId(order.Id);
+
+                orderInfos.Add(orderInfo);
+            }
+
+            return orderInfos;
+        }
+
+        public async Task<List<RestaurantDTOForOwnerList>> GetAllUserRestaurants(Guid userId)
+        {
+            List<RestaurantDTOForOwnerList> userRestaurantsDto = new List<RestaurantDTOForOwnerList>();
+
+            var userRestaurants = await _dbcontext.restaurantTable
+                .Where(x => x.user_id == userId)
+                .ToListAsync();
+            
+            foreach (var restaurant in userRestaurants)
+            {
+                RestaurantDTOForOwnerList restaurantDto = new RestaurantDTOForOwnerList
+                ( 
+                    restaurant.Id,
+                    restaurant.restaurantName,
+                    restaurant.address,
+                    restaurant.status,
+                    restaurant.imagePath
+                );
+
+                userRestaurantsDto.Add(restaurantDto);
+            }
+            return userRestaurantsDto;
         }
     }
 }

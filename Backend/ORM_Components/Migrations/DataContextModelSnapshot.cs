@@ -274,7 +274,7 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("957ab8e0-668d-47c1-8ef4-682034f4203b"),
+                            Id = new Guid("be80c5f9-2411-44f8-804c-51fb8607f56a"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/chikenburger.png",
                             name = "Чикенбургер",
@@ -284,7 +284,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f395516d-3c48-4f59-a602-9b7dd0525e3e"),
+                            Id = new Guid("3e7677a2-45aa-4d49-bb37-2d1e6a76c1ec"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/bighit.png",
                             name = "Биг Хит",
@@ -294,7 +294,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("cd51f618-264d-409b-a590-dd13f68fd081"),
+                            Id = new Guid("c9d4f701-d31b-418e-8e88-a35ca0df41b7"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/cheezeburger.png",
                             name = "Чизбургер",
@@ -304,7 +304,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f39ea95d-c987-4efa-af6b-cc85443f40f4"),
+                            Id = new Guid("301ca62e-761f-4a6a-b7ac-dc1fb2a73931"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/bigspecial.png",
                             name = "Биг спешиал",
@@ -314,7 +314,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("4b9e24af-0d45-4e4b-8c28-6fa3eb569995"),
+                            Id = new Guid("fdb49090-016e-4dcc-a63a-317bd0962e1f"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/cezarroll.png",
                             name = "Цезарь Ролл",
@@ -324,7 +324,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("b970779e-6b59-4a63-bc4e-6c23bdc32f37"),
+                            Id = new Guid("8c2f99bf-575c-40e6-a813-b1122615f0de"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/doublecheezeburger.png",
                             name = "Двойной Чизбургер",
@@ -334,7 +334,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("23ed9a27-a91e-4de3-a86d-17511da3bd63"),
+                            Id = new Guid("6b922357-b3ec-43f1-83ec-695fffbdc186"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/chikenpremiere.png",
                             name = "Чикен Премьер",
@@ -344,7 +344,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("73976fe1-78a9-4923-95f6-b851f2e4613d"),
+                            Id = new Guid("1edfd276-7a7e-4156-9c7e-18e5df4ca21e"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/potatofreesred.png",
                             name = "Картофель Фри средний",
@@ -354,7 +354,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9a5b991e-75ae-4f9a-b071-a9c877fc1ea0"),
+                            Id = new Guid("f7ef8811-63cc-4a2e-b77d-b5a28af0a26c"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/naggets6.png",
                             name = "Наггетсы (6 шт)",
@@ -364,7 +364,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("576cc2a8-510d-4486-af8b-0e08ab413b20"),
+                            Id = new Guid("49df6268-bbc4-417d-97b7-f1d44cbc3b1d"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/capuchinosred.png",
                             name = "Капучино (сред.)",
@@ -374,7 +374,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f8546637-d2b5-4eda-b3b6-1cd6235a7d91"),
+                            Id = new Guid("2aae70f6-d397-4b4e-9e5b-a9de0f1f3491"),
                             calories = 0,
                             image = "/app/migrated_images/Vkusno/vishnyapirojok.png",
                             name = "Пирожок Вишневый",
@@ -444,7 +444,7 @@ namespace ORM_Components.Migrations
                         },
                         new
                         {
-                            Id = new Guid("fa0a60fc-85d5-4c4f-b3ae-4703883b61a5"),
+                            Id = new Guid("7c182afc-c39c-4a26-a8da-2455eab7ac4c"),
                             address = "ул. Шолмова 3",
                             close_time = "20:00",
                             description = "Хороший тестовый ресторан",
@@ -491,23 +491,23 @@ namespace ORM_Components.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("973d7ba0-d039-4713-a175-9ea7599eed0f"),
+                            Id = new Guid("c71e0aa3-cbae-4083-b1cd-0349afc2e4c9"),
                             client_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
                             courier_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
-                            order_id = new Guid("bca582ed-61e3-4c6c-b424-8457f0bd23ab"),
+                            order_id = new Guid("5a480fc5-86c2-4873-a670-7b82b6a0bffe"),
                             rating = 5,
                             restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
-                            review_date = new DateTime(2025, 4, 2, 17, 5, 9, 188, DateTimeKind.Utc).AddTicks(4170)
+                            review_date = new DateTime(2025, 4, 3, 13, 43, 26, 272, DateTimeKind.Utc).AddTicks(6964)
                         },
                         new
                         {
-                            Id = new Guid("147d7a74-5263-4816-bdab-b4807f7197d2"),
+                            Id = new Guid("e09bc0cf-f80a-4ce4-90fd-3d89758713b0"),
                             client_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
                             courier_id = new Guid("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
-                            order_id = new Guid("6cae7028-857c-49cc-912a-a2ebc451dfae"),
+                            order_id = new Guid("68b6839a-ce23-4b70-a404-3688181e8be1"),
                             rating = 4,
                             restaurant_id = new Guid("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
-                            review_date = new DateTime(2025, 4, 2, 17, 5, 9, 188, DateTimeKind.Utc).AddTicks(4175)
+                            review_date = new DateTime(2025, 4, 3, 13, 43, 26, 272, DateTimeKind.Utc).AddTicks(6975)
                         });
                 });
 

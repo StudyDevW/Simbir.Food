@@ -7,6 +7,7 @@ using ORM_Components.DTO.ClientAPI.OrderSelecting;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
 using ORM_Components.DTO.ClientAPI.Review;
 using ORM_Components.DTO.PaymentAPI;
+using ORM_Components.DTO.RestaurantAPI;
 
 namespace ClientAPI.Interfaces
 {
@@ -82,5 +83,8 @@ namespace ClientAPI.Interfaces
 
         public Task UpdateReview(string bearer_key, Guid reviewId, ReviewDtoForUpdate reviewUpdateDto);
 
+        public Task<List<RestaurantDTOForOwnerList>> GetAllUserRestaurants(string bearer_key);
+
+        public Task<List<OrderInfo>> GetAllOrdersForRestaurant(string bearer_key, Guid restaurantId, bool isNeedAllOrders);
     }
 }

@@ -134,7 +134,7 @@ namespace CourierAPI
                     builder => builder.WithOrigins(
                         "http://localhost:4001", 
                         "http://localhost",
-                        "https://impressively-confident-puffin.cloudpub.ru")
+                        "https://shockingly-unique-walleye.cloudpub.ru")
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });
