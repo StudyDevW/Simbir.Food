@@ -13,7 +13,7 @@ namespace RestaurantAPI.Model.Interface
         Task<List<RestaurantMark_DTO>> GetRestaurantMark();
         Task SetReadyStatusForOrder(Guid orderId);
         Task OrderRejections(Guid orderId);
-
+        Task<List<Restaurants_DTO>> GetFavourites(string bearerKey);
     }
 
 }

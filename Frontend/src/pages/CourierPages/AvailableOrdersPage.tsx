@@ -112,6 +112,7 @@ const AvailableOrdersPage: React.FC = () => {
                                                 <div className="restaurant-info">
                                                     <p><strong>Ресторан:</strong> {order.restaurantName}</p>
                                                     <p><strong>Адрес ресторана:</strong> {order.restaurantAddress}</p>
+                                                    <p><strong>Адрес доставки:</strong> {order.clientAddress}</p>
                                                 </div>
                                                 
                                                 <button 

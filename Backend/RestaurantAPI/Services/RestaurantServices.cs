@@ -350,6 +350,26 @@ namespace RestaurantAPI.Model.Services
             return restaurantWithMarks;
         }
 
+        public async Task<List<Restaurants_DTO>> GetFavourites(string bearerKey)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearerKey);
+            if (validation.TokenHasError())
+                throw new Exception("token_invalid");
+
+            var favouriteRestaurantIds = await _dataContext.favouriteTables
+                .Where(x => x.UserId == validation.token_success.Id)
+                .Select(x => x.RestaurantId)
+                .ToListAsync();
+
+            var allRestaurants = await GetAllRestaurant(bearerKey, null);
+
+            var favouriteRestaurants = allRestaurants
+                .Where(x => favouriteRestaurantIds.Contains(x.Id))
+                .ToList();
+
+            return favouriteRestaurants;
+        }
+
         public async Task SetReadyStatusForOrder(Guid orderId)
         {
             var order = await _dataContext.orderTable

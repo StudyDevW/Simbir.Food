@@ -1416,5 +1416,42 @@ namespace ClientAPI.Services
             }
             return userRestaurantsDto;
         }
+
+        public async Task AddRestaurantToFavourite(FavouriteDtoForCreateAndDelete favouriteDtoForCreateAndDelete)
+        {
+            bool exists = await _dbcontext.favouriteTables
+                .AnyAsync(x => 
+                    x.UserId == favouriteDtoForCreateAndDelete.UserId &&
+                    x.RestaurantId == favouriteDtoForCreateAndDelete.RestaurantId);
+
+            if (exists)
+            {
+                throw new Exception("Этот ресторан уже добавлен в избранное");
+            }
+
+            FavouriteTable favourite = new FavouriteTable
+            {
+                UserId = favouriteDtoForCreateAndDelete.UserId,
+                RestaurantId = favouriteDtoForCreateAndDelete.RestaurantId
+            };
+
+            _dbcontext.favouriteTables.Add(favourite);
+            await _dbcontext.SaveChangesAsync();
+        }
+
+        public async Task RemoveRestaurantFromFavourite(FavouriteDtoForCreateAndDelete favouriteDtoForCreateAndDelete)
+        {
+            var favourite = await _dbcontext.favouriteTables
+                .Where(x => x.UserId == favouriteDtoForCreateAndDelete.UserId && x.RestaurantId == favouriteDtoForCreateAndDelete.RestaurantId)
+                .FirstOrDefaultAsync();
+
+            if (favourite == null)
+            {
+                throw new Exception("Элемент Избранного не найден.");
+            }
+            _dbcontext.favouriteTables.Remove(favourite);
+            await _dbcontext.SaveChangesAsync();
+        }
+
     }
 }

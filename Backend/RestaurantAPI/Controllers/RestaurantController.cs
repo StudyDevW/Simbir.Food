@@ -129,5 +129,23 @@ namespace RestaurantAPI.Model.Controllers
             return Ok();
 
         }
+
+        /// <summary>
+        /// Получает список избранных ресторанов.
+        /// </summary>
+        /// <returns>Список ресторанов добавленных в избранное.</returns>
+        [HttpGet("GetFavourites")]
+        public async Task<ActionResult<List<Restaurants_DTO>>> GetFavourites()
+        {
+            try
+            {
+                var result = await _restaurantService.GetFavourites(Request.Headers["Authorization"]);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

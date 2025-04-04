@@ -186,5 +186,6 @@ export interface OrderForCourierDto
     restaurantId: string,
     restaurantName: string,
     restaurantAddress: string,
+    clientAddress: string,
     orderDate: string
 }

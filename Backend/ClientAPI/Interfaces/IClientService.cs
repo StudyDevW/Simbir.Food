@@ -86,5 +86,10 @@ namespace ClientAPI.Interfaces
         public Task<List<RestaurantDTOForOwnerList>> GetAllUserRestaurants(string bearer_key);
 
         public Task<List<OrderInfo>> GetAllOrdersForRestaurant(string bearer_key, Guid restaurantId, bool isNeedAllOrders);
+
+        public Task AddRestaurantToFavourite(string bearer_key, Guid RestaurantId);
+
+        public Task RemoveRestaurantFromFavourite(string bearer_key, Guid RestaurantId);
+
     }
 }

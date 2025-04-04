@@ -80,7 +80,7 @@ namespace ClientAPI.Interfaces
         public string GetTelegramChatId(Guid userGUID);
 
         public long GetUserBalance(Guid userGUID);
-        
+
         public Task<List<ReviewDto>> GetAllReviews();
 
         public Task CreateReview(ReviewTable review);
@@ -90,5 +90,10 @@ namespace ClientAPI.Interfaces
         public Task<List<RestaurantDTOForOwnerList>> GetAllUserRestaurants(Guid userId);
 
         public Task<List<OrderInfo>> GetAllOrdersFromRestaurant(Guid restaurantId, bool isNeedAllOrders);
+
+        public Task AddRestaurantToFavourite(FavouriteDtoForCreateAndDelete favouriteDtoForCreate);
+
+        public Task RemoveRestaurantFromFavourite(FavouriteDtoForCreateAndDelete favouriteDtoForCreate);
+
     }
 }

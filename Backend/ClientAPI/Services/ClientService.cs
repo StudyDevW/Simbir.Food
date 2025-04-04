@@ -999,5 +999,34 @@ namespace ClientAPI.Services
             }
             return new List<OrderInfo>();
         }
+
+        public async Task AddRestaurantToFavourite(string bearer_key, Guid RestaurantId)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                await _database.AddRestaurantToFavourite(new FavouriteDtoForCreateAndDelete { UserId = validation.token_success.Id, RestaurantId = RestaurantId });
+            }
+        }
+
+        public async Task RemoveRestaurantFromFavourite(string bearer_key, Guid RestaurantId)
+        {
+            var validation = await _jwt.AccessTokenValidation(bearer_key);
+
+            if (validation.TokenHasError())
+            {
+                throw new Exception("token_invalid");
+            }
+            else if (validation.TokenHasSuccess())
+            {
+                await _database.RemoveRestaurantFromFavourite(new FavouriteDtoForCreateAndDelete { UserId = validation.token_success.Id, RestaurantId = RestaurantId });
+            }
+        }
+
     }
 }

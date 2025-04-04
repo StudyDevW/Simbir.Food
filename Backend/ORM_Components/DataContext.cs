@@ -49,6 +49,8 @@ namespace ORM_Components
 
         public DbSet<RequestTable> requestTable { get; set; }
 
+        public DbSet<FavouriteTable> favouriteTables { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -57,6 +59,9 @@ namespace ORM_Components
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<FavouriteTable>()
+                .HasKey(f => new { f.UserId, f.RestaurantId });
+
             modelBuilder.Entity<RestaurantTable>().HasData(
                 new RestaurantTable() {
                     Id = Guid.Parse("54d33061-3691-4b7d-a60c-c53ef2e4eb4e"),
