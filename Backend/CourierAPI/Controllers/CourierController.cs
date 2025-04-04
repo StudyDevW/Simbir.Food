@@ -71,7 +71,7 @@ namespace CourierAPI.Controllers
         /// Получает информацию для авторизованного курьера.
         /// </summary>
         /// <returns>Информация о курьере</returns>
-        [HttpGet("get")]
+        [HttpGet("GetCourier")]
         public async Task<ActionResult<CourierDto>> GetAsync()
         {
             return await _courierService.GetAsync();
@@ -81,7 +81,7 @@ namespace CourierAPI.Controllers
         /// Получает информацию о всех зарегистрированных курьерах. (Develop-Method)
         /// </summary>
         /// <returns>Информация обо всех курьерах</returns>
-        [HttpGet("getAll")]
+        [HttpGet("GetAllCouriers")]
         public async Task<ActionResult<List<CourierDto>>> GetAllAsync()
         {
             return await _courierService.GetAllAsync();

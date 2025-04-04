@@ -137,7 +137,7 @@ namespace ClientAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllRequestsForAdmin() //Только администратору
+        public async Task<IActionResult> GetAllRequestsForAdmin()
         {
             try
             {
