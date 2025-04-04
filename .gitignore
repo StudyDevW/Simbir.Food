@@ -9,3 +9,5 @@
 .vs
 
 .env
+
+Backend/ORM_Components/Migrations/
