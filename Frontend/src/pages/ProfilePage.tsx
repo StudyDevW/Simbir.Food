@@ -245,17 +245,17 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
 
                             <ElementMenu 
                                 is_mobile={isMobile} 
-                                name_element="Рестораны во владении" 
+                                name_element="Заказы" 
                                 description="" 
-                                icon_url=""
+                                icon_url="./images/orders_icon_rests.png"
                                 onClickEx={() => navigate('/restaurantsOwner')}/>
 
 
-                            <ElementMenu 
+                            {/* <ElementMenu 
                                 is_mobile={isMobile} 
                                 name_element="Заказы" 
                                 description="Отсутствуют" 
-                                icon_url="./images/orders_icon_rests.png"/>
+                                icon_url="./images/orders_icon_rests.png"/> */}
 
 
 
@@ -267,7 +267,7 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                             <ElementMenu 
                                 is_mobile={isMobile} 
                                 name_element="Заказы" 
-                                description="Отсутствуют" 
+                                description="" 
                                 icon_url="./images/orders_icon_courier.png"
                                 onClickEx={() => navigate('/ordersForCourier')}/>
                         </>}
@@ -291,11 +291,11 @@ const ProfilePage: React.FC<{info: GetMeInfo, isMobile: boolean, onChange: (newV
                                 />
                               
 
-                            <ElementMenu 
+                            {/* <ElementMenu 
                                 is_mobile={isMobile} 
                                 name_element="Рестораны" 
                                 description="Перейти" 
-                                icon_url="./images/restaurants_icon.png"/>
+                                icon_url="./images/restaurants_icon.png"/> */}
 
                         </>}
 

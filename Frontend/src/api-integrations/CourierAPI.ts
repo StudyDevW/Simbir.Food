@@ -57,7 +57,7 @@ const handleOrdersForCourier = async (accessToken: string, retry: boolean = true
 const handleOrderForCourierSingle = async (accessToken: string, orderId: string, retry: boolean = true) : Promise<OrderForCourierDto | null> => {
 
     try {
-        const response = await axios.get(`${COURIER_API_URL}/api/courier/ordersForCourier`,
+        const response = await axios.get(`${COURIER_API_URL}/api/courier/ActiveOrderForCourier/${orderId}`,
         {
             headers: {
                 Authorization: `Bearer ${accessToken}`

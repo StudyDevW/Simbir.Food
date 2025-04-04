@@ -188,7 +188,7 @@ namespace CourierAPI.Service
                 restaurantInfo.restaurantName, restaurantInfo.address,
                 restaurantInfo.phone_number, clientInfo.address,
                 clientInfo.photo_url, clientInfo.first_name,
-                clientInfo.last_name, order.order_date);
+                clientInfo.last_name, order.order_date, order.status);
 
             return result;
         }

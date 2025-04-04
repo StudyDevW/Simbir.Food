@@ -9,7 +9,7 @@ import { BackButton } from '@twa-dev/sdk/react';
 import { AuthComponent, OrderForCourierDto } from '../../api-integrations/Interfaces/API_Interfaces.ts';
 import { handleOrdersGet } from '../../api-integrations/OrderAPI.ts';
 import { StorageGetItem } from '../../telegram-integrations/cloudstorage/CloudStorage.ts';
-import { handleOrderAccept, handleOrderCourierInPlace, handleOrderDelivered } from '../../api-integrations/CourierAPI.ts';
+import { handleOrderAccept, handleOrderCourierInPlace, handleOrderDelivered, handleOrderForCourierSingle } from '../../api-integrations/CourierAPI.ts';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
@@ -22,9 +22,7 @@ const AddressPageCourier: React.FC = () => {
 
     const locationReact = useLocation();
 
-    const orderInfo: OrderForCourierDto | null = locationReact.state?.orderInfo;
-    
-    
+    const [orderInfo, setOrderInfo] = useState<OrderForCourierDto | null>(locationReact.state?.orderInfo);
 
     const navigate = useNavigate();
     //Yandex Integrations
@@ -160,6 +158,21 @@ const AddressPageCourier: React.FC = () => {
         return new Date(dateString).toLocaleDateString('ru-RU', options);
     };
 
+    const handleUpdateInfoPage = async (orderId: string) => {
+
+        setOrderInfo(null);
+
+        const accessToken = await StorageGetItem("AccessToken");
+        if (accessToken === "empty") return;
+
+        var orderNewInfo =  await handleOrderForCourierSingle(accessToken, orderId);
+
+        if (orderNewInfo !== null) 
+            setOrderInfo(orderNewInfo);
+    }
+
+ 
+
     const handleAcceptOrder = async (orderId: string) => {
         if (window.confirm("Вы уверены, что хотите принять этот заказ?")) {
             try {
@@ -209,7 +222,7 @@ const AddressPageCourier: React.FC = () => {
 
     useEffect(() => {
         if (buttonUpdate) {
-
+            handleUpdateInfoPage(orderInfo?.orderId!);
             setButtonUpdate(false);
         }
     }, [buttonUpdate])
@@ -357,7 +370,7 @@ const AddressPageCourier: React.FC = () => {
                                         bottom: '10px',
                                         borderRadius: '15px'
                                     }}
-                                    onClick={() => handleDelivered(orderInfo.orderId)}>
+                                    onClick={() => { handleDelivered(orderInfo.orderId); navigate("/"); } }>
                                         Заказ у клиента     
                                 </div>
                             </>}
