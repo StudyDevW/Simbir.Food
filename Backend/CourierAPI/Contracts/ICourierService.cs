@@ -7,6 +7,7 @@ namespace CourierAPI.Contracts
     {
         Task<List<OrderForCourierDto>> GetOrders();
         Task<List<OrderForCourierDto>> GetActiveOrderList();
+        Task<OrderForCourierDto> GetActiveOrder(Guid orderId);
         Task AcceptOrder(Guid orderId);
         Task CourierOnPlace(Guid orderId);
         Task OrderDelivered(Guid orderId);

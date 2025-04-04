@@ -160,6 +160,39 @@ namespace CourierAPI.Service
             return data;
         }
 
+        public async Task<OrderForCourierDto> GetActiveOrder(Guid orderId)
+        {
+            Guid courierId = await GetCourierId();
+
+            var order = await _dataContext.orderTable
+                .Where(x => x.courier_id == courierId && x.Id == orderId)
+                .FirstOrDefaultAsync();
+           
+            var restaurantInfo = await _dataContext.restaurantTable
+                .Where(x => x.Id == order.restaurant_id)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.restaurantName,
+                    x.address,
+                    x.phone_number
+                })
+                .FirstOrDefaultAsync();
+
+            var clientInfo = await _dataContext.userTable
+                .Where(x => x.Id == order.client_id)
+                .Select(x => new { x.first_name, x.last_name, x.address, x.photo_url })
+                .FirstOrDefaultAsync();
+
+            var result = new OrderForCourierDto(order.Id, restaurantInfo.Id,
+                restaurantInfo.restaurantName, restaurantInfo.address,
+                restaurantInfo.phone_number, clientInfo.address,
+                clientInfo.photo_url, clientInfo.first_name,
+                clientInfo.last_name, order.order_date);
+
+            return result;
+        }
+
         public async Task AcceptOrder(Guid orderId)
         {
             Guid courierId = await GetCourierId();
@@ -350,5 +383,6 @@ namespace CourierAPI.Service
 
             _logger.LogInformation($"Курьера с ID: {courier.Id} был удалён.");
         }
+
     }
 }
