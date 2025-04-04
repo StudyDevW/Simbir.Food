@@ -552,7 +552,7 @@ namespace ClientAPI.Services
                 }
 
 
-                selectedCourier.status = CourierStatus.IsInactive;
+                selectedCourier.status = CourierStatus.IsActive;
                 await _dbcontext.SaveChangesAsync();
 
                 _dbcontext.requestTable.Remove(selectedRequest);

@@ -505,6 +505,7 @@ namespace ClientAPI.Services
         public async Task<RequestsGetAll?> GetAllRequestsForAdmin(string bearer_key)
         {
             var validation = await _jwt.AccessTokenValidation(bearer_key);
+            Console.WriteLine("Метод на исполнение запущен.");
 
             if (validation.TokenHasError())
             {
@@ -512,8 +513,10 @@ namespace ClientAPI.Services
             }
             else if (validation.TokenHasSuccess())
             {
+                Console.WriteLine("Токен прошёл проверку.");
                 if (validation.token_success.userRoles.Contains("Admin"))
                 {
+                    Console.WriteLine("Админ права есть.");
                     var requests = _database.GetAllRequestsForAdmin();
 
                     if (requests != null)
@@ -529,6 +532,8 @@ namespace ClientAPI.Services
                     throw new Exception("role_invalid");
                 }
             }
+
+            Console.WriteLine($"Метод закончил + {validation}");
 
             return null;
         }

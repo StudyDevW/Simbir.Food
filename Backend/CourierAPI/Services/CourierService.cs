@@ -93,19 +93,23 @@ namespace CourierAPI.Service
                     .Where(x => x.Id == order.restaurantId)
                     .Select(x => new
                     {
+                        x.Id,
                         x.restaurantName,
-                        x.address
+                        x.address,
+                        x.phone_number
                     })
                     .FirstOrDefaultAsync();
 
                 var clientInfo = await _dataContext.userTable
                     .Where(x => x.Id == order.clientId)
-                    .Select(x => new { x.address })
+                    .Select(x => new { x.first_name, x.last_name, x.address, x.photo_url})
                     .FirstOrDefaultAsync();
 
-                data.Add(new OrderForCourierDto(order.orderId, restaurantId, 
+                data.Add(new OrderForCourierDto(order.orderId, restaurantInfo.Id, 
                     restaurantInfo.restaurantName, restaurantInfo.address,
-                    clientInfo.address, order.orderDate));
+                    restaurantInfo.phone_number, clientInfo.address, 
+                    clientInfo.photo_url, clientInfo.first_name, 
+                    clientInfo.last_name, order.orderDate));
             }
             return data;
         }
