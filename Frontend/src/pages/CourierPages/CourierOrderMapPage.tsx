@@ -9,6 +9,7 @@ import { BackButton } from '@twa-dev/sdk/react';
 import { AuthComponent, OrderForCourierDto } from '../../api-integrations/Interfaces/API_Interfaces.ts';
 import { handleOrdersGet } from '../../api-integrations/OrderAPI.ts';
 import { StorageGetItem } from '../../telegram-integrations/cloudstorage/CloudStorage.ts';
+import { handleOrderAccept } from '../../api-integrations/CourierAPI.ts';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
@@ -22,6 +23,7 @@ const AddressPageCourier: React.FC = () => {
     const locationReact = useLocation();
 
     const orderInfo: OrderForCourierDto | null = locationReact.state?.orderInfo;
+    
     
 
     const navigate = useNavigate();
@@ -45,9 +47,19 @@ const AddressPageCourier: React.FC = () => {
 
     const [address, setAddress] = useState<string | null>(null);
 
+    const [buttonUpdate, setButtonUpdate] = useState<boolean>(false);
+
+    const [addressRest, setAddressRest] = useState<string | null>(null);
+
     const [location, setLocation] = useState<[number, number] | null>(null);
 
     const [locationNew, setLocationNew] = useState<[number, number] | null>(null);
+
+    const [locationNewRest, setLocationNewRest] = useState<[number, number] | null>(null);
+
+    const [locationRestaurant, setLocationRestaurant] = useState<[number, number] | null>(null);
+    const [locationClient, setLocationClient] = useState<[number, number] | null>(null);
+ 
 
     useEffect(() => {
         WebApp.setHeaderColor('#EAEAEA');
@@ -65,59 +77,15 @@ const AddressPageCourier: React.FC = () => {
 
         WebApp.ready();
 
-        // if (address_default !== "") {
-        //     setInputValue(address_default);
-        //     setAddress(address_default);
-        // }
+        if (orderInfo !== null) {
+            getCoordinates(orderInfo.restaurantAddress, "rest");
+
+            getCoordinates(orderInfo.clientAddress, "client");
+        }
 
     }, []);
 
-    useEffect(() => {
-        const fetchSuggestions = async () => {
-          if (inputValue.trim() === '') return;
-    
-          setLoading(true);
-    
-          try {
-            const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=Ульяновск, ${inputValue} 0&format=json`);
-            const data = await response.json();
-    
-            if (data && data.response && data.response.GeoObjectCollection && data.response.GeoObjectCollection.featureMember) {
-              const newSuggestions = data.response.GeoObjectCollection.featureMember.map((item: any) => item.GeoObject.name);
-              
-              setSuggestions(newSuggestions);
-            }
-          } catch (error) {
-            console.error('Ошибка при получении данных:', error);
-          } finally {
-            setLoading(false);
-          }
-        };
-
-        
-    
-        const debounceFetch = setTimeout(fetchSuggestions, 300);
-    
-        return () => clearTimeout(debounceFetch);
-    }, [inputValue]);
-
-    const fetchSuggestion = async (latitude: number, longitude: number) => {
-
-        try {
-            const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=${longitude},${latitude}&format=json`);
-            const data = await response.json();
-        
-            if (data && data.response && data.response.GeoObjectCollection && data.response.GeoObjectCollection.featureMember) {
-                const newSuggestion = data.response.GeoObjectCollection.featureMember[0].GeoObject.name;
-                setInputValue(newSuggestion);
-                setAddress(newSuggestion);
-            }
-        } catch (error) {
-            console.error('Ошибка при получении данных:', error);
-        } 
-    };
-
-    const getCoordinates = async (address: string) => {
+    const getCoordinates = async (address: string, type: string) => {
         try {
           const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=${encodeURIComponent(`Ульяновск, ${address}`)}&format=json`);
           const data = await response.json();
@@ -125,7 +93,12 @@ const AddressPageCourier: React.FC = () => {
           if (data.response.GeoObjectCollection.featureMember.length > 0) {
             const [lon, lat] = data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos.split(' ').map(Number);
      
-            setLocationNew([lat, lon]);
+            if (type === "rest") 
+                setLocationRestaurant([lat, lon]);
+
+            if (type === "client")
+                setLocationClient([lat, lon]);
+
           } else {
             alert('Адрес не найден');
           }
@@ -133,24 +106,6 @@ const AddressPageCourier: React.FC = () => {
             alert('Ошибка при получении координат');
         }
     };
-
-    
-
-    const onClickAddress = (address: string) => {
-        setAddress(address || 'Адрес не найден');
-    }
-
-    useEffect(()=> {
-        if (locationNew !== null) {
-            setLocation(locationNew);
-            setLocationNew(null);
-        }
-    }, [locationNew])
-
-    useEffect(()=>{
-        if (address !== null)
-            getCoordinates(address);
-    }, [address])
 
     useEffect(()=>{
         if (isMobile) {
@@ -194,10 +149,45 @@ const AddressPageCourier: React.FC = () => {
         </>)
     }
 
-    const handleMapClick = (event: any) => {
-        const coordinates = event.get('coords');
-        fetchSuggestion(coordinates[0], coordinates[1]);
-    }
+    const formatDate = (dateString: string) => {
+        const options: Intl.DateTimeFormatOptions = {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return new Date(dateString).toLocaleDateString('ru-RU', options);
+    };
+
+    const handleAcceptOrder = async (orderId: string) => {
+        if (window.confirm("Вы уверены, что хотите принять этот заказ?")) {
+            try {
+                const accessToken = await StorageGetItem("AccessToken");
+                if (accessToken === "empty") return;
+                
+                // Здесь должен быть вызов API для принятия заказа
+                // await acceptOrderApiCall(orderId, accessToken);
+
+                await handleOrderAccept(accessToken, orderId);
+
+                alert(`Заказ ${orderId} принят!`);
+                navigate("/");
+            } catch (error) {
+                console.error("Ошибка при принятии заказа:", error);
+                alert("Не удалось принять заказ");
+            }
+        }
+    };
+
+    
+
+    useEffect(() => {
+        if (buttonUpdate) {
+
+            setButtonUpdate(false);
+        }
+    }, [buttonUpdate])
 
     return (
     <>
@@ -223,7 +213,7 @@ const AddressPageCourier: React.FC = () => {
 
                         <div className="app_delivery_header_image"></div>
 
-                        {address === null && 
+                        { 
                         <>
                             <div className="app_delivery_header_title_area">
                                 <div className="app_delivery_header_title big" style={{
@@ -233,26 +223,21 @@ const AddressPageCourier: React.FC = () => {
                         </> 
                         }
 
-                
-
                         <div className="app_delivery_header_profile"
                         style={{
                             backgroundImage: `url(${imageAvatar})`,
                         }}></div>
-
-                        
                     </div>
 
 
                     <YMaps>
                     
 
-                        {location && <>
+                        {locationClient && <>
                             <Map 
-                                state={{center: location || [54.314194, 48.419610], zoom: 17}} 
-                                width="100%" height="100%"
-                                onClick={handleMapClick}>
-                                {<Placemark geometry={location} options={{
+                                state={{center: locationClient || [54.314194, 48.419610], zoom: 15}} 
+                                width="100%" height="80%">
+                                <Placemark geometry={locationClient!} options={{
                                     // Options. You must specify this type of layout.
                                     iconLayout: 'default#image',
                                     // Custom image for the placemark icon.
@@ -262,25 +247,47 @@ const AddressPageCourier: React.FC = () => {
                                     // The offset of the upper left corner of the icon relative
                                     // to its "tail" (the anchor point).
                                     iconImageOffset: [-18, -42]}}/>
-                                }
-                            </Map>
-                        </>}
+                                
 
-                        {location === null && <>
-                            <Map 
-                                defaultState={{ center: location || [54.314194, 48.419610], zoom: 10 }} 
-                                width="100%" height="80%"
-                                onClick={handleMapClick}>
-                             
+                                <Placemark geometry={locationRestaurant!} options={{
+                                    // Options. You must specify this type of layout.
+                                    iconLayout: 'default#image',
+                                    // Custom image for the placemark icon.
+                                    iconImageHref: "../../images/location_rest.png",
+                                    // The size of the placemark.
+                                    iconImageSize: [40, 40],
+                                    // The offset of the upper left corner of the icon relative
+                                    // to its "tail" (the anchor point).
+                                    iconImageOffset: [-18, -42]}}/>
+                                
                             </Map>
                         </>}
 
                     </YMaps>
 
-                    {(!keyboardFocused && address === null) && <>
-                        <div className={"app_maincontent maps"} style={{height: '300px'}}>
+                    {(!keyboardFocused) && <>
+                        <div className={"app_maincontent maps"} style={{height: '230px'}}>
                             <div className="app_maincontent_title" 
                             style={{fontSize: "20px"}}>{"О заказе"}</div>
+
+                            <div className="app_courier_info_area">
+
+                                <div className="app_courier_info_text">{`· Дата заказа: ${formatDate(orderInfo.orderDate)}`}</div>
+
+                                <div className="app_courier_info_text">{`· Клиент: ${orderInfo.clientFirstName + " " + orderInfo.clientSecondName}`}</div>
+
+                                <div className="app_courier_info_text">{`··· Адрес получения: ${orderInfo.restaurantAddress}`}
+                                    <div className="app_courier_info_icon" 
+                                    style={{backgroundImage: 'url("../../images/location_rest.png")'}}></div>
+                                </div>
+
+                                <div className="app_courier_info_text">{`··· Адрес доставки: ${orderInfo.clientAddress}`}
+                                    <div className="app_courier_info_icon" 
+                                    style={{backgroundImage: 'url("../../images/location.png")'}}></div>
+                                </div>
+
+                        
+                            </div>
 
                             <div className="app_maincontent_address_button_complete" 
                                 style={{
@@ -291,71 +298,11 @@ const AddressPageCourier: React.FC = () => {
                                     bottom: '10px',
                                     borderRadius: '15px'
                                 }}
-                                onClick={() => setIsAuthOperated(true)}>
+                                onClick={() => handleAcceptOrder(orderInfo.orderId)}>
                                     Принять       
                             </div>
                         </div>
                     </>} 
-
-                    {(!keyboardFocused && address !== null) && <>
-                        <div className={"app_maincontent maps"} style={
-                            {
-                                backdropFilter: 'blur(5px)', 
-                                background: 'linear-gradient(transparent, #EAEAEA)',
-                                borderRadius: '0px',
-                                height: isMobile ? "110px" : "60px"
-                            }}>
-
-
-                            <div className="app_maincontent_address_button_area">
-                                <div className="app_maincontent_address_button_complete"
-                                onClick={() => setIsAuthOperated(true)}>
-                                    Все верно
-                                </div>
-
-                                <div className="app_maincontent_address_button_complete change"
-                                onClick={() => setKeyboardFocused(true)}>
-                                </div>
-                            </div>
-
-                    
-
-                        </div>
-                    </>} 
-
-                    {keyboardFocused && 
-                        <div className={isMobile ? "app_maincontent maps clicked mobile" : "app_maincontent maps clicked"} >
-                            <div className="app_maincontent_title" 
-                            style={{fontSize: "20px"}}>{"Куда доставлять заказы?"}</div>
-
-                            <div className="app_maincontent_searchbar_decor" style={{marginBottom: "20px"}}>
-                                <input className='app_maincontent_searchbar'
-                                    type="text"
-                                    value={inputValue}
-                                    onFocus={() => setKeyboardFocused(true)}
-                                    onBlur={() => 
-                                    { 
-                                        if (inputValue === "")
-                                            setKeyboardFocused(false);
-                                    }}
-                                    onChange={(e) => setInputValue(e.target.value)}
-                                    placeholder={'Введите адрес'}
-                                /> 
-
-                                <div className="app_maincontent_searchbar_icon"></div>
-                            </div>
-                            
-                            {suggestions.map((suggestion, index) => (
-                            <div className="app_suggestion_button" key={index} onClick={() => {
-                                onClickAddress(suggestion);
-                                setKeyboardFocused(false);
-                            }}>{suggestion}</div>
-                            ))}
-            
-                        </div>
-                    }
-
-
                 </>}
 
                 {(isAuthOperated && userData.GetAddress() !== "" && userData.GetDevice() !== "") && <>

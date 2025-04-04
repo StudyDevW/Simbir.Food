@@ -12,6 +12,7 @@ const AvailableOrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<OrderForCourierDto[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'current' | 'all'>('current');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -91,14 +92,33 @@ const AvailableOrdersPage: React.FC = () => {
                 <div className="app_layout_area" style={isMobile ? { marginTop: '100px' } : {}}>
                     <div className="scrollable-content">
                         <div className="orders-page">
-                            <div className="order-page-font">Доступные заказы</div>
+                            <div className="order-page-font">{activeTab === 'current' ? "Доступные заказы" : "Принятые заказы"}</div>
                             
+                            <div className="orders-tabs">
+                                <button 
+                                    className={`tab-button ${activeTab === 'current' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('current')}
+                                >
+                                    Доступные
+                                </button>
+                                <button 
+                                    className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('all')}
+                                >
+                                    Принятые
+                                </button>
+                            </div>
+
                             {loading ? (
                                 <div className="loading">Загрузка...</div>
                             ) : error ? (
                                 <div className="error">{error}</div>
                             ) : (
+                              
+
                                 <div className="orders-list">
+
+                                {activeTab === 'current' && <>
                                     {orders.map(order => (
                                         <div key={order.orderId} className="order-card">
                                             <div className="order-header">
@@ -123,6 +143,9 @@ const AvailableOrdersPage: React.FC = () => {
                                             </div>
                                         </div>
                                     ))}
+                                </>}
+
+                                    
                                 </div>
                             )}
                         </div>

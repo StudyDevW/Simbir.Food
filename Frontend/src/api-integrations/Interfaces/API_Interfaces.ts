@@ -186,5 +186,11 @@ export interface OrderForCourierDto
     restaurantId: string,
     restaurantName: string,
     restaurantAddress: string,
-    orderDate: string
+    phoneNumber: string,
+    clientAddress: string,
+    photoUrl: string,
+    clientFirstName: string,
+    clientSecondName: string,
+    orderDate: string,
+    statusOrder: number
 }

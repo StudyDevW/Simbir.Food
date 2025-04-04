@@ -54,4 +54,143 @@ const handleOrdersForCourier = async (accessToken: string, retry: boolean = true
     }
 }
 
-export { handleOrdersForCourier }
+const handleOrderAccept = async (accessToken: string, orderId: string, retry: boolean = true) : Promise<any> => {
+
+    try {
+        const response = await axios.post(`${COURIER_API_URL}/api/courier/${orderId}/accept`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+            return true;
+        }
+
+        return false;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleOrderAccept(accessTokens, orderId, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+}
+
+const handleOrderCourierInPlace = async (accessToken: string, orderId: string, retry: boolean = true) : Promise<any> => {
+
+    try {
+        const response = await axios.post(`${COURIER_API_URL}/api/courier/${orderId}/courierOnPlace`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+            return true;
+        }
+
+        return false;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleOrderCourierInPlace(accessTokens, orderId, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+}
+
+const handleOrderDelivered = async (accessToken: string, orderId: string, retry: boolean = true) : Promise<any> => {
+
+    try {
+        const response = await axios.post(`${COURIER_API_URL}/api/courier/${orderId}/delivered`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+        });
+
+        if (response.status === 200) {
+            return true;
+        }
+
+        return false;
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (error.response.status === 401 && retry) {
+
+                    console.log("Повторный запрос!");
+
+                    if (await TokenNeedUpdate()) {
+                        const accessTokens: string = await StorageGetItem("AccessToken");
+
+                        if (accessTokens !== "empty")
+                            return handleOrderDelivered(accessTokens, orderId, false);
+                    }
+                }
+                else {
+                    console.log(`Ошибка: ${error.response.status}`);
+                }
+            }
+            else {
+                console.log("Неизвестная ошибка");
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+}
+
+
+export { handleOrdersForCourier, handleOrderCourierInPlace, handleOrderDelivered, handleOrderAccept }

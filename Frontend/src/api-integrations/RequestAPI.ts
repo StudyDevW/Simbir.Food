@@ -16,7 +16,7 @@ const handleRestaurantRequest = async (
     request_description: string,
     accessToken: string,
     retry: boolean = true
-) => {
+): Promise<any> => {
     try {
         const response = await axios.post(
             `${CLIENT_API_URL}/api/RequestRoles/Restaurant`,
@@ -72,7 +72,7 @@ const handleRestaurantRequest = async (
     }
 };
 
-const handleCourierRequest = async (carNumber: string, description: string, accessToken: string, retry: boolean = true) => {
+const handleCourierRequest = async (carNumber: string, description: string, accessToken: string, retry: boolean = true): Promise<any> => {
     try {
         const response = await axios.post(
             `${CLIENT_API_URL}/api/RequestRoles/Courier`,
@@ -149,7 +149,7 @@ const handleGetRequests = async (accessToken: string, retry: boolean = true): Pr
     }
 };
 
-const handleApproveRestaurantRequest = async (request_id: string, accessToken: string, retry: boolean = true) => {
+const handleApproveRestaurantRequest = async (request_id: string, accessToken: string, retry: boolean = true): Promise<any> => {
     try {
         const response = await axios.put(
             `${CLIENT_API_URL}/api/RequestRoles/Restaurant/Accept`,
@@ -187,7 +187,7 @@ const handleApproveRestaurantRequest = async (request_id: string, accessToken: s
     }
 };
 
-const handleRejectRestaurantRequest = async (request_id: string, accessToken: string, retry: boolean = true) => {
+const handleRejectRestaurantRequest = async (request_id: string, accessToken: string, retry: boolean = true): Promise<any> => {
     try {
         const response = await axios.put(
             `${CLIENT_API_URL}/api/RequestRoles/Restaurant/Reject`,
@@ -225,7 +225,7 @@ const handleRejectRestaurantRequest = async (request_id: string, accessToken: st
     }
 };
 
-const handleApproveCourierRequest = async (request_id: string, accessToken: string, retry: boolean = true) => {
+const handleApproveCourierRequest = async (request_id: string, accessToken: string, retry: boolean = true): Promise<any> => {
     try {
         const response = await axios.put(
             `${CLIENT_API_URL}/api/RequestRoles/Courier/Accept`,
@@ -263,7 +263,7 @@ const handleApproveCourierRequest = async (request_id: string, accessToken: stri
     }
 };
 
-const handleRejectCourierRequest = async (request_id: string, accessToken: string, retry: boolean = true) => {
+const handleRejectCourierRequest = async (request_id: string, accessToken: string, retry: boolean = true): Promise<any> => {
     try {
         const response = await axios.put(
             `${CLIENT_API_URL}/api/RequestRoles/Courier/Reject`,

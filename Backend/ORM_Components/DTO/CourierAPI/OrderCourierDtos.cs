@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace ORM_Components.DTO.CourierAPI
 {
-    public record OrderForCourierDtoShort(Guid orderId, Guid restaurantId, Guid clientId, OrderStatus status, DateTime orderDate) { }
+    public record OrderForCourierDtoShort(Guid orderId, Guid restaurantId, Guid clientId, OrderStatus status, DateTime orderDate, string client_address) { }
     public record OrderForCourierDto(
         Guid orderId, Guid restaurantId, string restaurantName,
         string restaurantAddress, string phoneNumber, string clientAddress, 
         string photoUrl, 
-        string clientFirstName, string clientSecondName, DateTime orderDate) { }
+        string clientFirstName, string clientSecondName, DateTime orderDate, OrderStatus statusOrder) { }
 }
