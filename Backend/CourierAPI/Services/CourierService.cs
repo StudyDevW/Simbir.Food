@@ -115,6 +115,51 @@ namespace CourierAPI.Service
             return data;
         }
 
+
+        public async Task<List<OrderForCourierDto>> GetActiveOrderList()
+        {
+            Guid courierId = await GetCourierId();
+
+            var restaurantId = await _dataContext.orderTable
+                .Where(x => x.courier_id == courierId && x.status == OrderStatus.WaitingForDelivery)
+                .OrderByDescending(x => x.order_date)
+                .Select(x => x.restaurant_id)
+                .FirstOrDefaultAsync();
+
+            List<OrderForCourierDtoShort> orderData = await _dataContext.orderTable
+                .Where(x => x.courier_id == courierId && x.status != OrderStatus.Delivered)
+                .Select(x => new OrderForCourierDtoShort(x.Id, x.restaurant_id, x.client_id, x.status, x.order_date))
+                .ToListAsync();
+
+            List<OrderForCourierDto> data = new();
+
+            foreach (var order in orderData)
+            {
+                var restaurantInfo = await _dataContext.restaurantTable
+                    .Where(x => x.Id == order.restaurantId)
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.restaurantName,
+                        x.address,
+                        x.phone_number
+                    })
+                    .FirstOrDefaultAsync();
+
+                var clientInfo = await _dataContext.userTable
+                    .Where(x => x.Id == order.clientId)
+                    .Select(x => new { x.first_name, x.last_name, x.address, x.photo_url })
+                    .FirstOrDefaultAsync();
+
+                data.Add(new OrderForCourierDto(order.orderId, restaurantInfo.Id,
+                    restaurantInfo.restaurantName, restaurantInfo.address,
+                    restaurantInfo.phone_number, clientInfo.address,
+                    clientInfo.photo_url, clientInfo.first_name,
+                    clientInfo.last_name, order.orderDate));
+            }
+            return data;
+        }
+
         public async Task AcceptOrder(Guid orderId)
         {
             Guid courierId = await GetCourierId();
