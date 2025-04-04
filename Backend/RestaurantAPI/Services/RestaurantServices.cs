@@ -142,6 +142,9 @@ namespace RestaurantAPI.Model.Services
             if (selectedClient == null)
                 throw new Exception("user_not_found");
 
+            if (selectedClient.address == null)
+                throw new Exception("client_address_null");
+
             List<Restaurants_DTO> allRestaurants = new List<Restaurants_DTO>();
 
             foreach (var selectedRestaurant in selectedRestaurants)
@@ -162,41 +165,86 @@ namespace RestaurantAPI.Model.Services
                     averageMark = averageMarkCounts / selectedReviews.Count;
                 }
 
-                //Если в кэше нет информации о координатах, то достаем их и записываем
                 if (!_cache.CheckExistKeysStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}"))
                 {
                     var coordinatesRestaurant = await _yandexIntegration.GetCoordinatesFromAddress(selectedRestaurant.address);
 
-                    var coordinatesClient = await _yandexIntegration.GetCoordinatesFromAddress(selectedClient.address!);
+                    var coordinatesClient = await _yandexIntegration.GetCoordinatesFromAddress(selectedClient.address);
 
-                    YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
+                    YandexInfoCached yandexCached = new YandexInfoCached()
+                    {
+                        coordsClient = coordinatesClient!,
+                        coordsRestaurant = coordinatesRestaurant!
+                    };
+
+                    _cache.WriteKeyInStorage(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}", yandexCached, DateTime.UtcNow.AddDays(1));
                 }
-                else //Если в кэше записаны данные о координатах, то проверяем сменился ли адрес
+                else
                 {
-                    //Две проверки были сделаны для оптимизации запросов на ключ яндекса
-                    //Если бы была одна проверка, то на изменение одного только адреса клиента, мы бы тратили два запроса
-                    if (ChangedClientAddress(selectedClient.Id, selectedRestaurant.Id))
+                    var currentCached = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
+
+                    if (currentCached.coordsRestaurant.address != selectedRestaurant.address)
                     {
-                        var preCachedInfoCoords = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
-
-                        var coordinatesRestaurant = preCachedInfoCoords.coordsRestaurant;
-
-                        var coordinatesClient = await _yandexIntegration.GetCoordinatesFromAddress(selectedClient.address!);
-
-                        YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
-                    }
-
-                    if (ChangedRestaurantAddress(selectedClient.Id, selectedRestaurant.Id))
-                    {
-                        var preCachedInfoCoords = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
-
                         var coordinatesRestaurant = await _yandexIntegration.GetCoordinatesFromAddress(selectedRestaurant.address);
 
-                        var coordinatesClient = preCachedInfoCoords.coordsClient;
+                        YandexInfoCached yandexCached = new YandexInfoCached()
+                        {
+                            coordsClient = currentCached.coordsClient,
+                            coordsRestaurant = coordinatesRestaurant!
+                        };
 
-                        YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
+                        _cache.WriteKeyInStorage(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}", yandexCached, DateTime.UtcNow.AddDays(1));
+                    }
+
+                    if (currentCached.coordsClient.address != selectedClient.address)
+                    {
+                        var coordinatesClient = await _yandexIntegration.GetCoordinatesFromAddress(selectedClient.address);
+
+                        YandexInfoCached yandexCached = new YandexInfoCached()
+                        {
+                            coordsClient = coordinatesClient!,
+                            coordsRestaurant = currentCached.coordsRestaurant
+                        };
+
+                        _cache.WriteKeyInStorage(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}", yandexCached, DateTime.UtcNow.AddDays(1));
                     }
                 }
+
+                ////Если в кэше нет информации о координатах, то достаем их и записываем
+                //if (!_cache.CheckExistKeysStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}"))
+                //{
+                //    var coordinatesRestaurant = await _yandexIntegration.GetCoordinatesFromAddress(selectedRestaurant.address);
+
+                //    var coordinatesClient = await _yandexIntegration.GetCoordinatesFromAddress(selectedClient.address!);
+
+                //    YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
+                //}
+                //else //Если в кэше записаны данные о координатах, то проверяем сменился ли адрес
+                //{
+                //    //Две проверки были сделаны для оптимизации запросов на ключ яндекса
+                //    //Если бы была одна проверка, то на изменение одного только адреса клиента, мы бы тратили два запроса
+                //    if (ChangedClientAddress(selectedClient.Id, selectedRestaurant.Id))
+                //    {
+                //        var preCachedInfoCoords = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
+
+                //        var coordinatesRestaurant = preCachedInfoCoords.coordsRestaurant;
+
+                //        var coordinatesClient = await _yandexIntegration.GetCoordinatesFromAddress(selectedClient.address!);
+
+                //        YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
+                //    }
+
+                //    if (ChangedRestaurantAddress(selectedClient.Id, selectedRestaurant.Id))
+                //    {
+                //        var preCachedInfoCoords = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
+
+                //        var coordinatesRestaurant = await _yandexIntegration.GetCoordinatesFromAddress(selectedRestaurant.address);
+
+                //        var coordinatesClient = preCachedInfoCoords.coordsClient;
+
+                //        YandexOptimizationInit(selectedClient.Id, selectedRestaurant.Id, coordinatesClient!, coordinatesRestaurant!);
+                //    }
+                //}
 
                 var cachedInfoCoords = _cache.GetKeyFromStorage<YandexInfoCached>(selectedClient.Id, $"cached_yandex_address_info_{selectedRestaurant.Id}");
 

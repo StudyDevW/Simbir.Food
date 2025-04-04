@@ -54,7 +54,7 @@ namespace Middleware_Components.Yandex
                     double lonVal = double.Parse(coordinates[0]);
                     double latVal = double.Parse(coordinates[1]);
 
-                    return new YandexCoords() { lat = latVal, lon = lonVal };
+                    return new YandexCoords() { lat = latVal, lon = lonVal, address = address };
                 }
             }
             catch (Exception ex)

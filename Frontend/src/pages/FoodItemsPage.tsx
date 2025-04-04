@@ -202,9 +202,6 @@ const FoodItemsPage: React.FC = () => {
           setIsMobile(false);
 
       WebApp.ready();
-
-      
-      
     }, [])
 
     useEffect(()=>{

@@ -221,13 +221,15 @@ const MainPage: React.FC = () => {
   }, []);
 
   useEffect(()=> {
-    if (inputValue !== '') {
-      setRestaurantsInfo(null);
-      RestaurantsGetSearched();
-    }
-    else {
-      setRestaurantsInfo(null);
-      RestaurantsGet();
+    if (logined) {
+      if (inputValue !== '') {
+        setRestaurantsInfo(null);
+        RestaurantsGetSearched();
+      }
+      else {
+        setRestaurantsInfo(null);
+        RestaurantsGet();
+      }
     }
   }, [inputValue])
 
