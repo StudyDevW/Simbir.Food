@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    allowedHosts: ['impressively-confident-puffin.cloudpub.ru'],
     watch: {
       usePolling: true,
     },
