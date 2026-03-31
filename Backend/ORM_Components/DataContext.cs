@@ -223,22 +223,22 @@ namespace ORM_Components
                 }
             );
 
-            //Тут можно свой профиль добавить
-            modelBuilder.Entity<UserTable>().HasData(
-                new UserTable()
-                {
-                    Id = Guid.Parse("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
-                    first_name = "Антон (Study)",
-                    last_name = "",
-                    telegram_id = 1006365928,
-                    telegram_chat_id = 1006365928,
-                    address = "улица Шолмова, 7",
-                    photo_url = "https://t.me/i/userpic/320/YC895p02kbd-O-aU-F49vK8j1qFbmbObwS_DaaPkKdg.svg",
-                    username = "studywhite",
-                    money_value = 5000,
-                    roles = new[] { "Client", "Admin", "Courier" }
-                }
-            );
+            ////Тут можно свой профиль добавить
+            //modelBuilder.Entity<UserTable>().HasData(
+            //    new UserTable()
+            //    {
+            //        Id = Guid.Parse("1993856e-2f5c-4790-a3d4-33e6a5718b47"),
+            //        first_name = "Антон (Study)",
+            //        last_name = "",
+            //        telegram_id = 1006365928,
+            //        telegram_chat_id = 1006365928,
+            //        address = "улица Шолмова, 7",
+            //        photo_url = "https://t.me/i/userpic/320/YC895p02kbd-O-aU-F49vK8j1qFbmbObwS_DaaPkKdg.svg",
+            //        username = "studywhite",
+            //        money_value = 5000,
+            //        roles = new[] { "Client", "Admin", "Courier" }
+            //    }
+            //);
 
             //Виртуальная карта
             modelBuilder.Entity<BankCardTable>().HasData(

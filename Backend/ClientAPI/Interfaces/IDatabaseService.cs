@@ -13,7 +13,7 @@ namespace ClientAPI.Interfaces
 {
     public interface IDatabaseService
     {
-        public Task UserUpdateFromTelegram(ClientUpdate dtoObj);
+        public Task UserUpdateFromVK(ClientUpdate dtoObj);
 
         public Auth_CheckInfo CheckUser(AuthSignIn dto);
 
@@ -75,9 +75,9 @@ namespace ClientAPI.Interfaces
 
         public Task DecreaseMoney(Guid userGUID, long money_value);
 
-        public string GetTelegramChatIdFromRequestId(Guid requestId);
+        public string GetVKIdFromRequestId(Guid requestId);
 
-        public string GetTelegramChatId(Guid userGUID);
+        public string GetVKId(Guid userGUID);
 
         public long GetUserBalance(Guid userGUID);
         

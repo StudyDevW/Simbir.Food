@@ -7,7 +7,6 @@ using ORM_Components.Tables.Helpers;
 using StackExchange.Redis;
 using System.Diagnostics.Metrics;
 using ORM_Components.Tables;
-using Telegram_Components.Interfaces;
 using System.Linq;
 using Middleware_Components.Broker;
 using ORM_Components.DTO.RestaurantAPI;
@@ -16,6 +15,7 @@ using ORM_Components.Interfaces;
 using ORM_Components.DTO.MailDtos;
 using System.Security.Claims;
 using RestaurantAPI.Utility;
+using VK_Components.Interfaces;
 
 namespace CourierAPI.Service
 {
@@ -23,20 +23,20 @@ namespace CourierAPI.Service
     {
         private readonly ILogger _logger;
         private readonly DataContext _dataContext;
-        private readonly IMessageSender _tgmessage;
+        private readonly IMessageSender _vkmessage;
         private readonly IRabbitMQService _rabbitMQService;
         private readonly IMailSender _mailSender;
         private readonly IValidator<CourierDtoForCreate> _courierCreateValidator;
         private readonly IValidator<CourierDtoForUpdate> _courierUpdateValidator;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CourierService(DataContext dataContext, IMessageSender tgmessage,
-            IRabbitMQService rabbitMQService, IMailSender mailSender,
+        public CourierService(DataContext dataContext, 
+            IRabbitMQService rabbitMQService, IMailSender mailSender, IMessageSender vkmessage,
             IValidator<CourierDtoForCreate> courierCreateValidator, IValidator<CourierDtoForUpdate> courierUpdateValidator,
             IHttpContextAccessor httpContextAccessor)
         {
             _dataContext = dataContext;
-            _tgmessage = tgmessage;
+            _vkmessage = vkmessage;
             _rabbitMQService = rabbitMQService;
             _mailSender = mailSender;
             _courierCreateValidator = courierCreateValidator;
@@ -296,20 +296,39 @@ namespace CourierAPI.Service
             var user = await _dataContext.userTable
                 .FirstOrDefaultAsync(x => x.Id == order.client_id);
 
-            switch(newStatus)
+            //TODO: Заменить интеграцию Telegram* на VK 
+            //switch (newStatus)
+            //{
+            //    case OrderStatus.WaitingForDelivery:
+            //        await SendTgMessageForClient(user!.vk_id.ToString(),
+            //            $"Ваш заказ с номером {order.Id} принят в доставку. Курьер уже в пути!");
+            //        break;
+
+            //    case OrderStatus.CourierOnPlace:
+            //        await SendTgMessageForClient(user!.vk_id.ToString(),
+            //            $"Ваш заказ с номером {order.Id} доставлен к месту назначения.");
+            //        break;
+
+            //    case OrderStatus.Delivered:
+            //        await SendTgMessageForClient(user!.vk_id.ToString(),
+            //            $"Ваш заказ с номером {order.Id} успешно доставлен. Приятного аппетита!");
+            //        break;
+            //}
+
+            switch (newStatus)
             {
                 case OrderStatus.WaitingForDelivery:
-                    await SendTgMessageForClient(user!.telegram_chat_id.ToString(),
+                    await SendVKMessageForClient(user!.vk_id.ToString(),
                         $"Ваш заказ с номером {order.Id} принят в доставку. Курьер уже в пути!");
                     break;
 
                 case OrderStatus.CourierOnPlace:
-                    await SendTgMessageForClient(user!.telegram_chat_id.ToString(),
+                    await SendVKMessageForClient(user!.vk_id.ToString(),
                         $"Ваш заказ с номером {order.Id} доставлен к месту назначения.");
                     break;
 
                 case OrderStatus.Delivered:
-                    await SendTgMessageForClient(user!.telegram_chat_id.ToString(),
+                    await SendVKMessageForClient(user!.vk_id.ToString(),
                         $"Ваш заказ с номером {order.Id} успешно доставлен. Приятного аппетита!");
                     break;
             }
@@ -318,9 +337,9 @@ namespace CourierAPI.Service
 
         }
 
-        private async Task SendTgMessageForClient(string chatId, string message)
+        private async Task SendVKMessageForClient(string chatId, string message)
         {
-            await _tgmessage.Send(chatId, message);
+            await _vkmessage.Send(chatId, message);
         }
 
         public async Task CreateAsync(CourierDtoForCreate courierDtoForCreate)

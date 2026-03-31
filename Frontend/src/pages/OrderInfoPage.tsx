@@ -6,7 +6,7 @@ import { useNavigate, useLocation, data } from 'react-router-dom';
 import { YMaps, Map, Placemark, GeolocationControl } from '@pbe/react-yandex-maps';
 import { GetMeInfo, OrderInfo } from '../api-integrations/Interfaces/API_Interfaces';
 import { handleGetInfoMe } from '../api-integrations/ClientInfoAPI';
-import { StorageGetItem } from '../telegram-integrations/cloudstorage/CloudStorage';
+import { StorageGetItem } from '../vk-integrations/cloudstorage/CloudStorage';
 import { handleOrdersGet } from '../api-integrations/OrderAPI';
 import { handleLoadImage } from '../api-integrations/ImageAPI';
 

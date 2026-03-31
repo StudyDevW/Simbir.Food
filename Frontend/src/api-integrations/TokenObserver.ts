@@ -1,5 +1,5 @@
 import { handleAccessTokenCheck, handleRefreshTokenUpdate } from "./TokenValidationAPI.ts";
-import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
+import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../vk-integrations/cloudstorage/CloudStorage.ts';
 import WebApp from "@twa-dev/sdk";
 
 const AccessTokenUpdate = async () => {

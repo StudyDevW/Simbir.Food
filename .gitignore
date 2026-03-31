@@ -6,6 +6,8 @@
 
 /rabbitmq_data
 
+/MiniAppVK
+
 .vs
 
 .env

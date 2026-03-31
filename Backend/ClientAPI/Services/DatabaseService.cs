@@ -7,7 +7,6 @@ using Middleware_Components.JWT.DTO.CheckUsers;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
 using Microsoft.EntityFrameworkCore;
 using ORM_Components.DTO.ClientAPI.Basket;
-using Telegram.Bot.Types;
 using ORM_Components.Tables.Helpers;
 using ORM_Components.DTO.ClientAPI.RequestsAll;
 using ORM_Components.DTO.ClientAPI.FrozenAll;
@@ -24,18 +23,16 @@ namespace ClientAPI.Services
     {
         private readonly ILogger _logger;
         private readonly DataContext _dbcontext;
-        private readonly PasswordHasher<PasswordAppUser> _passwordHasher;
 
         public DatabaseService(DataContext dbcontext)
         {
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("database-service-logger");
-            _passwordHasher = new PasswordHasher<PasswordAppUser>();
             _dbcontext = dbcontext;
         }
 
-        public async Task UserUpdateFromTelegram(ClientUpdate dtoObj)
+        public async Task UserUpdateFromVK(ClientUpdate dtoObj)
         {
-            var selectedUser = _dbcontext.userTable.Where(c => c.telegram_id == dtoObj.id).FirstOrDefault();
+            var selectedUser = _dbcontext.userTable.Where(c => c.vk_id == dtoObj.id).FirstOrDefault();
 
             if (selectedUser == null)
                 throw new Exception("user_not_found");
@@ -58,15 +55,16 @@ namespace ClientAPI.Services
                 await _dbcontext.SaveChangesAsync();
             }
 
-            if (selectedUser.username != dtoObj.username && dtoObj.username != null)
-            {
-                selectedUser.username = dtoObj.username;
-                await _dbcontext.SaveChangesAsync();
-            }
+            //В VK такое поле не существует https://dev.vk.com/ru/bridge/VKWebAppGetUserInfo (study)
+            //if (selectedUser.username != dtoObj.username && dtoObj.username != null)
+            //{
+            //    selectedUser.username = dtoObj.username;
+            //    await _dbcontext.SaveChangesAsync();
+            //}
 
-            if (selectedUser.photo_url != dtoObj.photo_url && dtoObj.photo_url != null)
+            if (selectedUser.photo_url != dtoObj.photo_max_orig && dtoObj.photo_max_orig != null)
             {
-                selectedUser.photo_url = dtoObj.photo_url;
+                selectedUser.photo_url = dtoObj.photo_max_orig;
                 await _dbcontext.SaveChangesAsync();
             }
 
@@ -82,7 +80,7 @@ namespace ClientAPI.Services
             }
 
             var userFound = _dbcontext.userTable.Where(
-                c => c.telegram_chat_id == dto.telegram_chat_id
+                c => c.vk_id == dto.vk_id
             ).FirstOrDefault();
 
             if (userFound != null)
@@ -93,7 +91,7 @@ namespace ClientAPI.Services
                     {
                         Id = userFound.Id,
                         device = dto.device,
-                        telegram_chat_id = dto.telegram_chat_id,
+                        vk_id = dto.vk_id,
                         roles = userFound.roles.ToList()
                     }
                 };
@@ -141,11 +139,9 @@ namespace ClientAPI.Services
                 return new ClientInfo()
                 {
                     Id = selectedUser.Id,
-                    telegram_id = selectedUser.telegram_id,
-                    chat_id = selectedUser.telegram_chat_id,
+                    vk_id = selectedUser.vk_id,
                     first_name = selectedUser.first_name,
                     last_name = selectedUser.last_name,
-                    username = selectedUser.username,
                     address = selectedUser.address,
                     photo_url = selectedUser.photo_url,
                     basket_items = basketItems.Count,
@@ -183,11 +179,9 @@ namespace ClientAPI.Services
                     ClientInfo clientInfo = new ClientInfo()
                     {
                         Id = client.Id,
-                        telegram_id = client.telegram_id,
-                        chat_id = client.telegram_chat_id,
+                        vk_id = client.vk_id,
                         first_name = client.first_name,
                         last_name = client.last_name,
-                        username = client.username,
                         address = client.address,
                         photo_url = client.photo_url,
                         restaurant_own = restaurantOwnerId,
@@ -215,11 +209,9 @@ namespace ClientAPI.Services
                     ClientInfo clientInfo = new ClientInfo()
                     {
                         Id = client.Id,
-                        telegram_id = client.telegram_id,
-                        chat_id = client.telegram_chat_id,
+                        vk_id = client.vk_id,
                         first_name = client.first_name,
                         last_name = client.last_name,
-                        username = client.username,
                         address = client.address,
                         photo_url = client.photo_url,
                         restaurant_own = restaurantOwnerId,
@@ -647,8 +639,7 @@ namespace ClientAPI.Services
                                 first_name = selectedUser.first_name,
                                 last_name = selectedUser.last_name,
                                 address = selectedUser.address,
-                                chat_id = selectedUser.telegram_chat_id,
-                                username = selectedUser.username,
+                                vk_id = selectedUser.vk_id,
                                 photo_url = selectedUser.photo_url,
                                 roles = selectedUser.roles.ToList()
                             }
@@ -692,8 +683,7 @@ namespace ClientAPI.Services
                                 first_name = selectedUser.first_name,
                                 last_name = selectedUser.last_name,
                                 address = selectedUser.address,
-                                chat_id = selectedUser.telegram_chat_id,
-                                username = selectedUser.username,
+                                vk_id = selectedUser.vk_id,
                                 photo_url = selectedUser.photo_url,
                                 roles = selectedUser.roles.ToList()
                             }
@@ -748,8 +738,7 @@ namespace ClientAPI.Services
                                 first_name = selectedUser.first_name,
                                 last_name = selectedUser.last_name,
                                 address = selectedUser.address,
-                                chat_id = selectedUser.telegram_chat_id,
-                                username = selectedUser.username,   
+                                vk_id = selectedUser.vk_id,
                                 photo_url = selectedUser.photo_url,
                                 roles = selectedUser.roles.ToList()
                             }
@@ -779,8 +768,7 @@ namespace ClientAPI.Services
                                 first_name = selectedUser.first_name,
                                 last_name = selectedUser.last_name,
                                 address = selectedUser.address,
-                                chat_id = selectedUser.telegram_chat_id,
-                                username = selectedUser.username,
+                                vk_id = selectedUser.vk_id,
                                 photo_url = selectedUser.photo_url,
                                 roles = selectedUser.roles.ToList()
                             }
@@ -1136,11 +1124,10 @@ namespace ClientAPI.Services
                     user_id = selectedCourierUser.Id,
                     car_number = selectedCourier.car_number,
                     address = selectedCourierUser.address,
-                    chat_id = selectedCourierUser.telegram_chat_id,
+                    vk_id = selectedCourierUser.vk_id,
                     first_name = selectedCourierUser.first_name,
                     last_name = selectedCourierUser.last_name,
                     photo_url = selectedCourierUser.photo_url,
-                    username = selectedCourierUser.username
                 };
 
             }
@@ -1262,7 +1249,7 @@ namespace ClientAPI.Services
             await _dbcontext.SaveChangesAsync();
         }
 
-        public string GetTelegramChatIdFromRequestId(Guid requestId)
+        public string GetVKIdFromRequestId(Guid requestId)
         {
             var selectedRequest = _dbcontext.requestTable.Where(c => c.Id == requestId).FirstOrDefault();
 
@@ -1271,7 +1258,7 @@ namespace ClientAPI.Services
                 var selectedUser = _dbcontext.userTable.Where(c => c.Id == selectedRequest.user_id).FirstOrDefault();
 
                 if (selectedUser != null)
-                    return selectedUser.telegram_chat_id.ToString();
+                    return selectedUser.vk_id.ToString();
             }
 
             return string.Empty;
@@ -1315,12 +1302,12 @@ namespace ClientAPI.Services
             await _dbcontext.SaveChangesAsync();
         }
 
-        public string GetTelegramChatId(Guid userGUID)
+        public string GetVKId(Guid userGUID)
         {
             var selectedUser = _dbcontext.userTable.Where(c => c.Id == userGUID).FirstOrDefault();
 
             if (selectedUser != null)
-                return selectedUser.telegram_chat_id.ToString();
+                return selectedUser.vk_id.ToString();
     
             return string.Empty;
         }

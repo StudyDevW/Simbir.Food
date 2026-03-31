@@ -15,12 +15,13 @@ using RestaurantAPI.Model.Services;
 using RestaurantAPI.Services;
 using System.Reflection;
 using System.Security.Cryptography;
-using Telegram_Components.Interfaces;
-using Telegram_Components.Services;
+
 using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Utility;
 using RestaurantAPI.Interface;
 using Middleware_Components.Yandex;
+using VK_Components.Interfaces;
+using VK_Components.Services;
 
 namespace RestaurantAPI
 {
@@ -123,9 +124,11 @@ namespace RestaurantAPI
                     options.UseNpgsql(connectString, b => b.MigrationsAssembly("RestaurantAPI"));
             });
 
-            builder.Services.AddSingleton<IMessageSender>(
-               new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
-            );
+            builder.Services.AddSingleton<IMessageSender>(sp =>
+                new MessageSender(
+                    builder.Configuration["VK_SERVICE_KEY"],
+                    builder.Configuration["VK_BACKEND_URL"]
+                ));
 
             builder.Services.AddScoped<IJwtService, JwtSDK>();
 

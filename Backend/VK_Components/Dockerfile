@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Telegram_Components/Telegram_Components.csproj", "Telegram_Components/"]
-RUN dotnet restore "Telegram_Components/Telegram_Components.csproj"
+COPY ["VK_Components/VK_Components.csproj", "VK_Components/"]
+RUN dotnet restore "VK_Components/VK_Components.csproj"
 COPY . .
-WORKDIR "/src/Telegram_Components"
-RUN dotnet build "Telegram_Components.csproj" -c Release -o /app/build
+WORKDIR "/src/VK_Components"
+RUN dotnet build "VK_Components.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Telegram_Components.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "VK_Components.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Telegram_Components.dll"]
+ENTRYPOINT ["dotnet", "VK_Components.dll"]

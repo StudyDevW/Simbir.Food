@@ -8,7 +8,7 @@ import {
     handleApproveCourierRequest,
     handleRejectCourierRequest
 } from "../../api-integrations/RequestAPI";
-import { StorageGetItem } from "../../telegram-integrations/cloudstorage/CloudStorage";
+import { StorageGetItem } from "../../vk-integrations/cloudstorage/CloudStorage";
 import { RequestsGetAll } from "../../api-integrations/Interfaces/API_Interfaces";
 import '../../styles/AppStyle.sass'
 import { BackButton } from '@twa-dev/sdk/react';

@@ -4,7 +4,7 @@ import WebApp from "@twa-dev/sdk";
 import { BackButton } from '@twa-dev/sdk/react';
 import { handleOrdersGetInRestaurant, handleAllOrdersGetForRestaurantOfAllTime } from '../../api-integrations/OrderAPI';
 import { OrderInfo } from "../../api-integrations/Interfaces/API_Interfaces";
-import { StorageGetItem } from "../../telegram-integrations/cloudstorage/CloudStorage";
+import { StorageGetItem } from "../../vk-integrations/cloudstorage/CloudStorage";
 import { handleOrderMarkAsReadyByRestaurant, handleOrderRejectByRestaurant } from "../../api-integrations/RestaurantAPI";
 import '../../styles/AppStyle.sass'
 

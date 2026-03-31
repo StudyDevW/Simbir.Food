@@ -1,6 +1,6 @@
 import { OrderForCourierDto } from './Interfaces/API_Interfaces.ts';
 import { TokenNeedUpdate } from './TokenObserver.ts';
-import { StorageGetItem } from '../telegram-integrations/cloudstorage/CloudStorage';
+import { StorageGetItem } from '../vk-integrations/cloudstorage/CloudStorage.ts';
 import axios from 'axios';
 
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import '../../styles/AppStyle.sass'
-import WebApp from '@twa-dev/sdk';
-import { StorageSetItem, StorageDeleteItem } from '../../telegram-integrations/cloudstorage/CloudStorage.ts';
+// import WebApp from '@twa-dev/sdk';
+// import { StorageSetItem, StorageDeleteItem } from '../../telegram-integrations/cloudstorage/CloudStorage.ts';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const OnBoardingPageFirst: React.FC = () => {
@@ -406,30 +406,30 @@ const OnBoardingMain: React.FC = () => {
   const [leftSwapped, setLeftSwapped] = useState<boolean>(false);
 
   const OnBoardingSkip = () => {
-     WebApp.CloudStorage.setItem('onboarding-storage', "skipped");
+    //  WebApp.CloudStorage.setItem('onboarding-storage', "skipped");
      navigate("/login");
   }
 
   useEffect(() => {
-    WebApp.setHeaderColor('#004681');
+    // WebApp.setHeaderColor('#004681');
 
-    WebApp.setBackgroundColor('#004681');
+    // WebApp.setBackgroundColor('#004681');
 
-    WebApp.disableVerticalSwipes();
+    // WebApp.disableVerticalSwipes();
 
-    if (WebApp.platform === 'ios' || WebApp.platform === 'android')
-      setIsMobile(true);
-    else 
-      setIsMobile(false);
+    // if (WebApp.platform === 'ios' || WebApp.platform === 'android')
+    //   setIsMobile(true);
+    // else 
+    //   setIsMobile(false);
 
-    StorageDeleteItem("RegisterCallback");
+    // StorageDeleteItem("RegisterCallback");
 
   }, []);
 
   useEffect(()=>{
     if (isMobile) {
-        WebApp.lockOrientation();
-        WebApp.requestFullscreen();
+        // WebApp.lockOrientation();
+        // WebApp.requestFullscreen();
     }
   }, [isMobile])
 

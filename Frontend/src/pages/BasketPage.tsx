@@ -3,7 +3,7 @@ import '../styles/AppStyle.sass'
 import WebApp from '@twa-dev/sdk';
 import { useNavigate, useLocation, data } from 'react-router-dom';
 import { handleGetInfoMe } from '../api-integrations/ClientInfoAPI';
-import { StorageGetItem } from '../telegram-integrations/cloudstorage/CloudStorage';
+import { StorageGetItem } from '../vk-integrations/cloudstorage/CloudStorage';
 import { GetBasketInfo, GetMeInfo } from '../api-integrations/Interfaces/API_Interfaces';
 import { BackButton } from '@twa-dev/sdk/react';
 import { handleBasketDeleteItem, handleGetBasketInfo } from '../api-integrations/BasketAPI';

@@ -4,6 +4,7 @@ using Middleware_Components.Broker;
 using Middleware_Components.DTO.ClientAPI;
 using Middleware_Components.JWT.DTO.CheckUsers;
 using Middleware_Components.Services;
+using Org.BouncyCastle.Asn1.Ocsp;
 using ORM_Components.DTO.ClientAPI;
 using ORM_Components.DTO.ClientAPI.Basket;
 using ORM_Components.DTO.ClientAPI.ClientsAll;
@@ -14,7 +15,11 @@ using ORM_Components.DTO.ClientAPI.Review;
 using ORM_Components.DTO.PaymentAPI;
 using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
-using Telegram_Components.Interfaces;
+using System;
+using VK_Components.Interfaces;
+
+
+//TODO: Заменить всю интеграцию Telegram* на VK
 
 namespace ClientAPI.Services
 {
@@ -25,7 +30,7 @@ namespace ClientAPI.Services
         private readonly IJwtService _jwt;
         private readonly ICacheService _cache;
         private readonly ILogger _logger;
-        private readonly IMessageSender _tgmessage;
+        private readonly IMessageSender _vkmessage;
         private readonly IRabbitMQService _rabbitMQService;
 
         enum StepsAuth
@@ -34,7 +39,7 @@ namespace ClientAPI.Services
             StepUpdated
         }
 
-        public ClientService(IRabbitMQService rabbitMQService, IMessageSender tgmessage, ISessionService session, IDatabaseService database, IJwtService jwt, ICacheService cache)
+        public ClientService(IRabbitMQService rabbitMQService, IMessageSender vkmessage, ISessionService session, IDatabaseService database, IJwtService jwt, ICacheService cache)
         {
 
             _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("client-service-logger");
@@ -43,7 +48,7 @@ namespace ClientAPI.Services
             _cache = cache;
             _session = session;
             _rabbitMQService = rabbitMQService;
-            _tgmessage = tgmessage;
+            _vkmessage = vkmessage;
         }
 
         private async Task<Auth_PairTokens?> TokensReleased(Auth_CheckInfo check)
@@ -80,8 +85,8 @@ namespace ClientAPI.Services
                     refreshToken = _cache.GetKeyFromStorage(check.check_success.Id, "refreshTokens")
                 };
 
-                await _tgmessage.Send(check.check_success.telegram_chat_id.ToString(),
-                    $"Техническое уведомление:\nВход с {device_out}\nAccessToken: ```{pair_tokens.accessToken}```");
+                //await _tgmessage.Send(check.check_success.vk_id.ToString(),
+                //    $"Техническое уведомление:\nВход с {device_out}\nAccessToken: ```{pair_tokens.accessToken}```");
 
                 _logger.LogInformation($"Пользователь {check.check_success.Id} успешно вошел!");
 
@@ -117,8 +122,8 @@ namespace ClientAPI.Services
                             refreshToken = _cache.GetKeyFromStorage(check.check_success.Id, "refreshTokens")
                         };
 
-                        await _tgmessage.Send(check.check_success.telegram_chat_id.ToString(),
-                            $"Техническое уведомление:\nВход с другого, а именно {device_out}\nAccessToken: ```{pair_tokens.accessToken}```");
+                        //await _tgmessage.Send(check.check_success.telegram_chat_id.ToString(),
+                        //    $"Техническое уведомление:\nВход с другого, а именно {device_out}\nAccessToken: ```{pair_tokens.accessToken}```");
 
                         _logger.LogInformation($"Пользователь {check.check_success.Id} успешно вошел!");
 
@@ -152,7 +157,7 @@ namespace ClientAPI.Services
             checkUserExist[StepsAuth.StepCheck] = _database.CheckUser(new AuthSignIn()
             {
                 device = dtoObj.device,
-                telegram_chat_id = dtoObj.chat_id
+                vk_id = dtoObj.vk_id
             });
 
 
@@ -162,15 +167,14 @@ namespace ClientAPI.Services
                 _logger.LogWarning($"Адрес был передан: {dtoObj.address}");
 
                 //Обновляем профиль в сервисе если есть изменения
-                await _database.UserUpdateFromTelegram(
+                await _database.UserUpdateFromVK(
                     new ClientUpdate()
                     {
                         address = dtoObj.address,
                         first_name = dtoObj.first_name,
-                        id = dtoObj.id,
+                        id = dtoObj.vk_id,
                         last_name = dtoObj.last_name,
-                        photo_url = dtoObj.photo_url,
-                        username = dtoObj.username
+                        photo_max_orig = dtoObj.photo_max_orig,
                     }
                 );
 
@@ -178,7 +182,7 @@ namespace ClientAPI.Services
                 checkUserExist[StepsAuth.StepUpdated] = _database.CheckUser(new AuthSignIn()
                 {
                     device = dtoObj.device,
-                    telegram_chat_id = dtoObj.chat_id
+                    vk_id = dtoObj.vk_id
                 });
 
                 //Выдаем токен
@@ -201,18 +205,20 @@ namespace ClientAPI.Services
             var checkUserExist = _database.CheckUser(new AuthSignIn()
             {
                 device = dtoObj.device,
-                telegram_chat_id = dtoObj.chat_id
+                vk_id = dtoObj.vk_id
             });
 
             //Если пользователя не существует в бд, создаем заявку на регу
             if (checkUserExist.CheckHasError())
             {
-                if (!_cache.CheckExistKeysStorage<AuthAddUser>($"register_request_{dtoObj.id}"))
+                if (!_cache.CheckExistKeysStorage<AuthAddUser>($"register_request_{dtoObj.vk_id}"))
                 {
-                    _cache.WriteKeyInStorageObject($"register_request_{dtoObj.id}", dtoObj, DateTime.UtcNow.AddMinutes(5));
+                    _cache.WriteKeyInStorageObject($"register_request_{dtoObj.vk_id}", dtoObj, DateTime.UtcNow.AddMinutes(5));
 
-                    await _tgmessage.SendWithMarkup(dtoObj.chat_id.ToString(), "Регистрация в сервисе \"Симбир Еда\"",
-                        "Подтвердить", "registerQuery");
+                    //await _tgmessage.SendWithMarkup(dtoObj.chat_id.ToString(), "Регистрация в сервисе \"Симбир Еда\"",
+                    //    "Подтвердить", "registerQuery");
+
+                    await _vkmessage.SendConfirmationRequest(dtoObj.vk_id.ToString());
 
                     return "register_request_created";
                 }
@@ -548,11 +554,13 @@ namespace ClientAPI.Services
             }
             else if (validation.TokenHasSuccess())
             {
-                var chatId = _database.GetTelegramChatId(validation.token_success.Id);
+                var vkId = _database.GetVKId(validation.token_success.Id);
 
                 var requestId = await _database.CreateRequestRestaurantFromUser(validation.token_success.Id, dtoObj);
 
-                await _tgmessage.Send(chatId, $"Ваша заявка на создание ресторана, была создана!\nНомер заявки: {requestId}");
+                //await _tgmessage.Send(chatId, $"Ваша заявка на создание ресторана, была создана!\nНомер заявки: {requestId}");
+
+                await _vkmessage.Send(vkId, $"Ваша заявка на создание ресторана, была создана!\nНомер заявки: {requestId}");
             }
         }
 
@@ -566,11 +574,13 @@ namespace ClientAPI.Services
             }
             else if (validation.TokenHasSuccess())
             {
-                var chatId = _database.GetTelegramChatId(validation.token_success.Id);
+                var vkId = _database.GetVKId(validation.token_success.Id);
 
                 var requestId = await _database.CreateRequestCourierFromUser(validation.token_success.Id, car_number, description);
 
-                await _tgmessage.Send(chatId, $"Ваша заявка на работу курьером, была создана!\nНомер заявки: {requestId}");
+                //await _tgmessage.Send(chatId, $"Ваша заявка на работу курьером, была создана!\nНомер заявки: {requestId}");
+
+                await _vkmessage.Send(vkId, $"Ваша заявка на работу курьером, была создана!\nНомер заявки: {requestId}");
             }
         }
 
@@ -628,19 +638,23 @@ namespace ClientAPI.Services
             {
                 if (validation.token_success.userRoles.Contains("Admin"))
                 {
-                    var chatId = _database.GetTelegramChatIdFromRequestId(requestId);
+                    var vkId = _database.GetVKIdFromRequestId(requestId);
 
                     if (type == "restaurant")
                     {
                         await _database.AcceptRequestRestaurantFromAdmin(requestId);
 
-                        await _tgmessage.Send(chatId, $"Ваша заявка по созданию ресторана, была одобрена!\nНомер заявки: {requestId}");
+                        //await _tgmessage.Send(chatId, $"Ваша заявка по созданию ресторана, была одобрена!\nНомер заявки: {requestId}");
+
+                        await _vkmessage.Send(vkId, $"Ваша заявка по созданию ресторана, была одобрена!\nНомер заявки: {requestId}");
                     }
                     else if (type == "courier")
                     {
                         await _database.AcceptRequestCourierFromAdmin(requestId);
 
-                        await _tgmessage.Send(chatId, $"Ваша заявка на работу курьером, была одобрена!\nНомер заявки: {requestId}");
+                        //await _tgmessage.Send(chatId, $"Ваша заявка на работу курьером, была одобрена!\nНомер заявки: {requestId}");
+
+                        await _vkmessage.Send(vkId, $"Ваша заявка на работу курьером, была одобрена!\nНомер заявки: {requestId}");
                     }
                 }
                 else
@@ -662,21 +676,25 @@ namespace ClientAPI.Services
             {
                 if (validation.token_success.userRoles.Contains("Admin"))
                 {
-                    var chatId = _database.GetTelegramChatIdFromRequestId(requestId);
+                    var vkId = _database.GetVKIdFromRequestId(requestId);
 
                     if (type == "restaurant")
                     {
                         await _database.RejectRequestRestaurantFromAdmin(requestId);
 
-                        await _tgmessage.SendWithMarkup(chatId, $"Ваша заявка по созданию ресторана, была отклонена!\nНомер заявки: {requestId}",
-                            "Понятно", "AcceptButtonQuery");
+                        //await _tgmessage.SendWithMarkup(chatId, $"Ваша заявка по созданию ресторана, была отклонена!\nНомер заявки: {requestId}",
+                        //    "Понятно", "AcceptButtonQuery");
+
+                        await _vkmessage.Send(vkId, $"Ваша заявка по созданию ресторана, была отклонена!\nНомер заявки: {requestId}");
                     }
                     else if (type == "courier")
                     {
                         await _database.RejectRequestCourierFromAdmin(requestId);
 
-                        await _tgmessage.SendWithMarkup(chatId, $"Ваша заявка на работу курьером, была отклонена!\nНомер заявки: {requestId}",
-                            "Понятно", "AcceptButtonQuery");
+                        //await _tgmessage.SendWithMarkup(chatId, $"Ваша заявка на работу курьером, была отклонена!\nНомер заявки: {requestId}",
+                        //    "Понятно", "AcceptButtonQuery");
+
+                        await _vkmessage.Send(vkId, $"Ваша заявка на работу курьером, была отклонена!\nНомер заявки: {requestId}");
                     }
                 }
                 else
@@ -700,9 +718,11 @@ namespace ClientAPI.Services
                 {
                     var userId = await _database.FreezeRestaurantWork(restaurantId);
 
-                    var chatId = _database.GetTelegramChatId(userId);
+                    var vkId = _database.GetVKId(userId);
 
-                    await _tgmessage.Send(chatId, $"Работа вашего ресторана ({restaurantId}) приостановлена\nПричина: {dtoObj.reason}");
+                    await _vkmessage.Send(vkId, $"Работа вашего ресторана ({restaurantId}) приостановлена\nПричина: {dtoObj.reason}");
+
+                    //await _tgmessage.Send(chatId, $"Работа вашего ресторана ({restaurantId}) приостановлена\nПричина: {dtoObj.reason}");
                 }
                 else
                 {
@@ -725,9 +745,11 @@ namespace ClientAPI.Services
                 {
                     await _database.FreezeCourierWork(userGUID);
 
-                    var chatId = _database.GetTelegramChatId(userGUID);
+                    var vkId = _database.GetVKId(userGUID);
 
-                    await _tgmessage.Send(chatId, $"Ваша работа курьером приостановлена\nПричина: {dtoObj.reason}");
+                    await _vkmessage.Send(vkId, $"Ваша работа курьером приостановлена\nПричина: {dtoObj.reason}");
+
+                    //await _tgmessage.Send(chatId, $"Ваша работа курьером приостановлена\nПричина: {dtoObj.reason}");
                 }
                 else
                 {
@@ -750,9 +772,11 @@ namespace ClientAPI.Services
                 {
                     var userId = await _database.UnfreezeRestaurantWork(restaurantId);
 
-                    var chatId = _database.GetTelegramChatId(userId);
+                    var vkId = _database.GetVKId(userId);
 
-                    await _tgmessage.Send(chatId, $"Работа вашего ресторана ({restaurantId}) возобновлена\nРады снова сотрудничать!");
+                    await _vkmessage.Send(vkId, $"Работа вашего ресторана ({restaurantId}) возобновлена\nРады снова сотрудничать!");
+
+                    //await _tgmessage.Send(chatId, $"Работа вашего ресторана ({restaurantId}) возобновлена\nРады снова сотрудничать!");
                 }
                 else
                 {
@@ -775,9 +799,11 @@ namespace ClientAPI.Services
                 {
                     await _database.UnfreezeCourierWork(userGUID);
 
-                    var chatId = _database.GetTelegramChatId(userGUID);
+                    var vkId = _database.GetVKId(userGUID);
 
-                    await _tgmessage.Send(chatId, $"Вы снова можете продолжить работать курьером\nРады снова сотрудничать!");
+                    await _vkmessage.Send(vkId, $"Вы снова можете продолжить работать курьером\nРады снова сотрудничать!");
+
+                    //await _tgmessage.Send(chatId, $"Вы снова можете продолжить работать курьером\nРады снова сотрудничать!");
                 }
                 else
                 {
@@ -823,13 +849,15 @@ namespace ClientAPI.Services
 
                 var moneyValue = _database.GetUserBalance(validation.token_success.Id);
 
-                var chatId = _database.GetTelegramChatId(validation.token_success.Id);
+                var vkId = _database.GetVKId(validation.token_success.Id);
 
                 //Отправка в ресторан
                 _rabbitMQService.SendMessage<Order_DTO>("client_to_restaurant", order);
 
                 //Сообщение пользователю
-                await _tgmessage.SendHtml(chatId, $"Заказ {order.id} оплачен\nОстаток баланса: <tg-spoiler>{moneyValue}</tg-spoiler> руб");
+                await _vkmessage.Send(vkId, $"Заказ {order.id} оплачен\nОстаток баланса: {moneyValue} руб");
+
+                //await _tgmessage.SendHtml(chatId, $"Заказ {order.id} оплачен\nОстаток баланса: <tg-spoiler>{moneyValue}</tg-spoiler> руб");
             }
         }
 
@@ -910,13 +938,15 @@ namespace ClientAPI.Services
 
                 if (_database.ExistMoney(validation.token_success.Id, dtoObj.money_value))
                 {
-                    var chatId = _database.GetTelegramChatId(validation.token_success.Id);
+                    var vkId = _database.GetVKId(validation.token_success.Id);
 
                     //await _database.DecreaseMoney(validation.token_success.Id, dtoObj.money_value);
 
                     var moneyValue = _database.GetUserBalance(validation.token_success.Id);
 
-                    await _tgmessage.SendHtml(chatId, $"Запрос на вывод с баланса: <tg-spoiler>{dtoObj.money_value}</tg-spoiler> руб");
+                    //await _tgmessage.SendHtml(chatId, $"Запрос на вывод с баланса: <tg-spoiler>{dtoObj.money_value}</tg-spoiler> руб");
+
+                    await _vkmessage.Send(vkId, $"Запрос на вывод с баланса: {dtoObj.money_value} руб");
 
                     _rabbitMQService.SendMessage("client_to_payment", new Payment_Out_Queue()
                     {

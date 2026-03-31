@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { StorageGetItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
+import { StorageGetItem } from '../vk-integrations/cloudstorage/CloudStorage.ts';
 import { TokenNeedUpdate } from './TokenObserver.ts';
 
 var RESTAURANT_API_URL = import.meta.env.VITE_RESTAURANT_API;

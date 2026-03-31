@@ -6,7 +6,7 @@ import { useNavigate, useLocation, data } from 'react-router-dom';
 import { handlePayOperate } from "../api-integrations/PaymentAPI";
 import { GetMeInfo, PaymentInfo } from "../api-integrations/Interfaces/API_Interfaces";
 import { handleGetInfoMe } from "../api-integrations/ClientInfoAPI";
-import { StorageGetItem } from "../telegram-integrations/cloudstorage/CloudStorage";
+import { StorageGetItem } from "../vk-integrations/cloudstorage/CloudStorage";
 
 const PaymentPage: React.FC = () => {
     const navigate = useNavigate();

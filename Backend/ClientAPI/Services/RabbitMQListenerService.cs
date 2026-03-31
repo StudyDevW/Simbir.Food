@@ -3,21 +3,20 @@ using Middleware_Components.Broker;
 using ORM_Components.DTO.CourierAPI;
 using ORM_Components.DTO.PaymentAPI;
 using ORM_Components.Tables;
-using Telegram.Bot.Types;
-using Telegram_Components.Interfaces;
+using VK_Components.Interfaces;
 
 namespace ClientAPI.Services
 {
     public class RabbitMQListenerService : BackgroundService
     {
         private readonly IRabbitMQService _rabbitMQService;
-        private readonly IMessageSender _tgmessage;
+        private readonly IMessageSender _vkmessage;
         private readonly IDatabaseService _database;
 
-        public RabbitMQListenerService(IDatabaseService database, IMessageSender tgmessage, IRabbitMQService rabbitMQService)
+        public RabbitMQListenerService(IDatabaseService database, IMessageSender vkmessage, IRabbitMQService rabbitMQService)
         {
             _rabbitMQService = rabbitMQService;
-            _tgmessage = tgmessage;
+            _vkmessage = vkmessage;
             _database = database;
         }
 
@@ -53,38 +52,35 @@ namespace ClientAPI.Services
 
         protected async Task InsertMoneyForUser(Guid userGUID, long money_value)
         {
-            var chatId = _database.GetTelegramChatId(userGUID);
+            var vkId = _database.GetVKId(userGUID);
 
             await _database.InsertMoney(userGUID, money_value);
 
             var moneyValue = _database.GetUserBalance(userGUID);
 
-            await _tgmessage.SendHtml(chatId, $"Счет успешно пополнен\nВаш баланс: <tg-spoiler>{moneyValue}</tg-spoiler> руб");
+            await _vkmessage.Send(vkId, $"Счет успешно пополнен\nВаш баланс: {moneyValue} руб");
         }
 
         protected async Task DecreaseMoney(Guid userGUID, long money_value)
         {
-            var chatId = _database.GetTelegramChatId(userGUID);
+            var vkId = _database.GetVKId(userGUID);
 
             await _database.DecreaseMoney(userGUID, money_value);
 
             var moneyValue = _database.GetUserBalance(userGUID);
 
-
-            await _tgmessage.SendHtml(chatId, $"С вашего баланса списаны <tg-spoiler>{money_value}</tg-spoiler> руб\nОстаток баланса: <tg-spoiler>{moneyValue}</tg-spoiler> руб");
-
+            await _vkmessage.Send(vkId, $"С вашего баланса списаны {money_value} руб\nОстаток баланса: {moneyValue} руб");
         }
 
         protected async Task InsertMoneyForUserWithError(Guid userGUID, long money_value)
         {
-            var chatId = _database.GetTelegramChatId(userGUID);
+            var vkId = _database.GetVKId(userGUID);
 
             await _database.InsertMoney(userGUID, money_value);
 
             var moneyValue = _database.GetUserBalance(userGUID);
 
-            await _tgmessage.SendHtml(chatId, $"Неправильно была указана карта");
-
+            await _vkmessage.Send(vkId, $"Неправильно была указана карта");
         }
 
         private async Task CreateReview(OrderIdsDto orderReviewDto)

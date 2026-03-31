@@ -4,7 +4,7 @@ import WebApp from "@twa-dev/sdk";
 import { BackButton } from '@twa-dev/sdk/react';
 import { handleRestaurantsForUser } from '../../api-integrations/ClientInfoAPI';
 import { RestaurantInfo, RestaurantsInfoForOwner } from "../../api-integrations/Interfaces/API_Interfaces";
-import { StorageGetItem } from "../../telegram-integrations/cloudstorage/CloudStorage";
+import { StorageGetItem } from "../../vk-integrations/cloudstorage/CloudStorage";
 import '../../styles/AppStyle.sass'
 import { handleLoadImage } from "../../api-integrations/ImageAPI";
 import { loadingComponent } from "../../LoadingComponent";

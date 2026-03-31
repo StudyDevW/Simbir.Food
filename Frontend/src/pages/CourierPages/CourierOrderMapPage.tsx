@@ -1,22 +1,19 @@
 import { use, useEffect, useState } from 'react'
 import '../../styles/AppStyle.sass'
-import WebApp from '@twa-dev/sdk';
 import { YMaps, Map, Placemark, GeolocationControl } from '@pbe/react-yandex-maps';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { handleUserAuth, handleUserRegister } from "../../api-integrations/AuthAPI.ts";
-import { telegramUser } from '../../telegram-integrations/InitData.ts';
+import { vkUser, getUserData, initVKApp } from '../../vk-integrations/InitData.ts';
 import { BackButton } from '@twa-dev/sdk/react';
 import { AuthComponent, OrderForCourierDto } from '../../api-integrations/Interfaces/API_Interfaces.ts';
 import { handleOrdersGet } from '../../api-integrations/OrderAPI.ts';
-import { StorageGetItem } from '../../telegram-integrations/cloudstorage/CloudStorage.ts';
+import { StorageGetItem } from '../../vk-integrations/cloudstorage/CloudStorage.ts';
 import { handleOrderAccept, handleOrderCourierInPlace, handleOrderDelivered, handleOrderForCourierSingle } from '../../api-integrations/CourierAPI.ts';
+import vkBridge from '@vkontakte/vk-bridge';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
-var userData = new telegramUser(
-    WebApp.initDataUnsafe.user, 
-    (WebApp.platform === 'ios' || WebApp.platform === 'android')
-);
+let vkUserInstance: vkUser | null = null;
 
 const AddressPageCourier: React.FC = () => {
 
@@ -58,29 +55,41 @@ const AddressPageCourier: React.FC = () => {
     const [locationRestaurant, setLocationRestaurant] = useState<[number, number] | null>(null);
     const [locationClient, setLocationClient] = useState<[number, number] | null>(null);
  
+    const [userData, setUserData] = useState<any>(null);
+    const [initialized, setInitialized] = useState<boolean>(false);
+
 
     useEffect(() => {
-        WebApp.setHeaderColor('#EAEAEA');
-
-        WebApp.setBackgroundColor('#004681');
-
-        if (WebApp.platform === 'ios' || WebApp.platform === 'android')
-            setIsMobile(true);
-        else 
-            setIsMobile(false);
-
-        if (WebApp.initDataUnsafe.user?.photo_url !== undefined) {
-            setImageAvatar(WebApp.initDataUnsafe.user?.photo_url);
-        }
-
-        WebApp.ready();
-
-        if (orderInfo !== null) {
-            getCoordinates(orderInfo.restaurantAddress, "rest");
-
-            getCoordinates(orderInfo.clientAddress, "client");
-        }
-
+        const init = async () => {
+            try {
+                const { user, isMobile: mobile } = await initVKApp();
+                
+                if (user) {
+                    setUserData(user);
+                    setImageAvatar(user.photo_200 || '');
+                    
+                    vkUserInstance = new vkUser(user, mobile);
+                    setIsMobile(mobile);
+                }
+                
+                // Настройка внешнего вида
+                await vkBridge.send('VKWebAppSetViewSettings', {
+                    status_bar_style: 'dark',
+                    action_bar_color: '#004681'
+                });
+                
+                if (orderInfo !== null) {
+                    getCoordinates(orderInfo.restaurantAddress, "rest");
+                    getCoordinates(orderInfo.clientAddress, "client");
+                }
+                
+                setInitialized(true);
+            } catch (error) {
+                console.error('Ошибка инициализации VK:', error);
+            }
+        };
+        
+        init();
     }, []);
 
     const getCoordinates = async (address: string, type: string) => {
@@ -104,13 +113,6 @@ const AddressPageCourier: React.FC = () => {
             alert('Ошибка при получении координат');
         }
     };
-
-    useEffect(()=>{
-        if (isMobile) {
-            WebApp.lockOrientation();
-            WebApp.requestFullscreen();
-        }
-    }, [isMobile])
 
     useEffect(()=>{
         if (keyboardFocused) {

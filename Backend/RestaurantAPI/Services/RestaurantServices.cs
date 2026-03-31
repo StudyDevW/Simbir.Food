@@ -12,8 +12,7 @@ using ORM_Components.Validators.RestaurantFoodItemsValidators;
 using RestaurantAPI.Model.Interface;
 using RestaurantAPI.Utility;
 using System.Collections.Generic;
-using Telegram_Components.Interfaces;
-using Telegram_Components.Services;
+using VK_Components.Interfaces;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace RestaurantAPI.Model.Services
@@ -21,18 +20,19 @@ namespace RestaurantAPI.Model.Services
     public class RestaurantServices : IRestaurantServices
     {
         private readonly DataContext _dataContext;
-        private readonly IMessageSender _tgmessageSender;
+        private readonly IMessageSender _vkmessageSender;
         private readonly IValidator<RestaurantUpdate_DTO> _restaurantUpdateValidator;
         private readonly IYandexIntegrationService _yandexIntegration;
         private readonly IJwtService _jwt;
         private readonly ICacheService _cache;
 
-        public RestaurantServices(DataContext dataContext, IMessageSender messageSender,
+        public RestaurantServices(DataContext dataContext,
+            IMessageSender messageSender,
             IValidator<RestaurantUpdate_DTO> restaurantUpdateValidator, IYandexIntegrationService yandexIntegration,
             IJwtService jwt, ICacheService cache)
         {
             _dataContext = dataContext;
-            _tgmessageSender = messageSender;
+            _vkmessageSender = messageSender;
             _restaurantUpdateValidator = restaurantUpdateValidator;
             _yandexIntegration = yandexIntegration;
             _jwt = jwt;
@@ -43,7 +43,7 @@ namespace RestaurantAPI.Model.Services
         {
             var chatId = await _dataContext.userTable
                 .Where(x => x.Id == clientId)
-                .Select(x => x.telegram_chat_id)
+                .Select(x => x.vk_id)
                 .FirstOrDefaultAsync();
             if (chatId == 0) { throw new UserNotFoundException(clientId); }
             return chatId;
@@ -74,7 +74,7 @@ namespace RestaurantAPI.Model.Services
 
             var userChatId = await GetUserChatId(client_id);
             var messageToClient = $"Ваш заказ с ID: {orderId} был отклонён.";
-            await _tgmessageSender.Send(userChatId.ToString(), messageToClient);
+            await _vkmessageSender.Send(userChatId.ToString(), messageToClient);
         }
 
         public async Task DeleteAllRestaurant()
@@ -373,7 +373,7 @@ namespace RestaurantAPI.Model.Services
             _dataContext.orderHistory.Add(orderHistory);
             await _dataContext.SaveChangesAsync();
 
-            await _tgmessageSender.Send(user.telegram_chat_id.ToString(), "Ваш заказ ожидает курьера.");
+            await _vkmessageSender.Send(user.vk_id.ToString(), "Ваш заказ ожидает курьера.");
             await SendMessageForEveryActiveCourier();
         }
 
@@ -385,13 +385,13 @@ namespace RestaurantAPI.Model.Services
                 _dataContext.userTable,
                 courier => courier.userId,
                 user => user.Id,
-                (courier, user) => user.telegram_chat_id
+                (courier, user) => user.vk_id
             )
             .ToListAsync();
 
             foreach (var telegram_chat_id in activeCouriersWithChatIds)
             {
-                await _tgmessageSender.Send(telegram_chat_id.ToString(), "Доступен новый заказ к доставке!");
+                await _vkmessageSender.Send(telegram_chat_id.ToString(), "Доступен новый заказ к доставке!");
             }
         }
 

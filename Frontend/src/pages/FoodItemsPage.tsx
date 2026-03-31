@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import '../styles/AppStyle.sass';
 import WebApp from '@twa-dev/sdk';
-import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
+import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../vk-integrations/cloudstorage/CloudStorage.ts';
 import { useNavigate, useLocation, data } from 'react-router-dom';
 import { loadingComponent } from '../LoadingComponent.ts';
 import { BackButton } from '@twa-dev/sdk/react';

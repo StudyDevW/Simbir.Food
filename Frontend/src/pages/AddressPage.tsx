@@ -1,19 +1,15 @@
 import { use, useEffect, useState } from 'react'
 import '../styles/AppStyle.sass'
-import WebApp from '@twa-dev/sdk';
 import { YMaps, Map, Placemark, GeolocationControl } from '@pbe/react-yandex-maps';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { handleUserAuth, handleUserRegister } from "../api-integrations/AuthAPI.ts";
-import { telegramUser } from '../telegram-integrations/InitData.ts';
+import { vkUser, getUserData, initVKApp } from '../vk-integrations/InitData.ts';
 import { BackButton } from '@twa-dev/sdk/react';
 import { AuthComponent } from '../api-integrations/Interfaces/API_Interfaces.ts';
 
 var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
-var userData = new telegramUser(
-    WebApp.initDataUnsafe.user, 
-    (WebApp.platform === 'ios' || WebApp.platform === 'android')
-);
+let vkUserInstance: vkUser | null = null;
 
 const MapsSearchBarAnimation: React.FC<{text: string}> = ({ text }) => {
     const [displayedText, setDisplayedText] = useState<string>('');
@@ -66,27 +62,42 @@ const AddressPage: React.FC = () => {
 
     const [locationNew, setLocationNew] = useState<[number, number] | null>(null);
 
+    const [userData, setUserData] = useState<any>(null);
+
+    const [initialized, setInitialized] = useState<boolean>(false);
+
     useEffect(() => {
-        WebApp.setHeaderColor('#EAEAEA');
-
-        WebApp.setBackgroundColor('#004681');
-
-        if (WebApp.platform === 'ios' || WebApp.platform === 'android')
-            setIsMobile(true);
-        else 
-            setIsMobile(false);
-
-        if (WebApp.initDataUnsafe.user?.photo_url !== undefined) {
-            setImageAvatar(WebApp.initDataUnsafe.user?.photo_url);
-        }
-
-        WebApp.ready();
-
-        if (address_default !== "") {
-            setInputValue(address_default);
-            setAddress(address_default);
-        }
-
+        const init = async () => {
+            try {
+                const { user, isMobile: mobile } = await initVKApp();
+                
+                if (user) {
+                    setUserData(user);
+                    setImageAvatar(user.photo_200 || '');
+                    
+                    const platform = mobile ? 'Mobile' : 'PC';
+                    vkUserInstance = new vkUser(user, mobile);
+                    setIsMobile(mobile);
+                }
+                
+                // // Настройка внешнего вида
+                // await vkBridge.send('VKWebAppSetViewSettings', {
+                //     status_bar_style: 'dark',
+                //     action_bar_color: '#004681'
+                // });
+                
+                if (address_default !== "") {
+                    setInputValue(address_default);
+                    setAddress(address_default);
+                }
+                
+                setInitialized(true);
+            } catch (error) {
+                console.error('Ошибка инициализации VK:', error);
+            }
+        };
+        
+        init();
     }, []);
 
     useEffect(() => {
@@ -169,13 +180,6 @@ const AddressPage: React.FC = () => {
     }, [address])
 
     useEffect(()=>{
-        if (isMobile) {
-            WebApp.lockOrientation();
-            WebApp.requestFullscreen();
-        }
-    }, [isMobile])
-
-    useEffect(()=>{
         if (keyboardFocused) {
 
         }
@@ -205,7 +209,7 @@ const AddressPage: React.FC = () => {
 
     const LoadingDraw = () => {
         return (<>
-            <div className="app_loading_area" style={ isMobile ? { height: 'calc(100% - 100px - 45px)' } : {} }>
+            <div className="app_loading_area" style={{}}>
                 <div className="app_loading_letter">
                     <div className="app_loading_bar"></div>
                 </div>
@@ -229,7 +233,7 @@ const AddressPage: React.FC = () => {
 
         <div className="app_background_area">
 
-            <div className="app_layout_area" style={ isMobile ? { marginTop: '100px' } : {}}>
+            <div className="app_layout_area" style={{}}>
 
                 {!isAuthOperated && 
                 <>
@@ -327,7 +331,7 @@ const AddressPage: React.FC = () => {
                                 backdropFilter: 'blur(5px)', 
                                 background: 'linear-gradient(transparent, #EAEAEA)',
                                 borderRadius: '0px',
-                                height: isMobile ? "110px" : "60px"
+                                height: "60px"
                             }}>
 
 
@@ -348,7 +352,7 @@ const AddressPage: React.FC = () => {
                     </>} 
 
                     {keyboardFocused && 
-                        <div className={isMobile ? "app_maincontent maps clicked mobile" : "app_maincontent maps clicked"} >
+                        <div className={"app_maincontent maps clicked"} >
                             <div className="app_maincontent_title" 
                             style={{fontSize: "20px"}}>{"Куда доставлять заказы?"}</div>
 
@@ -386,7 +390,7 @@ const AddressPage: React.FC = () => {
                     {LoadingDraw()}
                 </>}
 
-                {(isMobile) && <div className="app_mobile_footer" style={{zIndex: '15'}}>Симбир Еда</div>}
+                {/* {(isMobile) && <div className="app_mobile_footer" style={{zIndex: '15'}}>Симбир Еда</div>} */}
 
             </div>
 

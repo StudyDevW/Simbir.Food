@@ -41,7 +41,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Middleware_Components\Middleware_Components.csproj" />
     <ProjectReference Include="..\ORM_Components\ORM_Components.csproj" />
-    <ProjectReference Include="..\Telegram_Components\Telegram_Components.csproj" />
+	<ProjectReference Include="..\VK_Components\VK_Components.csproj" />
   </ItemGroup>
 
 </Project>

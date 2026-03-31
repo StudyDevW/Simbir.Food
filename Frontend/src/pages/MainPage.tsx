@@ -1,21 +1,25 @@
 import { useEffect, useState } from 'react';
 import '../styles/AppStyle.sass';
-import WebApp from '@twa-dev/sdk';
-import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
+//import WebApp from '@twa-dev/sdk';
+import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../vk-integrations/cloudstorage/CloudStorage.ts';
 import { useNavigate, useLocation, data } from 'react-router-dom';
 import { handleGetInfoMe } from '../api-integrations/ClientInfoAPI.ts';
 import { handleUserAuth } from '../api-integrations/AuthAPI.ts';
-import { telegramUser } from '../telegram-integrations/InitData.ts';
+import { vkUser, initVKApp } from '../vk-integrations/InitData.ts';
 import ProfilePage from './ProfilePage.tsx';
 import { AuthComponent, GetMeInfo, RestaurantInfo } from '../api-integrations/Interfaces/API_Interfaces.ts';
 import { handleRestaurantsInfo, handleRestaurantsInfoWithSearch } from '../api-integrations/RestaurantAPI.ts';
 import { handleLoadImage } from '../api-integrations/ImageAPI.ts';
 import { loadingComponent } from '../LoadingComponent.ts';
 
-var userData = new telegramUser(
-  WebApp.initDataUnsafe.user, 
-  (WebApp.platform === 'ios' || WebApp.platform === 'android')
-);
+// var userData = new telegramUser(
+//   WebApp.initDataUnsafe.user, 
+//   (WebApp.platform === 'ios' || WebApp.platform === 'android')
+// );
+
+import vkBridge from '@vkontakte/vk-bridge';
+
+let vkUserInstance: vkUser | null = null;
 
 var loadingInformation = new loadingComponent();
 
@@ -83,7 +87,7 @@ const RestaurantItemComponent: React.FC<{info: RestaurantInfo, isMobile: boolean
 
   return (<>
     {(!runningA || loadingInformation.getLoading()) && <>
-      <div className="app_maincontent_restaurant_block loading" style={isMobile ? {height: '250px'} : {}}>
+      <div className="app_maincontent_restaurant_block loading" style={{}}>
         <div className="app_maincontent_restaurant_block_image loading"></div>
 
         <div className="app_maincontent_restaurant_block_title loading"></div>
@@ -92,7 +96,7 @@ const RestaurantItemComponent: React.FC<{info: RestaurantInfo, isMobile: boolean
     </>}
 
     {(runningA && !loadingInformation.getLoading()) && <>
-      <div className="app_maincontent_restaurant_block" onClick={onClick} style={isMobile ? {height: '250px'} : {}}>
+      <div className="app_maincontent_restaurant_block" onClick={onClick} style={{}}>
         <div className="app_maincontent_restaurant_block_image" style={{
           backgroundImage: `url(${imageRendered})`
         }}></div>
@@ -137,6 +141,9 @@ const MainPage: React.FC = () => {
 
   const [keyboardFocused, setKeyboardFocused] = useState<boolean>(false);
 
+  const [initialized, setInitialized] = useState<boolean>(false);
+
+
   const GetUserRequestAPI = async (accessToken: string) => {
     
     const getuser = await handleGetInfoMe(accessToken);
@@ -168,11 +175,9 @@ const MainPage: React.FC = () => {
 
   const UserAuthRequestAPI = async (authvars: AuthComponent) => {
     const validate = await handleUserAuth(authvars);
-
     if (validate) {
       setLogined(true);
-    }
-    else {
+    } else {
       navigate("/onboarding");
     }
   }
@@ -202,22 +207,26 @@ const MainPage: React.FC = () => {
   }
 
   useEffect(() => {
-    WebApp.setHeaderColor('#EAEAEA');
-
-    WebApp.setBackgroundColor('#004681');
-
-    if (WebApp.platform === 'ios' || WebApp.platform === 'android')
-      setIsMobile(true);
-    else 
-      setIsMobile(false);
-
-    WebApp.ready();
-
-    userData.SetAddress("NO_CHANGE");
-
-    UserAuthRequestAPI(userData.AuthData());
-
-
+    const init = async () => {
+      try {
+        const { user, isMobile: mobile } = await initVKApp();
+        setIsMobile(mobile);
+        
+        if (user) {
+          vkUserInstance = new vkUser(user, mobile);
+          vkUserInstance.SetAddress("NO_CHANGE");
+          await UserAuthRequestAPI(vkUserInstance.AuthData());
+        }
+        
+        setInitialized(true);
+      } catch (error) {
+        console.error('Ошибка инициализации VK:', error);
+        // Если ошибка, отправляем на онбординг
+        navigate("/onboarding");
+      }
+    };
+    
+    init();
   }, []);
 
   useEffect(()=> {
@@ -242,14 +251,14 @@ const MainPage: React.FC = () => {
 
   useEffect(()=>{
     if (isMobile) {
-        WebApp.lockOrientation();
-        WebApp.requestFullscreen();
+        // WebApp.lockOrientation();
+        // WebApp.requestFullscreen();
     }
   }, [isMobile])
 
   const LoadingDraw = () => {
     return (<>
-        <div className="app_loading_area" style={ isMobile ? { height: 'calc(100% - 100px - 45px)' } : {} }>
+        <div className="app_loading_area" style={ {} }>
             <div className="app_loading_letter">
                 <div className="app_loading_bar"></div>
             </div>
@@ -261,7 +270,7 @@ const MainPage: React.FC = () => {
     <>
         <div className="app_background_area">
 
-            <div className="app_layout_area" style={ isMobile ? { marginTop: '100px' } : {}}>
+            <div className="app_layout_area" style={{}}>
 
                 {(profileOpened && userInfo !== null) && 
                   <ProfilePage isMobile={isMobile} info={userInfo} onChange={setProfileOpened} />
@@ -319,7 +328,7 @@ const MainPage: React.FC = () => {
                       <div className="app_maincontent_searchbar_icon"></div>
                     </div>
 
-                    <div className="app_maincontent_restaurant_block_area" style={isMobile ? {height: 'calc(100% - 200px)'} : {}}>
+                    <div className="app_maincontent_restaurant_block_area" style={{}}>
 
 
 
@@ -341,7 +350,7 @@ const MainPage: React.FC = () => {
                 </>}
              
 
-                {(isMobile) && <div className="app_mobile_footer">Симбир Еда</div>}
+                {/* {(isMobile) && <div className="app_mobile_footer">Симбир Еда</div>} */}
 
             </div>
 

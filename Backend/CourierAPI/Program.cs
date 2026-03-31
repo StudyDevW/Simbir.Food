@@ -21,8 +21,8 @@ using ORM_Components.Validators.CourierValidators;
 using RestaurantAPI.Utility;
 using System.Reflection;
 using System.Security.Cryptography;
-using Telegram_Components.Interfaces;
-using Telegram_Components.Services;
+using VK_Components.Interfaces;
+using VK_Components.Services;
 
 namespace CourierAPI
 {
@@ -140,9 +140,12 @@ namespace CourierAPI
                                       .AllowAnyHeader());
             });
 
-            builder.Services.AddSingleton<IMessageSender>(
-                 new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
-             );
+            builder.Services.AddSingleton<IMessageSender>(sp =>
+                  new MessageSender(
+                      builder.Configuration["VK_SERVICE_KEY"],
+                      builder.Configuration["VK_BACKEND_URL"]
+                  ));
+
 
             builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
 

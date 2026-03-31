@@ -10,10 +10,10 @@ using Middleware_Components.Services;
 using Middleware_Components.Cache;
 using ClientAPI.Interfaces;
 using ClientAPI.Services;
-using Telegram_Components.Interfaces;
-using Telegram_Components.Services;
 using Middleware_Components.Broker;
 using System.Reflection;
+using VK_Components.Interfaces;
+using VK_Components.Services;
 
 namespace ClientAPI
 {
@@ -125,9 +125,11 @@ namespace ClientAPI
 
             builder.Services.AddScoped<ICacheService, CacheSDK>();
 
-            builder.Services.AddSingleton<IMessageSender>(
-                new MessageSender(builder.Configuration["TELEGRAM_TOKEN"])
-            );
+            builder.Services.AddSingleton<IMessageSender>(sp =>
+                new MessageSender(
+                    builder.Configuration["VK_SERVICE_KEY"],
+                    builder.Configuration["VK_BACKEND_URL"]
+                ));
 
             builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
 

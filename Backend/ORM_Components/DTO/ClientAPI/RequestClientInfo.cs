@@ -12,7 +12,7 @@
 
         public string? photo_url { get; set; }
 
-        public long chat_id { get; set; }
+        public long vk_id { get; set; }
 
         public string? address { get; set; }
 

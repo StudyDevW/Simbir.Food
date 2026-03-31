@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../telegram-integrations/cloudstorage/CloudStorage.ts';
+import { StorageGetItem, StorageSetItem, StorageDeleteItem } from '../vk-integrations/cloudstorage/CloudStorage.ts';
 import { TokenNeedUpdate } from './TokenObserver.ts';
 import { AuthComponent } from './Interfaces/API_Interfaces.ts';
 

@@ -13,6 +13,7 @@
     "@pbe/react-yandex-maps": "^1.2.5",
     "@telegram-apps/sdk-react": "^3.0.7",
     "@twa-dev/sdk": "^8.0.2",
+    "@vkontakte/vk-bridge": "^2.15.11",
     "axios": "^1.7.9",
     "ymap3-components": "^1.2.3"
   },

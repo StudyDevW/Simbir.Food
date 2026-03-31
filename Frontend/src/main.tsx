@@ -26,6 +26,10 @@ import RestaurantsOrdersOwnerPage from './pages/RestaurantPages/RestaurantsOrder
 import AvailableOrdersPage from './pages/CourierPages/AvailableOrdersPage.tsx';
 import AddressPageCourier from './pages/CourierPages/CourierOrderMapPage.tsx';
 
+import vkBridge from '@vkontakte/vk-bridge';
+
+vkBridge.send('VKWebAppInit');
+
 const router = createBrowserRouter([
   {
     path: '/',

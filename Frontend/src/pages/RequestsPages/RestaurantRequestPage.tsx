@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import WebApp from "@twa-dev/sdk";
-import { StorageGetItem } from "../../telegram-integrations/cloudstorage/CloudStorage";
+import { StorageGetItem } from "../../vk-integrations/cloudstorage/CloudStorage";
 import { handleRestaurantRequest } from "../../api-integrations/RequestAPI";
 import { YMaps, Map, Placemark } from '@pbe/react-yandex-maps';
 import { BackButton } from '@twa-dev/sdk/react';

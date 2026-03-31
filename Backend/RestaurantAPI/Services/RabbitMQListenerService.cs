@@ -8,9 +8,7 @@ using ORM_Components.DTO.RestaurantAPI;
 using ORM_Components.Tables;
 using ORM_Components.Tables.Helpers;
 using StackExchange.Redis;
-using Telegram.Bot.Types;
-using Telegram_Components.Interfaces;
-using Telegram_Components.Services;
+using VK_Components.Interfaces;
 
 namespace RestaurantAPI.Services
 {
@@ -20,7 +18,7 @@ namespace RestaurantAPI.Services
         private readonly IMessageSender _messageSender;
         private readonly DataContext _dbcontext;
 
-        public RabbitMQListenerService(IRabbitMQService rabbitMQService, IMessageSender messageSender, DataContext dbcontext)
+        public RabbitMQListenerService(IMessageSender messageSender, IRabbitMQService rabbitMQService, DataContext dbcontext)
         {
             _rabbitMQService = rabbitMQService;
             _messageSender = messageSender;
@@ -51,9 +49,9 @@ namespace RestaurantAPI.Services
         private async Task<long> GetUserChatId(Guid? clientId)
         {
             var finded = await _dbcontext.userTable.Where(c => c.Id == clientId).FirstOrDefaultAsync();
-            return finded!.telegram_chat_id;
+            return finded!.vk_id;
         }
- 
+
         private async Task AcceptingAnOrder(Order_DTO order)
         {
             var orderAccepting = await _dbcontext.orderTable.FirstOrDefaultAsync(x => x.Id == order.id);

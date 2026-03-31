@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import WebApp from "@twa-dev/sdk";
 import { handleCourierRequest } from "../../api-integrations/RequestAPI";
-import { StorageGetItem } from "../../telegram-integrations/cloudstorage/CloudStorage";
+import { StorageGetItem } from "../../vk-integrations/cloudstorage/CloudStorage";
 import { BackButton } from '@twa-dev/sdk/react';
 
 const CourierRequestPage: React.FC = () => {

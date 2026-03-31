@@ -12,7 +12,7 @@ namespace Middleware_Components.JWT.DTO.CheckUsers
 
         public string device { get; set; }
 
-        public long telegram_chat_id { get; set; }
+        public long vk_id { get; set; }
 
         public List<string>? roles { get; set; }
     }

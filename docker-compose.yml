@@ -20,8 +20,8 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
-      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
+      VK_SERVICE_KEY: ${VK_SERVICE_KEY}
+      VK_BACKEND_URL: ${VK_BACKEND_URL}
     ports:
        - "8080:80"
     restart: unless-stopped
@@ -47,8 +47,8 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
-      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
+      VK_SERVICE_KEY: ${VK_SERVICE_KEY}
+      VK_BACKEND_URL: ${VK_BACKEND_URL}
     ports:
        - "8081:80"
     restart: unless-stopped
@@ -74,8 +74,8 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
-      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
+      VK_SERVICE_KEY: ${VK_SERVICE_KEY}
+      VK_BACKEND_URL: ${VK_BACKEND_URL}
       YANDEX_BACKEND_API_KEY: ${YANDEX_BACKEND_API_KEY}
     volumes:
       - uploads:/app/uploads
@@ -105,8 +105,8 @@ services:
       RSA_PUBLIC_KEY: ${RSA_PUBLIC_KEY}
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY}
       DATABASE_CONNECT: ${DATABASE_CONNECT}
-      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
+      VK_SERVICE_KEY: ${VK_SERVICE_KEY}
+      VK_BACKEND_URL: ${VK_BACKEND_URL}
     ports:
        - "8083:80"
     restart: unless-stopped
@@ -142,15 +142,15 @@ services:
        - "9000:80"
     restart: unless-stopped
 
-  simbir.food.backend.telegramwebhook:
-    image: ${DOCKER_REGISTRY-}simbirfood_telegramwebhook:1.0
-    container_name: Simbir.Food.Backend.Telegram
+  simbir.food.backend.vkcontainer:
+    image: ${DOCKER_REGISTRY-}simbirfood_vkcontainer:1.0
+    container_name: Simbir.Food.Backend.Vkontakte
     depends_on:
       postgres_db:
         condition: service_healthy
     build:
       context: ./Backend
-      dockerfile: Telegram_Components/Dockerfile
+      dockerfile: VK_Components/Dockerfile
     logging:
       driver: grafana/loki-docker-driver:latest
       options:
@@ -161,8 +161,8 @@ services:
         loki-timeout: 1s
     environment:
       DATABASE_CONNECT: ${DATABASE_CONNECT}
-      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-      TELEGRAM_PROVIDER: ${TELEGRAM_PROVIDER}
+      VK_SERVICE_KEY: ${VK_SERVICE_KEY}
+      VK_BACKEND_URL: ${VK_BACKEND_URL}
     ports:
        - "9001:80"
     restart: unless-stopped

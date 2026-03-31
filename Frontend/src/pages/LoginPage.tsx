@@ -1,18 +1,15 @@
 import { use, useEffect, useState } from 'react'
 import '../styles/AppStyle.sass'
-import WebApp from '@twa-dev/sdk';
+// import WebApp from '@twa-dev/sdk';
 import { YMaps, Map, Placemark } from '@pbe/react-yandex-maps';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { handleUserAuth, handleUserRegister } from "../api-integrations/AuthAPI.ts";
-import { telegramUser } from '../telegram-integrations/InitData.ts';
+import { vkUser, getUserData, initVKApp } from '../vk-integrations/InitData.ts';
 import { AuthComponent } from '../api-integrations/Interfaces/API_Interfaces.ts';
 
-var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
+import vkBridge from '@vkontakte/vk-bridge';
 
-var userData = new telegramUser(
-    WebApp.initDataUnsafe.user, 
-    (WebApp.platform === 'ios' || WebApp.platform === 'android')
-);
+var YANDEX_API_KEY = import.meta.env.VITE_YANDEX_API_KEY;
 
 const MapsSearchBarAnimation: React.FC<{text: string}> = ({ text }) => {
     const [displayedText, setDisplayedText] = useState<string>('');
@@ -59,21 +56,37 @@ const LoginPage: React.FC = () => {
 
     const [locationNew, setLocationNew] = useState<[number, number] | null>(null);
 
+    const [userData, setUserData] = useState<any>(null);
+
+    const [vkUserInstance, setVkUserInstance] = useState<vkUser | null>(null);
+
     useEffect(() => {
-        WebApp.setHeaderColor('#EAEAEA');
-
-        WebApp.setBackgroundColor('#004681');
-
-        if (WebApp.platform === 'ios' || WebApp.platform === 'android')
-            setIsMobile(true);
-        else 
-            setIsMobile(false);
-
-        if (WebApp.initDataUnsafe.user?.photo_url !== undefined) {
-            setImageAvatar(WebApp.initDataUnsafe.user?.photo_url);
-        }
-
-        WebApp.ready();
+        const init = async () => {
+            try {
+                const { user, isMobile: mobile } = await initVKApp();
+                
+                if (user) {
+                    setUserData(user);
+                    setImageAvatar(user.photo_200 || '');
+                    
+                    const platform = mobile ? 'Mobile' : 'PC';
+                    const vkUserObj = new vkUser(user, mobile);
+                    setVkUserInstance(vkUserObj);
+                    setIsMobile(mobile);
+                }
+                
+                // Настройка внешнего вида
+                await vkBridge.send('VKWebAppSetViewSettings', {
+                    status_bar_style: 'dark',
+                    action_bar_color: '#004681'
+                });
+                
+            } catch (error) {
+                console.error('Ошибка инициализации VK:', error);
+            }
+        };
+        
+        init();
     }, []);
 
     useEffect(() => {
@@ -159,12 +172,6 @@ const LoginPage: React.FC = () => {
             getCoordinates(address);
     }, [address])
 
-    useEffect(()=>{
-        if (isMobile) {
-            WebApp.lockOrientation();
-            WebApp.requestFullscreen();
-        }
-    }, [isMobile])
 
     useEffect(()=>{
         if (keyboardFocused) {
@@ -178,24 +185,22 @@ const LoginPage: React.FC = () => {
 
         if (validate === "register_request_created") {
             setIsRegisterRequested(true);
-            WebApp.showAlert("Заявка на регистрацию создана и ожидает подтверждения");
-            WebApp.close();
+
+            setTimeout(() => vkBridge.send('VKWebAppClose'), 2000);
         }
     
     }
 
     useEffect(()=>{
-        if (isAuthOperated) {
-            if (address !== null)
-                userData.SetAddress(address);
-
-            UserAuthRequestAPI(userData.AuthData());
+        if (isAuthOperated && vkUserInstance && address !== null) {
+            vkUserInstance.SetAddress(address);
+            UserAuthRequestAPI(vkUserInstance.AuthData());
         }
     }, [isAuthOperated])
 
     const LoadingDraw = () => {
         return (<>
-            <div className="app_loading_area" style={ isMobile ? { height: 'calc(100% - 100px - 45px)' } : {} }>
+            <div className="app_loading_area" style={ {} }>
                 <div className="app_loading_letter">
                     <div className="app_loading_bar"></div>
                 </div>
@@ -212,9 +217,9 @@ const LoginPage: React.FC = () => {
     <>
         <div className="app_background_area">
 
-            <div className="app_layout_area" style={ isMobile ? { marginTop: '100px' } : {}}>
+            <div className="app_layout_area" style={{}}>
 
-                {!isAuthOperated && 
+                {!isAuthOperated && userData &&
                 <>
                     <div className="app_delivery_header" style={
                     {
@@ -307,7 +312,7 @@ const LoginPage: React.FC = () => {
                                 backdropFilter: 'blur(5px)', 
                                 background: 'linear-gradient(transparent, #EAEAEA)',
                                 borderRadius: '0px',
-                                height: isMobile ? "110px" : "60px"
+                                height: "60px"
                             }}>
 
 
@@ -328,7 +333,7 @@ const LoginPage: React.FC = () => {
                     </>} 
 
                     {keyboardFocused && 
-                        <div className={isMobile ? "app_maincontent maps clicked mobile" : "app_maincontent maps clicked"} >
+                        <div className={"app_maincontent maps clicked"} >
                             <div className="app_maincontent_title" 
                             style={{fontSize: "20px"}}>{"Куда доставлять заказы?"}</div>
 
@@ -363,7 +368,7 @@ const LoginPage: React.FC = () => {
                 </>}
 
                 
-                {(isAuthOperated && userData.GetAddress() !== "" && userData.GetDevice() !== "") && <>
+                {(isAuthOperated && vkUserInstance?.GetAddress() !== "") && <>
                     {!isRegisterRequested && LoadingDraw()}
 
                     {isRegisterRequested && <>
@@ -373,7 +378,7 @@ const LoginPage: React.FC = () => {
                     </>}
                 </>}
 
-                {(isMobile) && <div className="app_mobile_footer" style={{zIndex: '15'}}>Симбир Еда</div>}
+                {/* {(isMobile) && <div className="app_mobile_footer" style={{zIndex: '15'}}>Симбир Еда</div>} */}
 
             </div>
 
