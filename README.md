@@ -1,18 +1,23 @@
-# Прод проекта
-- Миниприложение в разработке
-- Первой прописать команду "docker plugin install grafana/loki-docker-driver:latest"
-- Потом уже запускать через docker-compose up -d --build
+## О проекте
 
+**Симбир Еда** — это полноценная экосистема доставки еды, построенная на микросервисной архитектуре. Проект объединяет клиентов, рестораны и курьеров в единую платформу, обеспечивая полный цикл заказа: от выбора блюд до доставки.
 
-# Сервисы: 
-1. ClientAPI URL: http://localhost:8080/ui-swagger 
-2. CourierAPI URL: http://localhost:8081/ui-swagger 
-3. RestaurantAPI URL: http://localhost:8082/ui-swagger 
-4. PaymentAPI URL: http://localhost:8083/ui-swagger 
-5. Frontend URL: http://localhost:4001
-6. Grafana URL: http://localhost:3000
-7. RabbitMQ URL: http://localhost:15672
-8. PgAdmin4 URL: http://localhost:5050
+## Документация
+
+<div align="left">
+
+[![GitBook](https://img.shields.io/badge/Полная_документация-GitBook-3884FF?style=for-the-badge&logo=gitbook&logoColor=white)](https://simbir-eda.gitbook.io/simbirfood/FRfXorgoN2JFafCk8aQW)
+
+</div>
+
+Вся документация доступна в **GitBook**. Там вы найдете:
+
+-  **VK Mini App** — интеграция, авторизация, уведомления
+-  **Яндекс.Карты** — геокодирование, поиск адресов
+-  **API Документация** — все эндпоинты с примерами
+-  **Архитектура** — схемы микросервисов, БД
+-  **Деплой** — инструкции по запуску
+-  **Мониторинг** — Grafana, Loki, метрики
 
 # Дополнительная информация
 
@@ -20,22 +25,13 @@
   
 - JWT токены подписаны RS512 с публичным и приватным ключом RSA
 
-- Данные от PgAdmin4<br>
- Логин: qwerty11ert@gmail.com<br>
- Пароль: root<br>
+# Разработчики
+**Fullstack** Study (Антон) - https://github.com/StudyDevW
 
-- PostgreSQL добавление сервера в PgAdmin4<br>
- Имя сервера: postgres_db<br>
- Служебная база данных: simbirfood<br>
- Пользователь: practice_user<br>
- Пароль: root<br>
+**Backend** Aleyckin (Артем) - https://github.com/aleyckin
 
-- Данные от RabbitMQ<br>
- Логин: guest<br>
- Пароль: guest<br>
+**Backend** DeSa1S3 (Иван) - https://github.com/DeSa1S3
 
-- Данные от Grafana<br>
- Логин: admin<br>
- Пароль: admin<br>
+**QA-тестировщик** Def - https://github.com/Lopsiktop
 
-- Все переменные окружения в .env файле, напишите мне в телегу я кину
+Сделано с ❤️ в России
